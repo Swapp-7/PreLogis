@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #20364B;
+    color: #fff;
+}
+
+.placeholder {
+    text-align: center;
+    padding: 15px 20px;
+    background-color: transparent;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.placeholder h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    text-transform: uppercase;
+    border-bottom: 3px solid #FDC11F;
+    padding-bottom: 8px;
+    display: inline-block;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 90%;
+}
+
+.card {
+    cursor: pointer;
+    background-color: #CDCBCE;
+    border: 2px solid #FDC11F;
+    border-radius: 10px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-height: 160px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    border-color: white;
+}
+
+.card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 10px auto 8px;
+    object-fit: cover;
+    border: 2px solid #FDC11F;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card h2 {
+    font-size: 1.8rem;
+    margin: 8px 0;
+    color: #20364B;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+.occupe {
+    font-size: 1.1rem;
+    margin: 8px 0;
+    color: #20364B;
+    font-weight: 500;
+    background-color: rgba(253, 193, 31, 0.7);
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.libre {
+    background-color: #FDC11F;
+    color: #20364B;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 8px;
+    display: inline-block;
+    position: relative;
+}
+
+.libre::before {
+    content: '\f055';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-right: 6px;
+}
+
+/* Ajouter une icône pour les chambres occupées */
+.card:has(.occupe)::before {
+    content: '\f007';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2rem;
+    color: #20364B;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0.2;
+}
+
+/* Ajouter une icône pour les chambres libres */
+.card:has(.libre)::before {
+    content: '\f1ad';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.2rem;
+    color: #20364B;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .card-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .card-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .card-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .placeholder h1 {
+        font-size: 2rem;
+    }
+    
+    .card {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+}

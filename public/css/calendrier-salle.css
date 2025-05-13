@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap');
+
+:root {
+  --bg-dark: #20364B;
+  --accent: #FDC11F;
+  --grey-light: #CDCBCE;
+  --white: #FFFFFF;
+  --black: #000000;
+  --hover-dark: #375672;
+  --hover-accent: #e6b000;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --border-radius: 10px;
+}
+
+/* === Reset & Base === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--white);
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+/* === Conteneur Global === */
+.page-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 25px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+/* === Titre === */
+.page-title {
+  color: var(--accent);
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  text-align: center;
+  position: relative;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--accent);
+  border-radius: 2px;
+}
+
+/* === Navigation Semaine === */
+.calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--accent);
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 2;
+}
+
+.arrow-btn {
+  background-color: var(--bg-dark);
+  color: var(--grey-light);
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.arrow-btn:hover {
+  background-color: var(--hover-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.week-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bg-dark);
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* === Tableau d'emploi du temps === */
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.schedule-table th, .schedule-table td {
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.schedule-table th {
+  background-color: var(--bg-dark);
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  padding: 14px;
+}
+
+.schedule-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.date-cell {
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  font-weight: 600;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.moment-cell {
+  background-color: rgba(32, 54, 75,.8);
+  color: var(--white);
+  font-weight: 700;
+  width: 120px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cell-calendar {
+  padding: 10px 8px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.occupation-cell {
+  min-width: 140px;
+  max-width: 180px;
+  word-wrap: break-word;
+  padding: 12px;
+  transition: background-color 0.2s ease;
+}
+
+/* Séparateur de jour */
+.day-separator td {
+  border-top: 3px solid var(--bg-dark) !important;
+}
+
+/* === Boutons === */
+.btn.btn-primary {
+  display: inline-block;
+  margin-top: 30px;
+  margin-right: 10px;
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn.btn-primary:hover {
+  background-color: var(--hover-accent);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* === Badges d'événement === */
+.event-badge {
+  display: inline-block;
+  background-color: var(--grey-light);
+  color: var(--bg-dark);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.3s ease;
+}
+
+.event-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Animation pour les éléments */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-container {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Spécifique pour les exports */
+@media print, (min-resolution: 192dpi) {
+  .moment-cell {
+    background-color: #192c3f !important;
+    color: #ffffff !important;
+    font-weight: 700;
+  }
+  
+  .date-cell {
+    background-color: #e3a900 !important;
+    color: #20364B !important;
+    font-weight: 700;
+  }
+  
+  .schedule-table th {
+    background-color: #192c3f !important;
+    color: #FDC11F !important;
+  }
+}
+
+/* === Responsive Design === */
+@media (max-width: 1200px) {
+  .page-container {
+    margin: 20px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .schedule-table {
+    font-size: 0.9rem;
+  }
+  
+  .occupation-cell {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .schedule-table th, .schedule-table td {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+  
+  .calendar-nav {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+  
+  .calendar-nav .arrow-btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .week-label {
+    order: -1;
+    margin-bottom: 10px;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+  }
+  
+  .btn.btn-primary {
+    width: 100%;
+    margin-top: 15px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-container {
+    padding: 15px;
+    margin: 10px;
+  }
+  
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .schedule-table {
+    font-size: 0.75rem;
+  }
+  
+  .date-cell, .moment-cell {
+    font-size: 0.8rem;
+  }
+}

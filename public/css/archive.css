@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #20364B;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+}
+
+.container {
+    margin: 20px auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 1400px;
+    width: 90%;
+}
+
+h1 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 25px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.2rem;
+    text-transform: uppercase;
+    border-bottom: 3px solid #FDC11F;
+    padding-bottom: 8px;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    margin-bottom: 25px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+.input-group::before {
+    content: '\f002';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #20364B;
+    z-index: 1;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 12px 12px 12px 40px;
+    border: 2px solid #FDC11F;
+    border-radius: 25px 0 0 25px;
+    font-size: 1rem;
+    color: #20364B;
+    background-color: #CDCBCE;
+    font-family: 'Roboto', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(253, 193, 31, 0.5);
+}
+
+.input-group input::placeholder {
+    color: #20364B;
+    opacity: 0.7;
+}
+
+.input-group button {
+    padding: 12px 25px;
+    border: none;
+    background-color: #FDC11F;
+    color: #20364B;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: 2px solid #FDC11F;
+    border-left: none;
+}
+
+.input-group button:hover {
+    background-color: #e6ae15;
+}
+
+/* Table styling */
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.table th, .table td {
+    padding: 15px;
+    text-align: left;
+    border: none;
+    border-bottom: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+.table th {
+    background-color: #FDC11F;
+    color: #20364B;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    background-color: rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(253, 193, 31, 0.15);
+    cursor: pointer;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table td {
+    color: #fff;
+    font-size: 0.95rem;
+}
+.table td:last-child {
+    font-weight: 600;
+    color: #FDC11F;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .container {
+        padding: 15px;
+        width: 95%;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group input {
+        border-radius: 25px;
+        margin-bottom: 10px;
+    }
+
+    .input-group button {
+        border-radius: 25px;
+        border-left: 2px solid #FDC11F;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+}

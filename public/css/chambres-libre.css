@@ -1,0 +1,407 @@
+/* Import des polices */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+/* Styles de base */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #20364B;
+    color: #fff;
+}
+
+/* En-tête principal */
+.Titre {
+    text-align: center;
+    padding: 25px 0;
+    background: linear-gradient(135deg, #152538 0%, #1c3451 100%);
+    color: white;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: relative;
+    border-bottom: 3px solid #FDC11F;
+}
+
+.Titre h1, .Titre h2 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+}
+
+.Titre h2 {
+    font-size: 1.8rem;
+    margin-top: 10px;
+    color: #FDC11F;
+}
+
+.Titre h1::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: #FDC11F;
+    border-radius: 2px;
+}
+
+/* Conteneur du formulaire de filtrage */
+.filter-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #2c4b6b;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filter-container form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.filter-container label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #FDC11F;
+    margin-right: 10px;
+}
+
+.filter-container select {
+    padding: 8px 12px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #FDC11F;
+    background-color: #20364B;
+    color: white;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.filter-container select:focus {
+    border-color: white;
+}
+
+.filter-container button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #20364B;
+    background-color: #FDC11F;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.filter-container button:hover {
+    background-color: #ffd04c;
+    transform: scale(1.05);
+}
+
+/* Conteneur principal des cartes */
+.card-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Conteneur par bâtiment */
+.batiment-container {
+    margin-bottom: 50px;
+    background-color: #2c4b6b;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.batiment-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background-color: #FDC11F;
+}
+
+.batiment-container h1 {
+    color: #FDC11F;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem;
+    margin: 0 0 25px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Cartes de chambre */
+.card {
+    cursor: pointer;
+    background: linear-gradient(135deg, #CDCBCE 0%, #E8E6E9 100%);
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    text-align: center;
+    transition: all 0.25s ease;
+    margin: 10px;
+    display: inline-block;
+    width: calc(25% - 22px);
+    min-width: 180px;
+    border: 2px solid #FDC11F;
+    position: relative;
+    height: 180px;
+    animation: fadeIn 0.5s ease forwards;
+    opacity: 0;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    border-color: white;
+}
+
+/* Photo de profil du résident */
+.card img.profile-photo {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    margin: 10px auto 5px;
+    object-fit: cover;
+    border: 2px solid #FDC11F;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Affichage du numéro de chambre */
+.card h2 {
+    font-size: 1.8rem;
+    margin: 10px 0 5px;
+    color: #20364B;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    transition: color 0.2s ease;
+}
+
+.card:hover h2 {
+    color: #20364B;
+}
+
+/* Badge "Chambre libre" */
+.libre {
+    background-color: #FDC11F;
+    color: #20364B;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin: 10px auto;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.card:hover .libre {
+    background-color: #e6ae15;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.libre::before {
+    content: '\f236';  /* Icône de lit */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-right: 5px;
+}
+
+/* Style pour les cartes de chambres libres */
+.libre-card {
+    border: 2px solid #FDC11F;
+}
+
+/* Badge "Chambre occupée" - Nom du résident */
+.occupe {
+    background-color: #20364B;
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin: 5px auto;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    max-width: 85%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid rgba(253, 193, 31, 0.5);
+}
+
+.card:hover .occupe {
+    background-color: #152538;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+    border-color: #FDC11F;
+}
+
+/* Style pour les cartes des résidents qui partent */
+.card.departing {
+    border: 2px solid #ff6b6b;
+    position: relative;
+    overflow: visible;
+}
+
+.card.departing::after {
+    content: "\f05a";
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: #ff6b6b;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.depart-info {
+    background-color: #ff6b6b;
+    color: white;
+    font-size: 0.8rem;
+    padding: 3px 10px;
+    border-radius: 15px;
+    margin: 5px auto;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Style pour les cartes de chambres libres */
+.libre-card {
+    border: 2px solid #4caf50;
+}
+
+/* Animation douce pour les cartes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card:nth-child(2) { animation-delay: 0.05s; }
+.card:nth-child(3) { animation-delay: 0.1s; }
+.card:nth-child(4) { animation-delay: 0.15s; }
+.card:nth-child(5) { animation-delay: 0.2s; }
+.card:nth-child(6) { animation-delay: 0.25s; }
+.card:nth-child(7) { animation-delay: 0.3s; }
+.card:nth-child(8) { animation-delay: 0.35s; }
+
+/* Message pour aucun résident partant */
+.no-results {
+    text-align: center;
+    padding: 30px;
+    background-color: rgba(44, 75, 107, 0.5);
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 600px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: #FDC11F;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.no-results p {
+    font-size: 1.2rem;
+    margin: 0;
+    color: #fff;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .card {
+        width: calc(33.333% - 22px);
+    }
+}
+
+@media (max-width: 992px) {
+    .card {
+        width: calc(50% - 22px);
+    }
+    .batiment-container {
+        padding: 20px;
+    }
+    .filter-container form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-container label {
+        margin-bottom: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .Titre h1 {
+        font-size: 2.2rem;
+    }
+    .Titre h2 {
+        font-size: 1.5rem;
+    }
+    .batiment-container h1 {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card {
+        width: calc(100% - 22px);
+        max-width: none;
+    }
+    .Titre h1 {
+        font-size: 1.8rem;
+    }
+    .Titre h2 {
+        font-size: 1.3rem;
+    }
+    .card h2 {
+        font-size: 1.8rem;
+    }
+    .batiment-container {
+        padding: 15px;
+    }
+    .filter-container {
+        padding: 15px;
+    }
+}

@@ -1,0 +1,137 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: #20364B; /* Bleu foncé de votre palette en fond */
+    display: flex;
+    flex-direction: column;
+}
+
+.batiments {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 10px 20px 20px 20px; /* Padding réduit en haut */
+}
+
+.batiments h1 {
+    color: white;
+    font-size: 2.2rem; /* Taille réduite */
+    margin: 10px 0 20px 0; /* Marges réduites */
+    text-transform: uppercase;
+    border-bottom: 3px solid #FDC11F;
+    padding-bottom: 8px;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+    width: 90%;
+    max-width: 1400px; /* Augmenté pour accueillir plus de cartes */
+}
+
+.card {
+    cursor: pointer;
+    background-color: #CDCBCE; /* Fond gris clair */
+    border: 2px solid #FDC11F; /* Bordure jaune */
+    border-radius: 10px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Ombre plus subtile */
+    padding: 20px 15px; /* Padding réduit */
+    width: calc(25% - 20px); /* 4 cartes par rangée */
+    min-width: 200px;
+    height: 160px; /* Hauteur réduite */
+    text-align: center;
+    transition: box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: white; /* Bordure blanche au survol */
+}
+
+/* Ajout d'une icône de bâtiment */
+.card::before {
+    content: '\f1ad'; /* Code de l'icône de bâtiment Font Awesome */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.2rem; /* Taille réduite */
+    color: #20364B;
+    margin-bottom: 10px; /* Marge réduite */
+    display: block;
+}
+
+.card h2 {
+    font-size: 2.2rem; /* Taille réduite mais toujours grande */
+    margin: 5px 0;
+    color: #20364B;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+    font-size: 1.1rem; /* Taille réduite */
+    color: #20364B;
+    opacity: 0.9;
+    background-color: #FDC11F;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .card {
+        width: calc(33.33% - 20px); /* 3 cartes par rangée */
+    }
+}
+
+@media (max-width: 992px) {
+    .card {
+        width: calc(50% - 20px); /* 2 cartes par rangée */
+    }
+    
+    .card::before {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card {
+        width: calc(100% - 20px); /* 1 carte par rangée */
+        max-width: 320px;
+    }
+}
+
+@media (max-width: 576px) {
+    .card {
+        width: 100%;
+    }
+    
+    .batiments h1 {
+        font-size: 2rem;
+    }
+}

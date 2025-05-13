@@ -1,0 +1,36 @@
+header {
+    background-color: #20364B; /* Couleur de fond principale */
+    padding: 20px 0;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2em;
+    font-family: 'Montserrat', sans-serif;
+    color: #FDC11F; /* Couleur d'accent */
+}
+
+header ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+header ul li a {
+    text-decoration: none;
+    color: #CDCBCE; /* Gris clair de la charte */
+    font-weight: bold;
+    font-family: 'Roboto', sans-serif;
+    transition: all 0.3s ease;
+}
+
+header ul li a:hover {
+    color: #FDC11F; /* Couleur d'accent au survol */
+    transform: translateY(-2px);
+}

@@ -1,0 +1,829 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap');
+
+:root {
+  --bg-dark: #20364B;
+  --accent: #FDC11F;
+  --grey-light: #CDCBCE;
+  --white: #FFFFFF;
+  --black: #000000;
+  --hover-dark: #375672;
+  --hover-accent: #e6b000;
+  --danger: #d61b1b;
+  --danger-hover: #b82020;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --border-radius: 10px;
+}
+
+/* === Reset & Base === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--white);
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+/* === Conteneur Global === */
+.page-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 25px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+/* === Titre === */
+.page-title {
+  color: var(--accent);
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  text-align: center;
+  position: relative;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--accent);
+  border-radius: 2px;
+}
+
+.salle-details {
+  margin-bottom: 35px;
+}
+
+.salle-name {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--grey-light);
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* === Navigation Semaine === */
+.calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--accent);
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 2;
+}
+
+.arrow-btn {
+  background-color: var(--bg-dark);
+  color: var(--grey-light);
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.arrow-btn:hover {
+  background-color: var(--hover-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles spécifiques pour le week selector */
+.calendar-nav form,
+.week-selector-group form {
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: inline-block !important;
+}
+
+#weekSelectorForm {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: inline !important;
+}
+
+.week-selector-group {
+  height: 35px;
+  display: flex;
+  align-items: center;
+}
+
+.week-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bg-dark);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.calendar-nav #weekSelector,
+#weekSelector {
+  padding: 7px 12px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--bg-dark);
+  cursor: pointer;
+  margin-left: 15px;
+  z-index: 3;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: auto !important;
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  -moz-appearance: auto !important;
+  background-image: none !important;
+}
+
+.calendar-nav #weekSelector:focus,
+#weekSelector:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(32, 54, 75, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.calendar-nav #weekSelector:hover,
+#weekSelector:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* === Grille calendrier === */
+.calendar-grid {
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: 180px repeat(7, 1fr);
+  background-color: var(--bg-dark);
+  color: var(--accent);
+}
+
+.calendar-corner {
+  background-color: var(--bg-dark);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px;
+}
+
+.calendar-date {
+  padding: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.95rem;
+  text-align: center;
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.calendar-body .calendar-row {
+  display: grid;
+  grid-template-columns: 180px repeat(7, 1fr);
+}
+
+.calendar-moment {
+  background-color: rgba(32, 54, 75, 0.8);
+  color: var(--white);
+  padding: 14px;
+  font-weight: 700;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.calendar-cell {
+  position: relative;
+  min-height: 80px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.cell-clickable {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.cell-clickable:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(0.98);
+}
+
+.event-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  transition: all 0.2s ease;
+}
+
+.event-badge {
+  font-size: 0.9rem;
+  font-weight: 450;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.event-wrapper:hover .event-badge {
+  transform: scale(1.05);
+}
+
+/* === Formulaire et boutons === */
+.page-container > form:not(#weekSelectorForm) {
+  margin-top: 30px;
+  padding: 25px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(253, 193, 31, 0.3);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-container > form:not(#weekSelectorForm) label {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-right: 15px;
+  color: var(--accent);
+  font-family: 'Montserrat', sans-serif;
+  display: inline-block;
+  padding: 5px 0;
+}
+
+#eventSelect {
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: 2px solid rgba(253, 193, 31, 0.5);
+  border-radius: 6px;
+  background-color: rgba(32, 54, 75, 0.9);
+  color: var(--white);
+  width: 250px;
+  transition: all 0.25s ease;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: 
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px);
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+  font-weight: 500;
+}
+
+#eventSelect:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  transform: translateY(-1px);
+}
+
+#eventSelect:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(253, 193, 31, 0.3);
+  background-color: rgba(32, 54, 75, 1);
+}
+
+#eventSelect option {
+  background-color: var(--bg-dark);
+  color: var(--white);
+  padding: 15px;
+  font-size: 1rem;
+}
+
+.page-container > form:not(#weekSelectorForm) div {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+form div > button[type="submit"] {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+form div > button[onclick*="setAction('add')"] {
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+form div > button[onclick*="setAction('add')"]:hover {
+  transform: translateY(-3px);
+  background-color: var(--hover-accent);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+form div > button[onclick*="setAction('add')"]::before {
+  content: "✚ ";
+  margin-right: 5px;
+}
+
+form div > button[onclick*="setAction('delete')"] {
+  background-color: var(--danger);
+  color: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+form div > button[onclick*="setAction('delete')"]:hover {
+  transform: translateY(-3px);
+  background-color: var(--danger-hover);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+form div > button[onclick*="setAction('delete')"]::before {
+  content: "🗑 ";
+  margin-right: 5px;
+}
+
+/* === Actions row === */
+.actions-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 35px;
+}
+
+.back-btn,
+.create-btn {
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  border-radius: 25px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+}
+
+.back-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.create-btn {
+  background-color: var(--accent);
+  color: var(--bg-dark);
+}
+
+.create-btn:hover {
+  background-color: var(--hover-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* === Modals === */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(32, 54, 75, 0.85);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background-color: var(--white);
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 520px;
+  width: 90%;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+  position: relative;
+  border-top: 5px solid var(--accent);
+  margin: 0;
+  top: auto;
+  transform: none;
+  animation: modalFadeIn 0.3s ease-out forwards;
+}
+
+.modal-header {
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--grey-light);
+  padding-bottom: 15px;
+  position: relative;
+}
+
+.modal h2 {
+  color: var(--bg-dark);
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.modal-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.close {
+  position: absolute;
+  top: -20px;
+  right: -15px;
+  width: 32px;
+  height: 32px;
+  background-color: var(--bg-dark);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  border: 2px solid var(--white);
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 32px;
+}
+
+.close:hover {
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  transform: scale(1.1);
+}
+
+.modal-body {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--bg-dark);
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--grey-light);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background-color: #F5F5F5;
+  color: var(--bg-dark);
+  transition: all 0.2s ease;
+  font-family: 'Roboto', sans-serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(253, 193, 31, 0.2);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 15px;
+  border-top: 1px solid var(--grey-light);
+  margin-top: 20px;
+}
+
+.btn-modal {
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  margin-left: 10px;
+}
+
+.btn-primary:hover {
+  background-color: var(--hover-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background-color: var(--grey-light);
+  color: var(--bg-dark);
+}
+
+.btn-secondary:hover {
+  background-color: #bbbabe;
+  transform: translateY(-2px);
+}
+
+.alert-danger {
+  background-color: #ffeeee;
+  border-left: 4px solid var(--danger);
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 4px;
+  color: var(--danger);
+}
+
+.alert-danger ul {
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.info-group {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #EFEFEF;
+  padding-bottom: 10px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--bg-dark);
+  margin-bottom: 3px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.info-value {
+  color: #333;
+  padding: 2px 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendar-cell.selected {
+  background-color: rgba(253, 193, 31, 0.3) !important;
+  border: 2px solid var(--accent) !important;
+  border-radius: 6px;
+  box-shadow: 
+    inset 0 0 0 2px var(--accent),
+    0 3px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 5;
+  transform: scale(1.02);
+  transition: all 0.25s ease;
+}
+
+.calendar-cell.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: var(--accent);
+  color: var(--bg-dark);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-container {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* === Responsive Design === */
+@media (max-width: 1200px) {
+  .page-container {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .calendar-grid {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 992px) {
+  .calendar-header, .calendar-body .calendar-row {
+    grid-template-columns: 140px repeat(7, minmax(120px, 1fr));
+  }
+  
+  .calendar-moment {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .calendar-date {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  
+  .calendar-cell {
+    min-height: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.8rem;
+  }
+  
+  .salle-name {
+    font-size: 1.5rem;
+  }
+  
+  .calendar-nav {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+  
+  .arrow-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .week-selector-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  #weekSelector {
+    margin-left: 0 !important;
+    margin-top: 10px;
+    width: 100% !important;
+  }
+  
+  .week-label {
+    order: -1;
+  }
+  
+  .page-container > form:not(#weekSelectorForm) {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #eventSelect {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  form div > button[type="submit"] {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .actions-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .back-btn, .create-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-container {
+    padding: 15px;
+    margin: 10px;
+  }
+  
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+}
+
+@media print, (min-resolution: 192dpi) {
+  .calendar-moment {
+    background-color: #192c3f !important;
+    color: #ffffff !important;
+    font-weight: 700;
+  }
+  
+  .calendar-date {
+    background-color: #e3a900 !important;
+    color: #20364B !important;
+    font-weight: 700;
+  }
+  
+  .calendar-corner {
+    background-color: #192c3f !important;
+  }
+  
+  .calendar-cell {
+    background-color: #ffffff !important;
+    border: 1px solid #dddddd !important;
+  }
+}
