@@ -2,6 +2,7 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/nouveau-resident.css') }}">
+
 <div class="container">
     <div class="page-header">
         <h1>Bâtiment {{$chambre->IDBATIMENT}} - Chambre {{$chambre->NUMEROCHAMBRE}}</h1>
@@ -93,10 +94,30 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="date_entree">Date d'entrée :</label>
+                        @php
+                            // Détermine la date minimale d'entrée en fonction du résident actuel ou du dernier futur résident
+                            $minDate = now()->format('Y-m-d');
+                            $infoMessage = null;
+                            if ($dateEntreeSuggestion){
+                                $minDate = \Carbon\Carbon::parse($dateEntreeSuggestion)->addDay()->format('Y-m-d');
+                            }
+                            
+                        @endphp
                         <input type="date" class="form-control" id="date_entree" name="date_entree" 
-                               value="{{ old('date_entree', $dateEntreeSuggestion) }}" 
-                               min="{{ isset($residentPartant) && $residentPartant ? \Carbon\Carbon::parse($residentPartant->DATEDEPART)->addDay()->format('Y-m-d') : now()->format('Y-m-d') }}" 
+                               value="{{ old('date_entree', $minDate ?? $minDate) }}" 
+                               min="{{ $minDate }}" 
                                required>
+                        @if($infoMessage)
+                        <small class="form-text help-text">
+                            <i class="fas fa-info-circle"></i> {{ $infoMessage }}
+                        </small>
+                        @endif
+                    </div>
+                    <div class="form-group">
+                        <label for="date_depart">Date de départ (optionnel) :</label>
+                        <input type="date" class="form-control" id="date_depart" name="date_depart" 
+                               value="{{ old('date_depart') }}"
+                               min="{{ old('date_entree', $dateEntreeSuggestion ?? $minDate) }}">
                     </div>
                 </div>
                 
@@ -196,6 +217,37 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         }
     });
+
+    const dateEntree = document.getElementById('date_entree');
+    const dateDepart = document.getElementById('date_depart');
+
+    if (dateEntree && dateDepart) {
+        // Mettre à jour la date minimale de départ quand la date d'entrée change
+        dateEntree.addEventListener('change', function() {
+            dateDepart.min = dateEntree.value;
+            validateDates();
+        });
+        
+        // Valider les dates lors de la modification de la date de départ
+        dateDepart.addEventListener('change', validateDates);
+        
+        // Fonction de validation des dates simplifiée
+        function validateDates() {
+            // Vérifier uniquement la relation entre date d'entrée et date de départ
+            if (dateDepart.value && dateEntree.value) {
+                if (new Date(dateDepart.value) <= new Date(dateEntree.value)) {
+                    dateDepart.setCustomValidity('La date de départ doit être après la date d\'entrée');
+                } else {
+                    dateDepart.setCustomValidity('');
+                }
+            } else {
+                dateDepart.setCustomValidity('');
+            }
+        }
+        
+        // Validation initiale
+        validateDates();
+    }
 });
 </script>
 @endsection

@@ -24,7 +24,7 @@
                 </div>
             @else
                 
-                <div class="card" onclick="window.location='{{ route('nouveauResident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]) }}'">
+                <div class="card" onclick="window.location='{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]) }}'">
                 @if ($chambre->NUMEROCHAMBRE < 10)
                     <h2>{{$chambre->IDBATIMENT}}0{{$chambre->NUMEROCHAMBRE}}</h2>
                 @else

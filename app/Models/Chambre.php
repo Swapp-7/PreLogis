@@ -15,12 +15,18 @@ class Chambre extends Model
 
 
     public function resident(): BelongsTo
-{
-    return $this->belongsTo(
-        Resident::class,
-        "IDRESIDENT", 
-        "IDRESIDENT"  
-    );
-}
+    {
+        return $this->belongsTo(
+            Resident::class,
+            "IDRESIDENT", 
+            "IDRESIDENT"  
+        );
+    }
+    public function futureResidents()
+    {
+        return $this->hasMany(Resident::class, 'CHAMBREASSIGNE', 'IDCHAMBRE')
+                    ->where('DATEINSCRIPTION', '>', now())
+                    ->orderBy('DATEINSCRIPTION', 'asc');
+    }
     
 }

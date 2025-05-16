@@ -1,36 +1,195 @@
-header {
-    background-color: #20364B; /* Couleur de fond principale */
-    padding: 20px 0;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-header h1 {
+/* Styles de base pour la page */
+body {
     margin: 0;
-    font-size: 2em;
-    font-family: 'Montserrat', sans-serif;
-    color: #FDC11F; /* Couleur d'accent */
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #20364B;
+    color: #FFFFFF;
 }
 
-header ul {
+.page {
+    display: flex;
+    min-height: 100vh;
+}
+
+.containerpage {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Styles pour la barre de navigation */
+.barre-navigation {
+    width: 80px;
+    background-color: #112233;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 25px 0;
+    border-right: 2px solid #FDC11F;
+    transition: width 0.3s ease;
+}
+
+.barre-navigation:hover {
+    width: 200px;
+}
+
+.barre-navigation ul {
     list-style: none;
     padding: 0;
-    margin: 10px 0 0 0;
+    margin: 20px 0 0 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 35px;
+}
+
+.barre-navigation ul li {
+    width: 100%;
     display: flex;
     justify-content: center;
-    gap: 20px;
 }
 
-header ul li a {
+.barre-navigation ul li a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     text-decoration: none;
-    color: #CDCBCE; /* Gris clair de la charte */
-    font-weight: bold;
-    font-family: 'Roboto', sans-serif;
+    color: #CDCBCE;
+    font-size: 14px;
+    padding: 12px 0;
+    padding-left: 25px;
+    width: 100%;
     transition: all 0.3s ease;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-header ul li a:hover {
-    color: #FDC11F; /* Couleur d'accent au survol */
-    transform: translateY(-2px);
+.barre-navigation ul li a i {
+    font-size: 24px;
+    min-width: 30px;
+    transition: color 0.3s ease;
+}
+
+.barre-navigation ul li a:hover i {
+    color: #FDC11F;
+}
+
+.nav-text {
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    margin-left: 12px;
+    font-weight: 500;
+    color: #CDCBCE;
+}
+
+.barre-navigation:hover .nav-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Indicateur de page active */
+.barre-navigation ul li a.active {
+    position: relative;
+    background-color: rgba(253, 193, 31, 0.1);
+}
+
+.barre-navigation ul li a.active i {
+    color: #FDC11F;
+}
+
+.barre-navigation ul li a.active .nav-text {
+    color: #FDC11F;
+}
+
+.barre-navigation ul li a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: 3px;
+    background-color: #FDC11F;
+}
+
+/* Effet de brillance au survol */
+.barre-navigation ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 20%;
+    width: 0;
+    height: 2px;
+    background-color: #FDC11F;
+    transition: width 0.3s ease;
+}
+
+.barre-navigation ul li a:hover::after {
+    width: 60%;
+}
+
+/* Logo en haut de la barre de navigation */
+.nav-logo {
+    margin-bottom: 30px;
+}
+
+.nav-logo img {
+    width: 50px;
+    height: auto;
+}
+
+/* Responsive design pour la barre de navigation */
+@media (max-width: 768px) {
+    .barre-navigation {
+        width: 60px;
+    }
+    
+    .barre-navigation:hover {
+        width: 60px;
+    }
+    
+    .containerpage {
+        margin-left: 60px;
+        width: calc(100% - 60px);
+        padding: 10px;
+    }
+    
+    .barre-navigation ul li a i {
+        font-size: 22px;
+    }
+    
+    .barre-navigation ul {
+        gap: 25px;
+    }
+    
+    .barre-navigation:hover .nav-text {
+        opacity: 0;
+    }
+}
+
+/* Styles pour les éléments de notification dans la barre de navigation */
+.nav-notification {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
 }

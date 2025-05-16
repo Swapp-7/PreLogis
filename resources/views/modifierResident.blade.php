@@ -5,9 +5,15 @@
 <div class="container">
     <div class="page-header">
         <h2>Modifier un Résident</h2>
-        <a href="{{ route('resident', ['IdBatiment' => $resident->chambre->IDBATIMENT, 'NumChambre' => $resident->chambre->NUMEROCHAMBRE]) }}" class="btn-return">
-            <i class="fas fa-arrow-left"></i> Retour
-        </a>
+        @if ($resident->chambre)
+            <a href="{{ route('resident', ['IdBatiment' => $resident->chambre->IDBATIMENT, 'NumChambre' => $resident->chambre->NUMEROCHAMBRE]) }}" class="btn-return">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        @else
+            <a href="{{ route('getResident', parameters: ['IdResident' => $resident->IDRESIDENT]) }}" class="btn-return">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        @endif
     </div>
 
     @if ($errors->any())
@@ -89,6 +95,7 @@
                         </select>
                     </div>
                 </div>
+                
             </div>
             
             <!-- Colonne droite - Contacts et adresse -->
@@ -181,8 +188,25 @@
         </div>
     </form>
 </div>
-
-<style>
-    
-</style>
+<script>
+     document.addEventListener('DOMContentLoaded', function() {
+        // Aperçu photo si disponible
+        const photoInput = document.getElementById('photo');
+        if (photoInput) {
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.querySelector('.current-photo img');
+                        if (img) {
+                            img.src = e.target.result;
+                        }
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
 @endsection

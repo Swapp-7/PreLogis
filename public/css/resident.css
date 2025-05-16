@@ -446,6 +446,168 @@ body {
     background-color: #2980b9;
 }
 
+.add-future-resident-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.btn-add-future {
+    display: inline-block;
+    background-color: #FDC11F;
+    color: #20364B;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-add-future:hover {
+    background-color: #e6ae15;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.btn-add-future i {
+    margin-right: 8px;
+}
+
+/* Style pour la section des futurs résidents */
+.future-residents-section {
+    margin-top: 30px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+.future-resident-card {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid rgba(253, 193, 31, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.future-resident-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-color: #FDC11F;
+}
+
+.future-resident-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.future-resident-photo {
+    margin-right: 20px;
+}
+
+.resident-photo-small {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #FDC11F;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.future-resident-details {
+    flex: 1;
+}
+
+.future-resident-details h3 {
+    margin: 0 0 10px;
+    color: #FDC11F;
+    font-size: 1.2rem;
+    font-family: 'Montserrat', sans-serif;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.future-resident-details p {
+    margin: 5px 0;
+    color: #fff;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.future-resident-details p i {
+    width: 20px;
+    color: #FDC11F;
+    margin-right: 8px;
+    text-align: center;
+}
+
+.future-resident-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    background-color: #FDC11F;
+    color: #20364B;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-sm:hover {
+    background-color: #e6ae15;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.no-future-resident {
+    text-align: center;
+    padding: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+}
+
+.future-residents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.future-resident-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.future-resident-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+}
+
+.future-resident-card:after {
+    content: "";
+    position: absolute;
+    bottom: -7px;
+    left: 10%;
+    width: 80%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.future-resident-card:last-child:after {
+    display: none;
+}
+
 @keyframes pulse {
     0% {
         transform: scale(1);

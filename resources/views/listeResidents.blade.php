@@ -27,7 +27,7 @@
             <tbody>
             @foreach($residents as $resident)
                 @php $chambre = $resident->chambre; @endphp
-                <tr @if($chambre) onclick="window.location='{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]) }}'" @endif>
+                <tr onclick="window.location='{{ route('getResident', ['IdResident' => $resident->IDRESIDENT]) }}'" >
                     <td>{{ $resident->NOMRESIDENT }}</td>
                     <td>{{ $resident->PRENOMRESIDENT }}</td>
                     <td>{{ $resident->MAILRESIDENT }}</td>

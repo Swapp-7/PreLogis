@@ -29,6 +29,12 @@ class Resident extends Model
     {
         return $this->hasOne(Chambre::class, 'IDRESIDENT', 'IDRESIDENT');
     }
+    public function chambreAssigne()
+    {
+        return $this->belongsTo(Chambre::class, 'CHAMBREASSIGNE', 'IDCHAMBRE');
+    }
+
+
     public function fichiers()
     {
         return $this->hasMany(Fichier::class, 'IDRESIDENT', 'IDRESIDENT');

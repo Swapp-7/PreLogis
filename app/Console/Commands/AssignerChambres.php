@@ -39,6 +39,8 @@ class AssignerChambres extends Command
             if ($chambre && $chambre->IDRESIDENT == null) {
                 $chambre->IDRESIDENT = $resident->IDRESIDENT;
                 $chambre->save();
+                $resident->CHAMBREASSIGNE = null;
+                $resident->save();
                 $count++;
                 $this->info("Chambre {$chambre->IDBATIMENT}{$chambre->NUMEROCHAMBRE} assignée à {$resident->NOMRESIDENT} {$resident->PRENOMRESIDENT}");
             } else {

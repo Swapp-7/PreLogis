@@ -2,25 +2,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
+/* Définition des variables pour cohérence des couleurs */
+:root {
+    --primary: #20364B;
+    --primary-light: #2c4b6b;
+    --primary-dark: #152538;
+    --accent: #FDC11F;
+    --accent-hover: #e6ae15;
+    --light-bg: #E8E6E9;
+    --light-gray: #CDCBCE;
+    --white: #ffffff;
+    --danger: #ff6b6b;
+    --success: #4caf50;
+    --info: #0056b3;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 /* Styles de base */
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #20364B;
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--white);
 }
 
 /* En-tête principal */
 .Titre {
     text-align: center;
     padding: 25px 0;
-    background: linear-gradient(135deg, #152538 0%, #1c3451 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: var(--white);
     margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow);
     position: relative;
-    border-bottom: 3px solid #FDC11F;
+    border-bottom: 3px solid var(--accent);
 }
 
 .Titre h1, .Titre h2 {
@@ -37,7 +53,7 @@ body {
 .Titre h2 {
     font-size: 1.8rem;
     margin-top: 10px;
-    color: #FDC11F;
+    color: var(--accent);
 }
 
 .Titre h1::after {
@@ -48,7 +64,7 @@ body {
     transform: translateX(-50%);
     width: 80px;
     height: 3px;
-    background-color: #FDC11F;
+    background-color: var(--accent);
     border-radius: 2px;
 }
 
@@ -57,9 +73,9 @@ body {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
-    background-color: #2c4b6b;
+    background-color: var(--primary-light);
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -74,7 +90,7 @@ body {
 .filter-container label {
     font-size: 1rem;
     font-weight: 600;
-    color: #FDC11F;
+    color: var(--accent);
     margin-right: 10px;
 }
 
@@ -82,31 +98,31 @@ body {
     padding: 8px 12px;
     font-size: 1rem;
     border-radius: 5px;
-    border: 1px solid #FDC11F;
-    background-color: #20364B;
-    color: white;
+    border: 1px solid var(--accent);
+    background-color: var(--primary);
+    color: var(--white);
     outline: none;
     transition: border-color 0.2s ease;
 }
 
 .filter-container select:focus {
-    border-color: white;
+    border-color: var(--white);
 }
 
 .filter-container button {
     padding: 10px 20px;
     font-size: 1rem;
     font-weight: 600;
-    color: #20364B;
-    background-color: #FDC11F;
+    color: var(--primary);
+    background-color: var(--accent);
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .filter-container button:hover {
-    background-color: #ffd04c;
+    background-color: var(--accent-hover);
     transform: scale(1.05);
 }
 
@@ -120,9 +136,9 @@ body {
 /* Conteneur par bâtiment */
 .batiment-container {
     margin-bottom: 50px;
-    background-color: #2c4b6b;
+    background-color: var(--primary-light);
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow);
     padding: 25px;
     position: relative;
     overflow: hidden;
@@ -136,11 +152,11 @@ body {
     left: 0;
     width: 5px;
     height: 100%;
-    background-color: #FDC11F;
+    background-color: var(--accent);
 }
 
 .batiment-container h1 {
-    color: #FDC11F;
+    color: var(--accent);
     font-family: 'Montserrat', sans-serif;
     font-size: 1.8rem;
     margin: 0 0 25px 0;
@@ -153,7 +169,7 @@ body {
 /* Cartes de chambre */
 .card {
     cursor: pointer;
-    background: linear-gradient(135deg, #CDCBCE 0%, #E8E6E9 100%);
+    background: linear-gradient(135deg, var(--light-gray) 0%, var(--light-bg) 100%);
     border-radius: 12px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     overflow: hidden;
@@ -163,7 +179,7 @@ body {
     display: inline-block;
     width: calc(25% - 22px);
     min-width: 180px;
-    border: 2px solid #FDC11F;
+    border: 2px solid var(--accent);
     position: relative;
     height: 180px;
     animation: fadeIn 0.5s ease forwards;
@@ -173,7 +189,7 @@ body {
 .card:hover {
     transform: translateY(-6px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-    border-color: white;
+    border-color: var(--white);
 }
 
 /* Photo de profil du résident */
@@ -183,7 +199,7 @@ body {
     border-radius: 50%;
     margin: 10px auto 5px;
     object-fit: cover;
-    border: 2px solid #FDC11F;
+    border: 2px solid var(--accent);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -191,20 +207,20 @@ body {
 .card h2 {
     font-size: 1.8rem;
     margin: 10px 0 5px;
-    color: #20364B;
+    color: var(--primary);
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     transition: color 0.2s ease;
 }
 
 .card:hover h2 {
-    color: #20364B;
+    color: var(--primary);
 }
 
 /* Badge "Chambre libre" */
 .libre {
-    background-color: #FDC11F;
-    color: #20364B;
+    background-color: var(--accent);
+    color: var(--primary);
     font-weight: 600;
     font-size: 0.9rem;
     padding: 5px 15px;
@@ -216,7 +232,7 @@ body {
 }
 
 .card:hover .libre {
-    background-color: #e6ae15;
+    background-color: var(--accent-hover);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
     transform: scale(1.05);
 }
@@ -228,15 +244,10 @@ body {
     margin-right: 5px;
 }
 
-/* Style pour les cartes de chambres libres */
-.libre-card {
-    border: 2px solid #FDC11F;
-}
-
 /* Badge "Chambre occupée" - Nom du résident */
 .occupe {
-    background-color: #20364B;
-    color: white;
+    background-color: var(--primary);
+    color: var(--white);
     font-weight: 500;
     font-size: 0.9rem;
     padding: 5px 15px;
@@ -253,28 +264,29 @@ body {
 }
 
 .card:hover .occupe {
-    background-color: #152538;
+    background-color: var(--primary-dark);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
     transform: scale(1.05);
-    border-color: #FDC11F;
+    border-color: var(--accent);
 }
 
 /* Style pour les cartes des résidents qui partent */
 .card.departing {
-    border: 2px solid #ff6b6b;
+    border: 2px solid var(--danger);
     position: relative;
     overflow: visible;
+    background: linear-gradient(135deg, #fff8f8 0%, #fff 100%);
 }
 
 .card.departing::after {
     content: "\f05a";
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
-    color: #ff6b6b;
+    color: var(--danger);
     position: absolute;
     top: -10px;
     right: -10px;
-    background-color: white;
+    background-color: var(--white);
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -286,8 +298,8 @@ body {
 }
 
 .depart-info {
-    background-color: #ff6b6b;
-    color: white;
+    background-color: var(--danger);
+    color: var(--white);
     font-size: 0.8rem;
     padding: 3px 10px;
     border-radius: 15px;
@@ -300,9 +312,60 @@ body {
     text-overflow: ellipsis;
 }
 
+/* Styles pour information d'arrivée du futur résident */
+.arrivee-info {
+    background-color: var(--success);
+    color: var(--white);
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 15px;
+    margin: 5px auto 2px;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    animation: pulse 2s infinite;
+}
+
+/* Animation pour attirer l'attention sur l'arrivée */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.futur-resident {
+    background-color: rgba(0, 86, 179, 0.1);
+    color: var(--info);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 15px;
+    margin: 2px auto;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px dashed var(--info);
+    display: inline-block;
+}
+
+/* Style spécial pour les chambres avec futur résident */
+.card.departing.with-replacement {
+    border: 2px dashed var(--success);
+    background: linear-gradient(135deg, #f8fff8 0%, #fff 100%);
+}
+
+.card.departing.with-replacement::after {
+    content: "\f4fc"; /* Icône de personne qui arrive */
+    color: var(--success);
+}
+
 /* Style pour les cartes de chambres libres */
 .libre-card {
-    border: 2px solid #4caf50;
+    border: 2px solid var(--success);
 }
 
 /* Animation douce pour les cartes */
@@ -334,11 +397,12 @@ body {
     margin: 20px auto;
     max-width: 600px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow);
 }
 
 .no-results i {
     font-size: 3rem;
-    color: #FDC11F;
+    color: var(--accent);
     margin-bottom: 15px;
     display: block;
 }
@@ -346,7 +410,7 @@ body {
 .no-results p {
     font-size: 1.2rem;
     margin: 0;
-    color: #fff;
+    color: var(--white);
 }
 
 /* Responsive design */

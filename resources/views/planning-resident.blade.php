@@ -67,17 +67,7 @@
                     <h3>Départs du mois</h3>
                     <div class="card-value">{{ count($departs) }}</div>
                 </div>
-            </div>
-            
-            <div class="summary-card occupancy-card">
-                <div class="card-icon">
-                    <i class="fas fa-home"></i>
-                </div>
-                <div class="card-content">
-                    <h3>Taux d'occupation</h3>
-                    <div class="card-value">{{ $countChambres > 0 ? round(($countOccupation / $countChambres) * 100) : 0 }}%</div>
-                </div>
-            </div>
+            </div>         
         </div>
     </div>
 
@@ -124,7 +114,7 @@
                                             @if($resident->chambre)
                                                 <span class="chambre-badge">{{ $resident->chambre->IDBATIMENT }}{{ str_pad($resident->chambre->NUMEROCHAMBRE, 2, '0', STR_PAD_LEFT) }}</span>
                                             @elseif($resident->CHAMBREASSIGNE)
-                                                <span class="chambre-badge">{{ $resident->CHAMBREASSIGNE }}</span>
+                                                <span class="chambre-badge">{{ $resident->chambreAssigne->IDBATIMENT }}{{ str_pad($resident->chambreAssigne->NUMEROCHAMBRE, 2, '0', STR_PAD_LEFT) }}</span>
                                             @else
                                                 <span class="no-room">Non assignée</span>
                                             @endif
@@ -184,7 +174,7 @@
                                             @if($resident->chambre)
                                                 <span class="chambre-badge">{{ $resident->chambre->IDBATIMENT }}{{ str_pad($resident->chambre->NUMEROCHAMBRE, 2, '0', STR_PAD_LEFT) }}</span>
                                             @elseif($resident->CHAMBREASSIGNE)
-                                                <span class="chambre-badge">{{ $resident->CHAMBREASSIGNE }}</span>
+                                                <span class="chambre-badge">{{ $resident->chambreAssigne->IDBATIMENT }}{{ str_pad($resident->chambreAssigne->NUMEROCHAMBRE, 2, '0', STR_PAD_LEFT) }}</span>
                                             @else
                                                 <span class="no-room">Non assignée</span>
                                             @endif

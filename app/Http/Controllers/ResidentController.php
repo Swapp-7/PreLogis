@@ -16,6 +16,7 @@ use App\Models\Parents;
 use App\Models\Resident;
 use App\Models\ResidentArchive;
 use App\Models\Salle;
+use Carbon\Carbon;
 
 class ResidentController extends Controller
 {
@@ -23,7 +24,15 @@ class ResidentController extends Controller
     {
         $chambre = Chambre::where('IDBATIMENT', $IdBatiment)->where('NUMEROCHAMBRE', $NumChambre)->first();
  
-        return view('resident', ['chambre' => $chambre]);
+        return view('resident-chambre', ['chambre' => $chambre]);
+    }
+    public function getResident($IdResident)
+    {
+        $resident = Resident::with(['adresse', 'chambre', 'parents'])->find($IdResident);
+        if (!$resident) {
+            return redirect()->back()->with('error', 'Résident non trouvé');
+        }
+        return view('resident', ['resident' => $resident]);
     }
     public function getAllResident()
     {
@@ -37,7 +46,9 @@ class ResidentController extends Controller
             ->orWhere('PRENOMRESIDENT', 'like', '%' . $query . '%')
             ->orWhere('MAILRESIDENT', 'like', '%' . $query . '%')
             ->orWhereHas('chambre', function ($q) use ($query) {
-                $q->where('NUMEROCHAMBRE', 'like', '%' . $query . '%');
+                $q->where('NUMEROCHAMBRE', 'like', '%' . $query . '%')
+                ->orWhere('IDBATIMENT', 'like', '%' . $query . '%')
+                ->orWhereRaw("CONCAT(IDBATIMENT, NUMEROCHAMBRE) LIKE ?", ['%' . $query . '%']);
             })
             ->get();
 
@@ -93,19 +104,23 @@ class ResidentController extends Controller
             $query->where('IDBATIMENT', $IdBatiment)
                 ->where('NUMEROCHAMBRE', $NumChambre);
         })->whereNotNull('DATEDEPART')->first();
+
+        $lastResident = $chambre->futureResidents->last();
+        
+        
         
         if ($chambre->IDRESIDENT != null && (!$residentPartant || $residentPartant->DATEDEPART == null)) {
             return redirect()->route('resident', ['IdBatiment' => $IdBatiment, 'NumChambre' => $NumChambre]);
         }
-
-        $dateEntreeSuggestion = $residentPartant ? 
-            \Carbon\Carbon::parse($residentPartant->DATEDEPART)->addDay()->format('Y-m-d') : 
-            now()->format('Y-m-d');
-        
+        if ($lastResident==null) {
+            $lastResident = $residentPartant;
+        }
+        $dateEntreeSuggestion = $lastResident->DATEDEPART ?? null ;
         return view('nouveauResident', [
             'chambre' => $chambre,
             'dateEntreeSuggestion' => $dateEntreeSuggestion,
-            'residentPartant' => $residentPartant
+            'residentPartant' => $residentPartant,
+            'futureResident' => $lastResident
         ]);
     }
     public function modifierResident(Request $request, $idResident)
@@ -135,6 +150,8 @@ class ResidentController extends Controller
         $resident->NATIONALITE = $request->input('nationalite');
         $resident->ETABLISSEMENT = $request->input('etablissement');
         $resident->ANNEEETUDE = $request->input('annee_etude');
+        
+
         if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
 
             $photo = $request->file('photo');
@@ -162,20 +179,32 @@ class ResidentController extends Controller
             $adresse->save();
         }
 
-        $chambre = Chambre::where('IDRESIDENT',$idResident)->first();
+        $chambre = Chambre::where('IDRESIDENT',$idResident)->first();   
+        if($resident->chambre){
+            return redirect()->route('resident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]);
 
-        return redirect()->route('resident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]);
+        }else{
+            return redirect()->route('getResident', ['IdResident' => $resident->IDRESIDENT]);
+        }
     }
     
     public function store(Request $request, $IdBatiment, $NumChambre)
     {
         
         $chambre = Chambre::where('IDBATIMENT', $IdBatiment)->where('NUMEROCHAMBRE', $NumChambre)->first();
-        $request->validate([
+        $futureResident = Resident::where('CHAMBREASSIGNE', $chambre->IDCHAMBRE)
+                             ->where('DATEINSCRIPTION', '>', now())
+                             ->orderBy('DATEINSCRIPTION', 'asc')
+                             ->first();
+    
+        $rules = [
             'email' => 'required|email|max:255',
             'tel' => 'required|string|max:10',
             'adresse.code_postal' => 'required|string|max:10',
-        ], [
+            'date_entree' => 'required|date',
+        ];
+        
+        $messages = [
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email n\'est pas valide.',
             'email.max' => 'L\'adresse email ne doit pas dépasser 255 caractères.',
@@ -185,7 +214,14 @@ class ResidentController extends Controller
             'adresse.code_postal.required' => 'Le code postal est obligatoire.',
             'adresse.code_postal.string' => 'Le code postal doit être une chaîne de caractères.',
             'adresse.code_postal.max' => 'Le code postal ne doit pas dépasser 10 caractères.',
-        ]);
+            'date_entree.required' => 'La date d\'entrée est obligatoire.',
+            'date_entree.date' => 'La date d\'entrée n\'est pas valide.',
+        ];
+        
+        // Ajouter la règle de validation pour la date de départ s'il y a un futur résident
+       
+        
+        $request->validate($rules, $messages);
         
         
         $resident = new Resident();
@@ -217,6 +253,8 @@ class ResidentController extends Controller
         $resident->ETABLISSEMENT = $request->input('etablissement');
         $resident->ANNEEETUDE = $request->input('annee_etude');
         $resident->DATEINSCRIPTION = $request->input('date_entree', now());
+        $resident->DATEDEPART = $request->input('date_depart'); 
+
         $resident->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
 
         if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
@@ -301,77 +339,90 @@ class ResidentController extends Controller
         $resident->DATEDEPART = $request->DATEDEPART;
         $resident->save();
 
-        return redirect()
-            ->route('resident', ['IdBatiment' => $resident->chambre->IDBATIMENT, 'NumChambre' => $resident->chambre->NUMEROCHAMBRE])
-            ->with('success', 'Le départ du résident a été planifié pour le ' . \Carbon\Carbon::parse($request->DATEEXPIRATION)->translatedFormat('d F Y'));
+        // Mise à jour de la redirection pour utiliser getResident si disponible
+        if ($resident->chambre) {
+            return redirect()
+                ->route('resident', ['IdBatiment' => $resident->chambre->IDBATIMENT, 'NumChambre' => $resident->chambre->NUMEROCHAMBRE])
+                ->with('success', 'Le départ du résident a été planifié pour le ' . \Carbon\Carbon::parse($request->DATEDEPART)->translatedFormat('d F Y'));
+        } else {
+            return redirect()
+                ->route('getResident', ['IdResident' => $resident->IDRESIDENT])
+                ->with('success', 'Le départ du résident a été planifié pour le ' . \Carbon\Carbon::parse($request->DATEDEPART)->translatedFormat('d F Y'));
+        }
     }
-
-    public function showDepartingResidents()
+    public function updateFutureResidentDates(Request $request)
     {
-        // Utilisez le mois et l'année actuels par défaut
-        $month = now()->month;
-        $year = now()->year;
-
-        // Identifier les résidents qui vont partir ce mois-ci
-        $departingResidents = Resident::whereMonth('DATEDEPART', $month)
-            ->whereYear('DATEDEPART', $year)
-            ->pluck('IDRESIDENT')
-            ->toArray();
-
-        // Récupérer uniquement les chambres des résidents qui partent
-        $chambres = Chambre::whereIn('IDRESIDENT', $departingResidents)
-            ->with('resident')
-            ->get();
-        
-        // Récupérer également les chambres libres
-        $chambresLibres = Chambre::whereNull('IDRESIDENT')->get();
-        
-        // Combiner les deux collections
-        $allChambres = $chambres->merge($chambresLibres);
-        
-        // Trier par bâtiment puis par numéro de chambre
-        $allChambres = $allChambres->sortBy([
-            ['IDBATIMENT', 'asc'],
-            ['NUMEROCHAMBRE', 'asc']
+        $request->validate([
+            'resident_id' => 'required|exists:RESIDENT,IDRESIDENT',
+            'date_arrivee' => 'required|date',
+            'date_depart' => 'nullable|date|after:date_arrivee'
         ]);
-
-        return view('chambresLibre', [
-            'chambres' => $allChambres,
-            'departingResidents' => $departingResidents,
-            'selectedMonth' => $month,
-            'selectedYear' => $year,
-        ]);
+        
+        $resident = Resident::find($request->resident_id);
+        
+        if (!$resident) {
+            return redirect()->back()->with('error', 'Résident non trouvé');
+        }
+        
+        // Récupérer la chambre assignée pour vérifier les contraintes
+        $chambre = Chambre::find($resident->CHAMBREASSIGNE);
+        
+        if (!$chambre) {
+            return redirect()->back()->with('error', 'Chambre non trouvée');
+        }
+        
+        // Contraintes de date minimale : date de départ du résident actuel
+        $minDate = now();
+        if ($chambre->resident && $chambre->resident->DATEDEPART) {
+            $minDate = Carbon::parse($chambre->resident->DATEDEPART)->addDay();
+        }
+        
+        // Contraintes de date maximale : date d'arrivée du prochain futur résident
+        $nextFutureResident = Resident::where('CHAMBREASSIGNE', $chambre->IDCHAMBRE)
+            ->where('IDRESIDENT', '!=', $resident->IDRESIDENT)
+            ->where('DATEINSCRIPTION', '>', $resident->DATEINSCRIPTION) // Find resident AFTER this one
+            ->orderBy('DATEINSCRIPTION', 'asc')
+            ->first();
+        
+        $maxDate = null;
+        if ($nextFutureResident) {
+            $maxDate = Carbon::parse($nextFutureResident->DATEINSCRIPTION)->subDay();
+        }
+        
+        // Valider les contraintes de date
+        $dateArrivee = Carbon::parse($request->date_arrivee);
+        
+        if ($dateArrivee->lt($minDate)) {
+            return redirect()->back()->with('error', 'La date d\'arrivée doit être après la date de départ du résident actuel');
+        }
+        
+        if ($maxDate && $dateArrivee->gt($maxDate)) {
+            return redirect()->back()->with('error', 'La date d\'arrivée doit être avant l\'arrivée du prochain futur résident');
+        }
+        
+        // Vérifier la date de départ si fournie
+        if ($request->date_depart) {
+            $dateDepart = Carbon::parse($request->date_depart);
+            
+            if ($dateDepart->lte($dateArrivee)) {
+                return redirect()->back()->with('error', 'La date de départ doit être après la date d\'arrivée');
+            }
+            
+            if ($maxDate && $dateDepart->gt($maxDate)) {
+                return redirect()->back()->with('error', 'La date de départ doit être avant l\'arrivée du prochain futur résident');
+            }
+            
+            // Mettre à jour la date de départ
+            $resident->DATEDEPART = $request->date_depart;
+        }
+        
+        // Mettre à jour la date d'arrivée
+        $resident->DATEINSCRIPTION = $request->date_arrivee;
+        $resident->save();
+        
+        return redirect()->back()->with('success', 'Dates mises à jour avec succès');
     }
+    
 
-    public function filterDepartingResidents(Request $request)
-    {
-        // Utiliser le mois et l'année actuels si non spécifiés
-        $month = $request->input('month', now()->month);
-        $year = $request->input('year', now()->year);
-
-        $departingResidents = Resident::whereMonth('DATEDEPART', $month)
-            ->whereYear('DATEDEPART', $year)
-            ->pluck('IDRESIDENT')
-            ->toArray();
-
-        $chambres = Chambre::whereIn('IDRESIDENT', $departingResidents)
-            ->with('resident')
-            ->get();
-        
-        $chambresLibres = Chambre::whereNull('IDRESIDENT')->get();
-        
-        $allChambres = $chambres->merge($chambresLibres);
-        
-        $allChambres = $allChambres->sortBy([
-            ['IDBATIMENT', 'asc'],
-            ['NUMEROCHAMBRE', 'asc']
-        ]);
-
-        return view('chambresLibre', [
-            'chambres' => $allChambres,
-            'departingResidents' => $departingResidents,
-            'selectedMonth' => $month,
-            'selectedYear' => $year,
-        ]);
-    }
+    
 }

@@ -163,7 +163,33 @@ label {
     color: #FDC11F;
     font-size: 0.95rem;
 }
+input[type="date"].form-control {
+    background-color: rgba(255, 255, 255, 0.2); /* Fond légèrement plus clair */
+    color: #FDC11F; /* Texte en couleur accent pour plus de contraste */
+    font-weight: 500; /* Texte légèrement plus épais */
+    cursor: pointer;
+    padding-right: 30px; /* Espace pour l'icône de calendrier */
+}
 
+/* Style du calendrier */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(70%) sepia(60%) saturate(500%) hue-rotate(10deg) brightness(110%) contrast(100%);
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+/* Style personnalisé pour les champs désactivés/grisés */
+input[type="date"]:disabled,
+input[type="date"][readonly],
+input.form-control:disabled,
+input.form-control[readonly] {
+    background-color: rgba(255, 255, 255, 0.4) !important; /* Fond plus clair pour contraster avec le texte noir */
+    color: #000000 !important; /* Texte noir */
+    border-color: rgba(149, 165, 166, 0.5) !important;
+    font-weight: 500; /* Police un peu plus épaisse pour une meilleure lisibilité */
+    font-style: italic;
+    cursor: not-allowed;
+}
 input.form-control,
 select.form-control {
     width: 100%;
@@ -275,6 +301,24 @@ input[type="file"].form-control {
 .alert-danger ul {
     margin: 8px 0 0 20px;
     padding: 0;
+}
+
+.help-text {
+    font-size: 0.8rem;
+    color: #e67e22;
+    margin-top: 5px;
+}
+
+.help-text i {
+    margin-right: 5px;
+}
+
+input:invalid {
+    border-color: #e74c3c;
+}
+
+input:invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
 }
 
 @media screen and (max-width: 768px) {

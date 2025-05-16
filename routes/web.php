@@ -28,16 +28,18 @@ use App\Http\Controllers\PlanningResidentController;
 Route::get('/', function () {
     return view('tableauDeBord');
 })->name('tableauDeBord');
+
 Route::get('/ChambreLibre', function () {
     return redirect()->route('filterDepartingResidents', [
         'month' => now()->month,
         'year' => now()->year
     ]);
 })->name('chambreLibre');
-Route::get('/ChambreLibre', [ResidentController::class, 'showDepartingResidents'])->name('chambreLibre');
+
+Route::get('/ChambreLibre', [ChambreController::class, 'showDepartingResidents'])->name('chambreLibre');
 
 
-Route::get("/Batiment",[BatimentController::class, "index" ])->name('batiment');
+Route::get( "/Batiment",[BatimentController::class, "index" ])->name('batiment');
 Route::get("/Batiment/{IdBatiment}",[ChambreController::class, "index" ])->name('chambre');
 Route::get("/Salle",[SalleController::class, "index" ])->name('salle');
 Route::get("/DetailSalle/{IdSalle}",[SalleController::class, "getSalle" ])->name('detailSalle');
@@ -49,9 +51,10 @@ Route::get('/planning-resident', [PlanningResidentController::class, 'index'])->
 
 Route::get('/planning/resident/export', [App\Http\Controllers\PlanningResidentController::class, 'exportExcel'])->name('planning.resident.export');
 
-Route::get('/filter-departing-residents', [ResidentController::class, 'filterDepartingResidents'])->name('filterDepartingResidents');
+Route::get('/filter-departing-residents', [ChambreController::class, 'filterDepartingResidents'])->name('filterDepartingResidents');
 Route::get("/RechercherResident",[ResidentController::class, "search" ])->name('residents.search');
 Route::get("/Chambre/{IdBatiment}/{NumChambre}",[ResidentController::class, "index" ])->name('resident');
+Route::get("/resident/{IdResident}",[ResidentController::class, "getResident" ])->name('getResident');
 Route::get("/Modifier-Resident/{idResident}",[ResidentController::class, "getModif" ])->name('modifierResident');
 Route::get("/NouveauResident/{IdBatiment}/{NumChambre}",[ResidentController::class, "nouveauResident" ])->name('nouveauResident');
 Route::get("/SupprimerResident/{idResident}",[ResidentController::class, "supprimerResident" ])->name('supprimerResident');
@@ -65,3 +68,4 @@ Route::post('/NouvelEvenement', [EvenementController::class, 'store'])->name('no
 Route::post('/NouvelleOccupation', [SalleController::class, 'nouvelleOccupation'])->name('nouvelleOccupation');
 Route::post('/gererOccupation', [SalleController::class, 'gererOccupation'])->name('gererOccupation');
 Route::post('/resident/planifier-depart', [App\Http\Controllers\ResidentController::class, 'planifierDepart'])->name('planifierDepart');
+Route::post('/update-future-resident-dates', [App\Http\Controllers\ResidentController::class, 'updateFutureResidentDates'])->name('updateFutureResidentDates');
