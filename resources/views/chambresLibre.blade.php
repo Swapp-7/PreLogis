@@ -2,177 +2,181 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/chambres-libre.css') }}">
-    <div class="Titre">
-        <h1>Chambres</h1>
-    </div>
-    <div class="filter-container">
-        <form method="GET" action="{{ route('filterDepartingResidents') }}">
-            <label for="month">Mois :</label>
-            <select name="month" id="month" required>
-                @for ($i = 1; $i <= 12; $i++)
-                    <option value="{{ $i }}" {{ $selectedMonth == $i ? 'selected' : '' }}>
-                        {{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}
-                    </option>
-                @endfor
-            </select>
 
-            <label for="year">Année :</label>
-            <select name="year" id="year" required>
-                @for ($i = now()->year; $i <= now()->year + 5; $i++)
-                    <option value="{{ $i }}" {{ $selectedYear == $i ? 'selected' : '' }}>
-                        {{ $i }}
-                    </option>
-                @endfor
-            </select>
-
-            <button type="submit">Filtrer</button>
-        </form>
+<div class="container">
+    <div class="page-header">
+        <h1>Gestion des chambres</h1>
     </div>
     
-    <div class="Titre">
-        <h2>Chambres disponibles et résidents partant en {{ \Carbon\Carbon::create()->month($selectedMonth)->year($selectedYear)->translatedFormat('F Y') }}</h2>
+    <!-- Filter Panel -->
+    <div class="filter-panel card mb-4">
+        <div class="card-header">
+            <h3>Filtrer par mois</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('filterDepartingResidents') }}" method="GET" class="form-inline">
+                <div class="form-group mr-3">
+                    <label for="month" class="mr-2">Mois:</label>
+                    <select name="month" id="month" class="form-control">
+                        @for ($i = 1; $i <= 12; $i++)
+                            <option value="{{ $i }}" {{ $month == $i ? 'selected' : '' }}>
+                                {{ date('F', mktime(0, 0, 0, $i, 1)) }}
+                            </option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="form-group mr-3">
+                    <label for="year" class="mr-2">Année:</label>
+                    <select name="year" id="year" class="form-control">
+                        @for ($i = now()->year; $i <= now()->year + 2; $i++)
+                            <option value="{{ $i }}" {{ (isset($year) && $year == $i) ? 'selected' : '' }}>
+                                {{ $i }}
+                            </option>
+                        @endfor
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Filtrer</button>
+            </form>
+        </div>
     </div>
-    
-    @if($chambres->isEmpty())
-        <div class="no-results">
-            <i class="fas fa-info-circle"></i>
-            <p>Aucun résident ne part en {{ \Carbon\Carbon::create()->month($selectedMonth)->year($selectedYear)->translatedFormat('F Y') }}.</p>
-        </div>
-    @else
-        <div class="card-container">
-            @php
-                $batimentActuel = null;
-            @endphp
-            
-            @foreach ($chambres as $chambre)
-            @if($chambre->IDBATIMENT != $batimentActuel)
-                @php
-                    $batimentActuel = $chambre->IDBATIMENT;
-                @endphp
-                @if (!$loop->first)
-                    </div> <!-- Close previous building's container -->
-                @endif
-                <div class="batiment-container">
-                    <h1 style="text-align: center; margin-top: 20px;">Bâtiment {{$chambre->IDBATIMENT}}</h1>
-            @endif
+
+    <!-- Chambres Section -->
+    <div class="chambres-container">
+        <!-- Section 1: Chambres libres -->
+        <div class="section">
+            <h2>Chambres libres</h2>
             
             @php
-                $shouldDisplay = true;
-                $willBeEmpty = false;
-                $emptyPeriodStart = null;
-                $emptyPeriodEnd = null;
+                // Group rooms by building
+                $chambresByBuilding = $chambresLibre->where('IDRESIDENT', null)
+                    ->where(function($chambre) {
+                        return $chambre->futureResidents->count() == 0;
+                    })
+                    ->groupBy('IDBATIMENT');
                 
-                $chambreKey = $chambre->IDBATIMENT . '-' . $chambre->NUMEROCHAMBRE;
-                
-                if($chambre->resident) {
-                    $isLeaving = in_array($chambre->IDRESIDENT, $departingResidents);
-                    
-                    // Vérifier si un résident part bientôt et s'il y a une période de vacance suffisante
-                    if ($isLeaving && $chambre->resident->DATEDEPART) {
-                        $departDate = \Carbon\Carbon::parse($chambre->resident->DATEDEPART);
-                        $emptyPeriodStart = $departDate->copy()->addDay(); // Commence à être libre le jour après le départ
-                        
-                        if (isset($futureResidentsInfo[$chambreKey]) && count($futureResidentsInfo[$chambreKey]) > 0) {
-                            // Trouver le prochain futur résident (celui avec la date d'arrivée la plus proche)
-                            $nextResidentDate = null;
-                            
-                            foreach ($futureResidentsInfo[$chambreKey] as $futureResident) {
-                                $arrivalDate = \Carbon\Carbon::parse($futureResident['DATEINSCRIPTION']);
-                                
-                                if ($arrivalDate->greaterThanOrEqualTo($departDate) && 
-                                    ($nextResidentDate === null || $arrivalDate->lessThan($nextResidentDate))) {
-                                    $nextResidentDate = $arrivalDate;
-                                }
-                            }
-                            
-                            if ($nextResidentDate) {
-                                $emptyPeriodEnd = $nextResidentDate->copy()->subDay(); // Libre jusqu'à la veille de l'arrivée
-                                $emptyDays = $departDate->diffInDays($nextResidentDate);
-                                
-                                // La chambre est considérée comme libre si la période d'inoccupation est d'au moins 2 jours
-                                $willBeEmpty = $emptyDays >= 2;
-                            } else {
-                                // Aucun prochain résident = libre indéfiniment
-                                $willBeEmpty = true;
-                                $emptyPeriodEnd = null;
-                            }
-                        } else {
-                            // Pas de futur résident prévu = libre indéfiniment
-                            $willBeEmpty = true;
-                            $emptyPeriodEnd = null;
-                        }
-                    }
-                } else {
-                    // Chambre déjà libre
-                    $willBeEmpty = true;
-                    $emptyPeriodStart = \Carbon\Carbon::now();
-                    
-                    // Vérifier s'il y a un futur résident prévu
-                    if (isset($futureResidentsInfo[$chambreKey]) && count($futureResidentsInfo[$chambreKey]) > 0) {
-                        $nextResidentDate = null;
-                        
-                        foreach ($futureResidentsInfo[$chambreKey] as $futureResident) {
-                            $arrivalDate = \Carbon\Carbon::parse($futureResident['DATEINSCRIPTION']);
-                            
-                            if ($nextResidentDate === null || $arrivalDate->lessThan($nextResidentDate)) {
-                                $nextResidentDate = $arrivalDate;
-                            }
-                        }
-                        
-                        if ($nextResidentDate) {
-                            $emptyPeriodEnd = $nextResidentDate->copy()->subDay();
-                            $emptyDays = \Carbon\Carbon::now()->diffInDays($nextResidentDate);
-                            
-                            // La chambre est considérée comme libre si la période d'inoccupation est d'au moins 2 jours
-                            $willBeEmpty = $emptyDays >= 2;
-                        }
-                    }
-                }
-                
-                // Décider si on affiche cette chambre
-                $shouldDisplay = $willBeEmpty;
+                $foundFree = $chambresByBuilding->count() > 0;
             @endphp
             
-            @if($shouldDisplay)
-                @if($chambre->resident)
-                    <div class="card {{ $isLeaving ? 'departing' : '' }}" onclick="window.location='{{ route('nouveauResident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]) }}'">
-                        @if($chambre->resident->PHOTO == "photo")
-                            <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Profile Placeholder" class="profile-photo">
-                        @else
-                            <img src="{{ asset('storage/' . $chambre->resident->PHOTO) }}" alt="Profile Photo" class="profile-photo">
-                        @endif
-                        @if ($chambre->NUMEROCHAMBRE < 10)
-                            <h2>{{$chambre->IDBATIMENT}}0{{$chambre->NUMEROCHAMBRE}}</h2>
-                        @else
-                            <h2>{{$chambre->IDBATIMENT}}{{$chambre->NUMEROCHAMBRE}}</h2>
-                        @endif
-                        <p class="occupe">{{$chambre->resident->NOMRESIDENT }} {{$chambre->resident->PRENOMRESIDENT }}</p>
-                        
-                        @if($isLeaving && $chambre->resident->DATEDEPART)
-                            <p class="depart-info">Départ: {{ \Carbon\Carbon::parse($chambre->resident->DATEDEPART)->translatedFormat('d F Y') }}</p>
-                            @if($emptyPeriodStart && $emptyPeriodEnd)
-                                <p class="disponible-info">Disponible du {{ $emptyPeriodStart->translatedFormat('d/m/Y') }} au {{ $emptyPeriodEnd->translatedFormat('d/m/Y') }}</p>
-                            @elseif($emptyPeriodStart)
-                                <p class="disponible-info">Disponible à partir du {{ $emptyPeriodStart->translatedFormat('d/m/Y') }}</p>
-                            @endif
-                        @endif
+            @if ($foundFree)
+                @foreach ($chambresByBuilding as $buildingId => $chambres)
+                    <div class="building-section">
+                        <h3 class="building-title">Bâtiment {{ $buildingId }}</h3>
+                        <div class="chambres-grid">
+                            @foreach ($chambres as $chambre)
+                                <a href="{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="chambre-link">
+                                    <div class="chambre free">
+                                        <h3>Chambre {{ $chambre->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}</h3>
+                                        <p class="status">Statut: <span class="badge badge-success">Libre</span></p>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
-                @else
-                    <div class="card libre-card" onclick="window.location='{{ route('nouveauResident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]) }}'">
-                        @if ($chambre->NUMEROCHAMBRE < 10)
-                            <h2>{{$chambre->IDBATIMENT}}0{{$chambre->NUMEROCHAMBRE}}</h2>
-                        @else
-                            <h2>{{$chambre->IDBATIMENT}}{{$chambre->NUMEROCHAMBRE}}</h2>
-                        @endif
-                        <p class="libre">Chambre libre</p>
-                        @if($emptyPeriodEnd)
-                            <p class="disponible-info">Disponible jusqu'au {{ $emptyPeriodEnd->translatedFormat('d/m/Y') }}</p>
-                        @endif
-                    </div>
-                @endif
+                @endforeach
+            @else
+                <div class="empty-message">
+                    <p>Aucune chambre libre pour le moment</p>
+                </div>
             @endif
-            @endforeach
-            </div> 
         </div>
-    @endif
+
+        <!-- Section 2: Résidents qui partent ce mois-ci -->
+        <div class="section">
+            <h2>Résidents qui partent ce mois-ci ou avant</h2>
+            
+            @php
+                // Create a date object from the selected month and year
+                $selectedDate = Carbon\Carbon::createFromDate($year, $month, 1)->endOfMonth();
+                
+                // Group rooms by building for departing residents
+                $departingByBuilding = $chambresLibre->filter(function($chambre) use ($selectedDate) {
+                    if (!$chambre->resident || !$chambre->resident->DATEDEPART || $chambre->futureResidents->count() > 0) {
+                        return false;
+                    }
+                    
+                    $departureDate = Carbon\Carbon::parse($chambre->resident->DATEDEPART);
+                    return $departureDate->lte($selectedDate);
+                })->groupBy('IDBATIMENT');
+                
+                $foundDeparting = $departingByBuilding->count() > 0;
+            @endphp
+            
+            @if ($foundDeparting)
+                @foreach ($departingByBuilding as $buildingId => $chambres)
+                    <div class="building-section">
+                        <h3 class="building-title">Bâtiment {{ $buildingId }}</h3>
+                        <div class="chambres-grid">
+                            @foreach ($chambres as $chambre)
+                                <a href="{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="chambre-link">
+                                    <div class="chambre departing">
+                                        <h3>Chambre {{ $chambre->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}</h3>
+                                        <p class="status">Statut: <span class="badge badge-warning">Départ prévu</span></p>
+                                        <div class="resident-info">
+                                            <p>Résident: {{ $chambre->resident->NOMRESIDENT }} {{ $chambre->resident->PRENOMRESIDENT }}</p>
+                                            <p>Date départ: {{ date('d/m/Y', strtotime($chambre->resident->DATEDEPART)) }}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="empty-message">
+                    <p>Aucun résident ne part jusqu'à cette date</p>
+                </div>
+            @endif
+        </div>
+        
+        <!-- Section 3: Futurs résidents qui partent -->
+        <div class="section">
+            <h2>Futurs résidents qui partent</h2>
+            
+            @php
+                // Group rooms by building for future departing residents
+                $futureDepartingByBuilding = $chambresLibre->filter(function($chambre) use ($selectedDate) {
+                    if (!$chambre->futureResidents->last() || !$chambre->futureResidents->last()->DATEDEPART) {
+                        return false;
+                    }
+                    
+                    $departureDate = Carbon\Carbon::parse($chambre->futureResidents->last()->DATEDEPART);
+                    return $departureDate->lte($selectedDate);
+                })->groupBy('IDBATIMENT');
+                
+                $foundFutureDeparting = $futureDepartingByBuilding->count() > 0;
+            @endphp
+            
+            @if ($foundFutureDeparting)
+                @foreach ($futureDepartingByBuilding as $buildingId => $chambres)
+                    <div class="building-section">
+                        <h3 class="building-title">Bâtiment {{ $buildingId }}</h3>
+                        <div class="chambres-grid">
+                            @foreach ($chambres as $chambre)
+                                <a href="{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="chambre-link">
+                                    <div class="chambre future-departing">
+                                        <h3>Chambre {{ $chambre->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}</h3>
+                                        <p class="status">Statut: <span class="badge badge-info">Futur départ</span></p>
+                                        <div class="resident-info">
+                                            <p>Résident: {{ $chambre->futureResidents->last()->NOMRESIDENT }} {{ $chambre->futureResidents->last()->PRENOMRESIDENT }}</p>
+                                            <p>Date départ: {{ date('d/m/Y', strtotime($chambre->futureResidents->last()->DATEDEPART)) }}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="empty-message">
+                    <p>Aucun futur résident ne part jusqu'à cette date</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<style>
+/* Add to your existing CSS */
+
+</style>
 @endsection

@@ -4,7 +4,7 @@
 @php
     $resident = $chambre->resident;
 @endphp
-@if ($resident->NOMRESIDENT =="Berthet" && $resident->PRENOMRESIDENT == "Mano")
+@if ($resident && $resident->NOMRESIDENT =="Berthet" && $resident->PRENOMRESIDENT == "Mano")
     <link rel="stylesheet" href="{{ asset('css/resident-mano.css') }}">
     
 @else

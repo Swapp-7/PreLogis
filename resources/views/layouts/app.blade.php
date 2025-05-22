@@ -21,7 +21,7 @@
                         </a></li>
                         
                         <li><a href="{{ url('/ChambreLibre') }}" class="{{ request()->is('ChambreLibre') ? 'active' : '' }}">
-                            <i class="fas fa-bed"></i><span class="nav-text">Chambres</span>
+                            <i class="fas fa-bed"></i><span class="nav-text">Chambres libres</span>
                         </a></li>
                         
                         <li><a href="{{ url('/LesResidents') }}" class="{{ request()->is('LesResidents') ? 'active' : '' }}">
@@ -41,7 +41,7 @@
                         </a></li>
                         
                         <li><a href="{{ url('/planning-resident') }}" class="{{ request()->is('planning-resident') ? 'active' : '' }}">
-                            <i class="fa-solid fa-calendar-check"></i><span class="nav-text">Occupation</span>
+                            <i class="fa-solid fa-people-arrows"></i><span class="nav-text">Départs / Arrivées</span>
                         </a></li>
                     </ul>
                 </div>

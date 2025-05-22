@@ -17,6 +17,8 @@ use App\Models\Resident;
 use App\Models\ResidentArchive;
 use App\Models\Salle;
 use Carbon\Carbon;
+use App\Exports\ResidentsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ResidentController extends Controller
 {
@@ -71,30 +73,48 @@ class ResidentController extends Controller
             return redirect()->back()->with('error', 'Résident non trouvé');
         }
 
-        $chambre = Chambre::where('IDRESIDENT', $idResident)->first();
-        if (!$chambre) {
-            if ($fromCommand) {
-                return false;
-            }
-            return redirect()->back()->with('error', 'Chambre non trouvée');
-        }
+        // Déterminer si le résident est l'occupant ACTUEL d'une chambre
+        // ou s'il s'agit d'un futur résident
+        $chambreOccupee = Chambre::where('IDRESIDENT', $idResident)->first();
+        $chambreAssignee = Chambre::find($resident->CHAMBREASSIGNE);
         
+        // Archiver le résident avant de le supprimer
         $this->archiverResident($idResident);
 
-        $IdBatiment = $chambre->IDBATIMENT;
-        $chambre->IDRESIDENT = null;
-        $chambre->save();
-    
-        foreach ($resident->parents as $parent) {
-            $parent->pivot->delete(); 
+        // Ne vider la chambre QUE si le résident était l'occupant actuel
+        if ($chambreOccupee) {
+            $chambreOccupee->IDRESIDENT = null;
+            $chambreOccupee->save();
         }
+        
+        // Supprimer les associations avec les parents
+        if ($resident->parents) {
+            foreach ($resident->parents as $parent) {
+                $parent->pivot->delete(); 
+            }
+        }
+        
+        // Supprimer le résident
         $resident->delete();
 
         if ($fromCommand) {
             return true;
         }
         
-        return redirect()->route('chambre', ['IdBatiment' => $IdBatiment]);
+        // Rediriger vers la page appropriée selon le contexte
+        if ($chambreOccupee) {
+            // Si c'était un résident actuel, rediriger vers la page de la chambre
+            return redirect()->route('chambre', ['IdBatiment' => $chambreOccupee->IDBATIMENT])
+                ->with('success', 'Résident supprimé avec succès');
+        } elseif ($chambreAssignee) {
+            // Si c'était un futur résident, rediriger vers la page de la chambre assignée
+            return redirect()->route('chambre', ['IdBatiment' => $chambreAssignee->IDBATIMENT])
+                ->with('success', 'Futur résident supprimé avec succès');
+        } else {
+            // Si c'était un résident sans chambre assignée
+            return redirect()->route('allResident')
+                ->with('success', 'Résident supprimé avec succès');
+        }
     }
     public function nouveauResident($IdBatiment, $NumChambre)
     {
@@ -294,39 +314,60 @@ class ResidentController extends Controller
     }
     public function archiverResident($idResident)
     {
-        $chambre = Chambre::where('IDRESIDENT',$idResident)->first();
         $resident = Resident::find($idResident);
-        if ($resident) {
-            $archivedResident = new ResidentArchive();
-            $archivedResident->IDCHAMBRE = $chambre->IDCHAMBRE;
-            $archivedResident->IDADRESSE = $resident->IDADRESSE;
-            $archivedResident->NOMRESIDENTARCHIVE = $resident->NOMRESIDENT;
-            $archivedResident->PRENOMRESIDENTARCHIVE = $resident->PRENOMRESIDENT;
-            $archivedResident->TELRESIDENTARCHIVE = $resident->TELRESIDENT;
-            $archivedResident->MAILRESIDENTARCHIVE = $resident->MAILRESIDENT;
-            $archivedResident->DATENAISSANCEARCHIVE = $resident->DATENAISSANCE;
-            $archivedResident->NATIONALITEARCHIVE = $resident->NATIONALITE;
-            $archivedResident->ETABLISSEMENTARCHIVE = $resident->ETABLISSEMENT;
-            $archivedResident->ANNEEETUDEARCHIVE = $resident->ANNEEETUDE;
-            $archivedResident->PHOTOARCHIVE = $resident->PHOTO;
-            $archivedResident->DATEINSCRIPTIONARCHIVE = $resident->DATEINSCRIPTION;
-            $archivedResident->DATEARCHIVE = now();
-            $archivedResident->save();
+        
+        if (!$resident) {
+            return false;
+        }
+        
+        // Trouver la chambre correcte, que ce soit l'occupant actuel ou un futur résident
+        $chambreOccupee = Chambre::where('IDRESIDENT', $idResident)->first();
+        $chambreAssignee = null; 
+        
+        if ($resident->CHAMBREASSIGNE) {
+            $chambreAssignee = Chambre::find($resident->CHAMBREASSIGNE);
+        }
+        
+        // Utiliser la chambre occupée en priorité, sinon la chambre assignée
+        $chambre = $chambreOccupee ?? $chambreAssignee;
+        
+        $archivedResident = new ResidentArchive();
+        
+        // Vérifier que $chambre n'est pas null avant d'accéder à IDCHAMBRE
+        $archivedResident->IDCHAMBRE = $chambre ? $chambre->IDCHAMBRE : null;
+        $archivedResident->IDADRESSE = $resident->IDADRESSE;
+        $archivedResident->NOMRESIDENTARCHIVE = $resident->NOMRESIDENT;
+        $archivedResident->PRENOMRESIDENTARCHIVE = $resident->PRENOMRESIDENT;
+        $archivedResident->TELRESIDENTARCHIVE = $resident->TELRESIDENT;
+        $archivedResident->MAILRESIDENTARCHIVE = $resident->MAILRESIDENT;
+        $archivedResident->DATENAISSANCEARCHIVE = $resident->DATENAISSANCE;
+        $archivedResident->NATIONALITEARCHIVE = $resident->NATIONALITE;
+        $archivedResident->ETABLISSEMENTARCHIVE = $resident->ETABLISSEMENT;
+        $archivedResident->ANNEEETUDEARCHIVE = $resident->ANNEEETUDE;
+        $archivedResident->PHOTOARCHIVE = $resident->PHOTO;
+        $archivedResident->DATEINSCRIPTIONARCHIVE = $resident->DATEINSCRIPTION;
+        $archivedResident->DATEARCHIVE = now();
+        $archivedResident->save();
 
-        }
-        foreach ($resident->parents as $parentData) {
-            
+        // Vérifier si le résident a des parents avant de parcourir la collection
+        if ($resident->parents && $resident->parents->count() > 0) {
+            foreach ($resident->parents as $parentData) {
                 $parent = Parents::find($parentData['IDPARENT']);
-                $archivedResident->parents()->attach($parent->IDPARENT);
-            
+                if ($parent) {
+                    $archivedResident->parents()->attach($parent->IDPARENT);
+                }
+            }
         }
+
+        // Mettre à jour les fichiers
         $fichiers = Fichier::where('IDRESIDENT', $idResident)->get();
         foreach ($fichiers as $fichier) {
             $fichier->IDRESIDENT = null;
             $fichier->IDRESIDENTARCHIVE = $archivedResident->IDRESIDENTARCHIVE;
             $fichier->save();
         }
-
+        
+        return true;
     }
     public function planifierDepart(Request $request)
     {
@@ -371,10 +412,26 @@ class ResidentController extends Controller
             return redirect()->back()->with('error', 'Chambre non trouvée');
         }
         
-        // Contraintes de date minimale : date de départ du résident actuel
+        // Contraintes de date minimale : date d'aujourd'hui ou date de départ du résident actuel
         $minDate = now();
         if ($chambre->resident && $chambre->resident->DATEDEPART) {
             $minDate = Carbon::parse($chambre->resident->DATEDEPART)->addDay();
+        }
+        
+        // Pour les chambres vides, vérifier s'il y a un futur résident AVANT celui-ci
+        if (!$chambre->resident) {
+            $previousFutureResident = Resident::where('CHAMBREASSIGNE', $chambre->IDCHAMBRE)
+                ->where('IDRESIDENT', '!=', $resident->IDRESIDENT)
+                ->where('DATEINSCRIPTION', '<', $resident->DATEINSCRIPTION)
+                ->orderBy('DATEINSCRIPTION', 'desc')
+                ->first();
+            
+            if ($previousFutureResident && $previousFutureResident->DATEDEPART) {
+                $previousDepartDate = Carbon::parse($previousFutureResident->DATEDEPART)->addDay();
+                if ($previousDepartDate->gt($minDate)) {
+                    $minDate = $previousDepartDate;
+                }
+            }
         }
         
         // Contraintes de date maximale : date d'arrivée du prochain futur résident
@@ -393,11 +450,11 @@ class ResidentController extends Controller
         $dateArrivee = Carbon::parse($request->date_arrivee);
         
         if ($dateArrivee->lt($minDate)) {
-            return redirect()->back()->with('error', 'La date d\'arrivée doit être après la date de départ du résident actuel');
+            return redirect()->back()->with('error', 'La date d\'arrivée doit être après ' . $minDate->format('d/m/Y'));
         }
         
         if ($maxDate && $dateArrivee->gt($maxDate)) {
-            return redirect()->back()->with('error', 'La date d\'arrivée doit être avant l\'arrivée du prochain futur résident');
+            return redirect()->back()->with('error', 'La date d\'arrivée doit être avant l\'arrivée du prochain futur résident (' . $maxDate->format('d/m/Y') . ')');
         }
         
         // Vérifier la date de départ si fournie
@@ -409,7 +466,7 @@ class ResidentController extends Controller
             }
             
             if ($maxDate && $dateDepart->gt($maxDate)) {
-                return redirect()->back()->with('error', 'La date de départ doit être avant l\'arrivée du prochain futur résident');
+                return redirect()->back()->with('error', 'La date de départ doit être avant l\'arrivée du prochain futur résident (' . $maxDate->format('d/m/Y') . ')');
             }
             
             // Mettre à jour la date de départ
@@ -423,6 +480,22 @@ class ResidentController extends Controller
         return redirect()->back()->with('success', 'Dates mises à jour avec succès');
     }
     
+    public function exportExcel(Request $request)
+    {
+        $query = null;
+        
+        // Si une recherche est en cours, exporter uniquement les résultats de la recherche
+        if ($request->has('query')) {
+            $searchQuery = $request->input('query');
+            $query = Resident::with(['chambre', 'parents','adresse'])
+                ->where('NOMRESIDENT', 'like', "%{$searchQuery}%")
+                ->orWhere('PRENOMRESIDENT', 'like', "%{$searchQuery}%")
+                ->orWhere('MAILRESIDENT', 'like', "%{$searchQuery}%")
+                ->get();
+        }
+        
+        return Excel::download(new ResidentsExport($query), 'residents.xlsx');
+    }
 
     
 }

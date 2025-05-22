@@ -49,7 +49,11 @@ Route::get("/archive",[ResidentArchiveController::class, "index" ])->name('archi
 Route::get('/resident-archive/{idResidentA}',[ResidentArchiveController::class,"getResidentArchive" ])->name('resident-archive');
 Route::get('/planning-resident', [PlanningResidentController::class, 'index'])->name('planning.resident');
 
+
+
 Route::get('/planning/resident/export', [App\Http\Controllers\PlanningResidentController::class, 'exportExcel'])->name('planning.resident.export');
+Route::get('/residents/export', [ResidentController::class, 'exportExcel'])->name('residents.export');
+
 
 Route::get('/filter-departing-residents', [ChambreController::class, 'filterDepartingResidents'])->name('filterDepartingResidents');
 Route::get("/RechercherResident",[ResidentController::class, "search" ])->name('residents.search');

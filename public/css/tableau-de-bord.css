@@ -214,6 +214,141 @@ body {
     margin-right: 5px;
 }
 
+/* Styles pour la section des mouvements */
+.movements-section {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 40px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    color: var(--light-gray);
+    padding: 12px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.tab-button i {
+    margin-right: 8px;
+}
+
+.tab-button.active {
+    color: var(--accent);
+}
+
+.tab-button.active:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--accent);
+}
+
+.tab-count {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    margin-left: 8px;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.movements-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.movements-table th, 
+.movements-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.movements-table th {
+    color: var(--accent);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.resident-row.today {
+    background-color: rgba(253, 193, 31, 0.15);
+}
+
+.date-cell {
+    width: 60px;
+}
+
+.date-display {
+    background-color: var(--accent);
+    color: var(--primary);
+    border-radius: 6px;
+    width: 50px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.date-day {
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 3px 0;
+}
+
+.date-month {
+    background-color: var(--primary);
+    color: var(--accent);
+    font-size: 0.8rem;
+    padding: 2px 0;
+    text-transform: uppercase;
+}
+
+.chambre-badge {
+    background-color: rgba(23, 162, 184, 0.2);
+    color: #17a2b8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.no-room {
+    color: #dc3545;
+    font-style: italic;
+}
+
+.no-data {
+    padding: 20px;
+    text-align: center;
+    color: var(--light-gray);
+    font-style: italic;
+}
+
 /* Planning Preview */
 .planning-preview {
     background-color: var(--transparent-white);

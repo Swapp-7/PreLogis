@@ -13,6 +13,11 @@
             </div>
         </form>
 
+        <a href="{{ route('residents.export', ['query' => request('query')]) }}" class="export-btn">
+            <i class="fas fa-file-excel"></i>
+            <span>Exporter en Excel</span>
+        </a>
+
         <table class="table">
             <thead>
                 <tr>
@@ -20,6 +25,8 @@
                     <th>Prénom</th>
                     <th>Email</th>
                     <th>Téléphone</th>
+                    <th>Nom parent 1</th>
+                    <th>Tel parent 1</th>
                     <th>Chambre</th>
 
                 </tr>
@@ -32,6 +39,14 @@
                     <td>{{ $resident->PRENOMRESIDENT }}</td>
                     <td>{{ $resident->MAILRESIDENT }}</td>
                     <td>{{ $resident->TELRESIDENT }}</td>
+                    @if ($resident->parents->isEmpty())
+                        <td><em>Non renseigné</em></td>
+                        <td><em>Non renseigné</em></td>
+                    @else
+                        <td>{{ $resident->parents->first()->NOMPARENT }}</td>
+                        <td>{{ $resident->parents->first()->TELPARENT }}</td>
+                    @endif
+                    
                     <td>
                         @if($chambre)
                             {{ $chambre->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}

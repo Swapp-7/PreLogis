@@ -1,137 +1,214 @@
-
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
+/* Variables */
+:root {
+    --bg-dark: #121f2e;
+    --bg-darker: #0f1a28;
+    --bg-card: rgba(32, 54, 75, 0.6);
+    --accent: #FDC11F;
+    --grey-light: #CDCBCE;
+    --white: #FFFFFF;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --border-radius: 12px;
+    --success: #28a745;
+    --warning: #FDC11F;
+    --info: #17a2b8;
+    --danger: #dc3545;
+}
+
+/* Base styles */
 body {
     font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
     margin: 0;
     padding: 0;
-    height: 100vh;
-    width: 100vw;
-    background-color: #20364B; /* Bleu foncé de votre palette en fond */
-    display: flex;
-    flex-direction: column;
 }
 
-.batiments {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+/* Main container */
+.batiment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+/* Page header */
+.page-header {
     text-align: center;
-    color: white;
-    padding: 10px 20px 20px 20px; /* Padding réduit en haut */
-}
-
-.batiments h1 {
-    color: white;
-    font-size: 2.2rem; /* Taille réduite */
-    margin: 10px 0 20px 0; /* Marges réduites */
-    text-transform: uppercase;
-    border-bottom: 3px solid #FDC11F;
-    padding-bottom: 8px;
-}
-
-.card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    margin-top: 20px;
-    width: 90%;
-    max-width: 1400px; /* Augmenté pour accueillir plus de cartes */
-}
-
-.card {
-    cursor: pointer;
-    background-color: #CDCBCE; /* Fond gris clair */
-    border: 2px solid #FDC11F; /* Bordure jaune */
-    border-radius: 10px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Ombre plus subtile */
-    padding: 20px 15px; /* Padding réduit */
-    width: calc(25% - 20px); /* 4 cartes par rangée */
-    min-width: 200px;
-    height: 160px; /* Hauteur réduite */
-    text-align: center;
-    transition: box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    margin-bottom: 50px;
     position: relative;
-    overflow: hidden;
 }
 
-.card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    border-color: white; /* Bordure blanche au survol */
-}
-
-/* Ajout d'une icône de bâtiment */
-.card::before {
-    content: '\f1ad'; /* Code de l'icône de bâtiment Font Awesome */
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    font-size: 2.2rem; /* Taille réduite */
-    color: #20364B;
-    margin-bottom: 10px; /* Marge réduite */
-    display: block;
-}
-
-.card h2 {
-    font-size: 2.2rem; /* Taille réduite mais toujours grande */
-    margin: 5px 0;
-    color: #20364B;
+.page-header h1 {
+    color: var(--white);
     font-family: 'Montserrat', sans-serif;
-    letter-spacing: 1px;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    display: inline-block;
 }
 
-.card h3 {
-    font-size: 1.1rem; /* Taille réduite */
-    color: #20364B;
-    opacity: 0.9;
-    background-color: #FDC11F;
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    margin-top: 5px;
+.page-header h1 i {
+    color: var(--accent);
+    margin-right: 15px;
+}
+
+.header-subtitle {
+    color: var(--grey-light);
+    font-size: 1.1rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+.page-header:after {
+    content: "";
+    display: block;
+    width: 100px;
+    height: 4px;
+    background-color: var(--accent);
+    margin: 20px auto 0;
+    border-radius: 2px;
+}
+
+/* Batiments grid */
+.batiments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+/* Batiment card */
+.batiment-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(18, 31, 46, 0.9) 100%);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    padding: 25px;
+    position: relative;
+    border: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+.batiment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent);
+}
+
+.batiment-icon {
+    background-color: rgba(253, 193, 31, 0.2);
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.batiment-icon i {
+    color: var(--accent);
+    font-size: 32px;
+}
+
+.batiment-info {
+    flex: 1;
+}
+
+.batiment-info h3 {
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4rem;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.capacity-meter {
+    background-color: rgba(23, 162, 184, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-left: 3px solid var(--info);
+}
+
+.meter-label {
+    font-size: 0.9rem;
+    color: var(--grey-light);
     font-weight: 500;
+}
+
+.meter-value {
+    background-color: var(--info);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 4px 12px;
+    border-radius: 30px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.card-arrow {
+    color: var(--accent);
+    font-size: 20px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+}
+
+.batiment-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(0);
 }
 
 /* Responsive design */
 @media (max-width: 1200px) {
-    .card {
-        width: calc(33.33% - 20px); /* 3 cartes par rangée */
+    .batiments-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 992px) {
-    .card {
-        width: calc(50% - 20px); /* 2 cartes par rangée */
+@media (max-width: 768px) {
+    .batiment-container {
+        padding: 20px 15px;
     }
     
-    .card::before {
+    .batiments-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header h1 {
         font-size: 2rem;
+    }
+    
+    .header-subtitle {
+        font-size: 1rem;
     }
 }
 
 @media (max-width: 576px) {
-    .card {
-        width: calc(100% - 20px); /* 1 carte par rangée */
-        max-width: 320px;
-    }
-}
-
-@media (max-width: 576px) {
-    .card {
-        width: 100%;
+    .batiment-card {
+        padding: 20px;
     }
     
-    .batiments h1 {
-        font-size: 2rem;
+    .batiment-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .batiment-icon i {
+        font-size: 24px;
+    }
+    
+    .batiment-info h3 {
+        font-size: 1.2rem;
     }
 }

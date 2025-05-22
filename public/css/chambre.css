@@ -1,161 +1,260 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
+/* Variables */
+:root {
+    --bg-dark: #121f2e;
+    --bg-darker: #0f1a28;
+    --bg-card: rgba(32, 54, 75, 0.6);
+    --accent: #FDC11F;
+    --grey-light: #CDCBCE;
+    --white: #FFFFFF;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --border-radius: 12px;
+    --success: #28a745;
+    --warning: #FDC11F;
+    --info: #17a2b8;
+    --danger: #dc3545;
+}
+
+/* Base styles */
 body {
     font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
     margin: 0;
     padding: 0;
-    background-color: #20364B;
-    color: #fff;
 }
 
-.placeholder {
-    text-align: center;
-    padding: 15px 20px;
-    background-color: transparent;
-    color: white;
-    margin-bottom: 10px;
-}
-
-.placeholder h1 {
-    margin: 0;
-    font-size: 2.2rem;
-    text-transform: uppercase;
-    border-bottom: 3px solid #FDC11F;
-    padding-bottom: 8px;
-    display: inline-block;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.card-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    padding: 20px;
-    max-width: 1400px;
+/* Main container */
+.chambre-container {
+    max-width: 1200px;
     margin: 0 auto;
-    width: 90%;
+    padding: 30px 20px;
 }
 
-.card {
-    cursor: pointer;
-    background-color: #CDCBCE;
-    border: 2px solid #FDC11F;
-    border-radius: 10px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+/* Page header */
+.page-header {
     text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    padding: 15px 10px;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.page-header h1 {
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.page-header h1 i {
+    color: var(--accent);
+    margin-right: 15px;
+}
+
+.header-subtitle {
+    color: var(--grey-light);
+    font-size: 1.1rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+.page-header:after {
+    content: "";
+    display: block;
+    width: 100px;
+    height: 4px;
+    background-color: var(--accent);
+    margin: 20px auto 0;
+    border-radius: 2px;
+}
+
+/* Chambres grid */
+.chambres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* Chambre card base styles */
+.chambre-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(18, 31, 46, 0.9) 100%);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--white);
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 200px;
+    border: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+.chambre-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent);
+}
+
+/* Chambre status */
+.chambre-status {
+    background-color: var(--bg-darker);
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chambre-card.occupied .chambre-status {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-bottom: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.chambre-card.vacant .chambre-status {
+    background-color: rgba(253, 193, 31, 0.2);
+    border-bottom: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+.status-icon {
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.chambre-card.occupied .status-icon {
+    color: var(--success);
+}
+
+.chambre-card.vacant .status-icon {
+    color: var(--warning);
+}
+
+.status-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Chambre number */
+.chambre-number {
+    padding: 15px 20px;
+    text-align: center;
+}
+
+.chambre-number span {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--white);
+}
+
+/* Resident info */
+.resident-info {
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-    min-height: 160px;
+    padding: 0 15px 15px;
+    flex-grow: 1;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    border-color: white;
+.resident-photo {
+    margin-bottom: 10px;
 }
 
-.card img {
+.resident-photo img {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    margin: 10px auto 8px;
     object-fit: cover;
-    border: 2px solid #FDC11F;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 3px solid var(--success);
+    box-shadow: var(--shadow);
 }
 
-.card h2 {
-    font-size: 1.8rem;
-    margin: 8px 0;
-    color: #20364B;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-}
-
-.occupe {
+.resident-name {
     font-size: 1.1rem;
-    margin: 8px 0;
-    color: #20364B;
     font-weight: 500;
-    background-color: rgba(253, 193, 31, 0.7);
-    padding: 4px 12px;
+    text-align: center;
+    color: var(--white);
+    background-color: rgba(40, 167, 69, 0.2);
+    padding: 5px 12px;
     border-radius: 20px;
-    display: inline-block;
+    border-left: 3px solid var(--success);
 }
 
-.libre {
-    background-color: #FDC11F;
-    color: #20364B;
-    font-weight: bold;
-    font-size: 1.1rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-    margin-top: 8px;
-    display: inline-block;
-    position: relative;
+/* Vacant info */
+.vacant-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 15px;
+    flex-grow: 1;
 }
 
-.libre::before {
-    content: '\f055';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    margin-right: 6px;
-}
-
-/* Ajouter une icône pour les chambres occupées */
-.card:has(.occupe)::before {
-    content: '\f007';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
+.vacant-info i {
     font-size: 2rem;
-    color: #20364B;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    opacity: 0.2;
+    color: var(--warning);
+    margin-bottom: 10px;
 }
 
-/* Ajouter une icône pour les chambres libres */
-.card:has(.libre)::before {
-    content: '\f1ad';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    font-size: 2.2rem;
-    color: #20364B;
-    margin-bottom: 10px;
-    display: block;
+.vacant-info span {
+    font-size: 1rem;
+    color: var(--grey-light);
+}
+
+/* Card arrow */
+.card-arrow {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    color: var(--accent);
+    font-size: 16px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+}
+
+.chambre-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(0);
 }
 
 /* Responsive design */
 @media (max-width: 1200px) {
-    .card-container {
+    .chambres-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 992px) {
-    .card-container {
+    .chambres-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 576px) {
-    .card-container {
+    .chambre-container {
+        padding: 20px 15px;
+    }
+    
+    .chambres-grid {
         grid-template-columns: 1fr;
     }
     
-    .placeholder h1 {
+    .page-header h1 {
         font-size: 2rem;
     }
     
-    .card {
-        max-width: 320px;
-        margin: 0 auto;
+    .header-subtitle {
+        font-size: 1rem;
+    }
+    
+    .chambre-number span {
+        font-size: 1.8rem;
     }
 }
