@@ -44,6 +44,17 @@
                             <i class="fa-solid fa-people-arrows"></i><span class="nav-text">Départs / Arrivées</span>
                         </a></li>
                     </ul>
+                    
+                    <!-- Logout button -->
+                    <div class="logout-container">
+                        <form action="{{ route('admin.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span class="nav-text">Déconnexion</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 
                 <div class="containerpage">
@@ -209,6 +220,58 @@ body {
     height: auto;
 }
 
+/* Style pour le bouton de déconnexion */
+.logout-container {
+    margin-top: auto;
+    width: 100%;
+    padding: 20px 0;
+    border-top: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 12px 0;
+    padding-left: 25px;
+    cursor: pointer;
+    color: #CDCBCE;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.logout-btn i {
+    font-size: 24px;
+    min-width: 30px;
+    color: #e74c3c;
+    transition: color 0.3s ease;
+}
+
+.logout-btn:hover i {
+    color: #FDC11F;
+}
+
+.logout-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 20%;
+    width: 0;
+    height: 2px;
+    background-color: #FDC11F;
+    transition: width 0.3s ease;
+}
+
+.logout-btn:hover::after {
+    width: 60%;
+}
+
 /* Responsive design pour la barre de navigation */
 @media (max-width: 768px) {
     .barre-navigation {
@@ -234,6 +297,10 @@ body {
     }
     
     .barre-navigation:hover .nav-text {
+        opacity: 0;
+    }
+    
+    .barre-navigation:hover .logout-btn .nav-text {
         opacity: 0;
     }
 }
