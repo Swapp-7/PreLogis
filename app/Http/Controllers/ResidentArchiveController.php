@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ResidentArchiveExport;
 
 use App\Models\Adress;
 use App\Models\Batiment;
@@ -29,7 +31,11 @@ class ResidentArchiveController extends Controller
             $residentA->where(function ($q) use ($query) {
                 $q->where('NOMRESIDENTARCHIVE', 'like', "%$query%")
                 ->orWhere('PRENOMRESIDENTARCHIVE', 'like', "%$query%")
-                ->orWhere('MAILRESIDENTARCHIVE', 'like', "%$query%");
+                ->orWhere('MAILRESIDENTARCHIVE', 'like', "%$query%")
+                ->orWhereHas('chambre', function ($chambreQuery) use ($query) {
+                    $chambreQuery->where('NUMEROCHAMBRE', 'like', "%$query%")
+                    ->orWhereRaw("CONCAT(IDBATIMENT, NUMEROCHAMBRE) LIKE ?", ['%' . $query . '%']);
+                });
             });
         }
 
@@ -51,6 +57,30 @@ class ResidentArchiveController extends Controller
             $parent->delete(); 
         }
     }
-   
-  
+
+    public function exportExcel(Request $request)
+    {
+        $query = null;
+        
+        // Si une recherche est en cours, exporter uniquement les résultats de la recherche
+        if ($request->has('query')) {
+            $searchQuery = $request->input('query');
+            $query = ResidentArchive::with(['chambre', 'parents', 'adresse'])
+                ->where(function ($q) use ($searchQuery) {
+                    $q->where('NOMRESIDENTARCHIVE', 'like', "%{$searchQuery}%")
+                    ->orWhere('PRENOMRESIDENTARCHIVE', 'like', "%{$searchQuery}%")
+                    ->orWhere('MAILRESIDENTARCHIVE', 'like', "%{$searchQuery}%")
+                    ->orWhereHas('chambre', function ($chambreQuery) use ($searchQuery) {
+                        $chambreQuery->where('NUMEROCHAMBRE', 'like', "%{$searchQuery}%")
+                        ->orWhereRaw("CONCAT(IDBATIMENT, NUMEROCHAMBRE) LIKE ?", ['%' . $searchQuery . '%']);
+                    });
+                })
+                ->get();
+        } else {
+            // Si pas de recherche, récupérer tous les résidents archivés avec leurs relations
+            $query = ResidentArchive::with(['chambre', 'parents', 'adresse'])->get();
+        }
+        
+        return Excel::download(new ResidentArchiveExport($query), 'residents_archives.xlsx');
+    }
 }

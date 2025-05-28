@@ -3,7 +3,7 @@
 @section('title', 'Archives des Résidents')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/archive.css') }}">
+<link rel="stylesheet" href="{{ asset('css/liste-residents.css') }}">
     <div class="container">
         <h1>Résidents Archivés</h1>
 
@@ -15,6 +15,11 @@
                 <button type="submit">Rechercher</button>
             </div>
         </form>
+
+        <a href="{{ route('archives.export', ['query' => request('query')]) }}" class="export-btn">
+            <i class="fas fa-file-excel"></i>
+            <span>Exporter en Excel</span>
+        </a>
 
         @if($residentA->isEmpty())
             <p class="text-center text-warning">Aucun résident archivé trouvé.</p>
@@ -56,5 +61,26 @@
 @endsection
 
 <style>
+.export-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+    border: none;
+    cursor: pointer;
+}
 
+.export-btn i {
+    margin-right: 8px;
+}
+
+.export-btn:hover {
+    background-color: #45a049;
+    color: white;
+}
 </style>
