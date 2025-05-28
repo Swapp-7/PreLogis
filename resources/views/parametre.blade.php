@@ -43,6 +43,18 @@
             </div>
         </div>
         
+        <!-- Section Optimisation des Occupations -->
+        <div class="parametre-card">
+            <div class="parametre-header">
+                <i class="fas fa-database"></i>
+                <h2>Optimisation des Données</h2>
+            </div>
+            <div class="parametre-content">
+                <p>Supprimez les anciennes occupations pour optimiser les performances</p>
+                <a href="{{ route('parametres.optimisation-occupation') }}" class="btn-parametre">Nettoyer les données</a>
+            </div>
+        </div>
+        
     </div>
 </div>
 

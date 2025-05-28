@@ -11,6 +11,7 @@ use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\PlanningResidentController;
 use App\Http\Controllers\ParametreBatimentController;
 use App\Http\Controllers\ParametreChambreController;
+use App\Http\Controllers\ParametreOccupationController;
 
 // Public routes - only login pages
 Route::get('/admin/login', function () {
@@ -68,6 +69,10 @@ Route::middleware(['admin'])->group(function () {
     // Routes pour la gestion des paramètres admin
     Route::get('/parametres/admin', [App\Http\Controllers\ParametreAdminController::class, 'index'])->name('parametres.admin');
     Route::put('/parametres/admin/update-email', [App\Http\Controllers\ParametreAdminController::class, 'updateEmail'])->name('parametres.admin.updateEmail');
+    
+    // Routes pour l'optimisation des occupations
+    Route::get('/parametres/optimisation-occupation', [ParametreOccupationController::class, 'index'])->name('parametres.optimisation-occupation');
+    Route::post('/parametres/optimisation-occupation', [ParametreOccupationController::class, 'optimiserOccupations'])->name('parametres.optimisation-occupation.optimiser');
 
     Route::get('/ChambreLibre', [ChambreController::class, 'showDepartingResidents'])->name('chambreLibre');
     Route::get("/Batiment", [BatimentController::class, "index"])->name('batiment');
