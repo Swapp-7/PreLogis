@@ -16,8 +16,8 @@
 
 <div class="resident-container">
     <div class="navigation">
-        <a href="{{ route('allResident') }}" class="btn-return">
-            <i class="fas fa-arrow-left"></i> Retour à la liste
+        <a href="javascript:void(0);" onclick="goBack()" class="btn-return">
+            <i class="fas fa-arrow-left"></i> Retour
         </a>
     </div>
     
@@ -175,5 +175,20 @@
         </div>
     @endif
 </div>
+
+<script>
+    function goBack() {
+        // Vérifie si la page précédente est une page de modification 
+        // (pour éviter les boucles)
+        const referrer = document.referrer;
+        if (referrer.includes('Modifier-Resident')) {
+            // Si on vient d'une page de modification, rediriger vers la liste des résidents
+            window.location.href = "{{ route('allResident') }}";
+        } else {
+            // Sinon, revenir à la page précédente
+            window.history.back();
+        }
+    }
+</script>
 
 @endsection

@@ -35,7 +35,7 @@
                 @if($chambre->resident)
                     <div class="resident-info">
                         <div class="resident-photo">
-                            @if($chambre->resident->PHOTO == "photo")
+                            @if($chambre->resident->PHOTO == "photo" || !$chambre->resident->PHOTO)
                                 <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Profile Placeholder">
                             @else
                                 <img src="{{ asset('storage/' . $chambre->resident->PHOTO) }}" alt="Profile Photo">

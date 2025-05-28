@@ -29,9 +29,7 @@ Route::get('/admin/reset-password/{token}', [App\Http\Controllers\AdminAuthContr
 Route::post('/admin/reset-password', [App\Http\Controllers\AdminAuthController::class, 'resetPassword'])
     ->name('admin.password.update');
 
-Route::post('/admin/login', [App\Http\Controllers\AdminAuthController::class, 'login'])->name('admin.login.submit');
-
-// Protected routes - require authentication
+Route::post('/admin/login', [App\Http\Controllers\AdminAuthController::class, 'login'])->name('admin.login.submit');    // Protected routes - require authentication
 Route::middleware(['admin'])->group(function () {
     // Logout route
     Route::post('/admin/logout', [App\Http\Controllers\AdminAuthController::class, 'logout'])->name('admin.logout');
@@ -66,6 +64,10 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/parametres/batiments/{batimentId}/chambres', [ParametreChambreController::class, 'index'])->name('parametres.chambres');
     Route::post('/parametres/batiments/{batimentId}/chambres', [ParametreChambreController::class, 'store'])->name('parametres.chambres.store');
     Route::delete('/parametres/chambres/{id}', [ParametreChambreController::class, 'destroy'])->name('parametres.chambres.destroy');
+    
+    // Routes pour la gestion des paramètres admin
+    Route::get('/parametres/admin', [App\Http\Controllers\ParametreAdminController::class, 'index'])->name('parametres.admin');
+    Route::put('/parametres/admin/update-email', [App\Http\Controllers\ParametreAdminController::class, 'updateEmail'])->name('parametres.admin.updateEmail');
 
     Route::get('/ChambreLibre', [ChambreController::class, 'showDepartingResidents'])->name('chambreLibre');
     Route::get("/Batiment", [BatimentController::class, "index"])->name('batiment');

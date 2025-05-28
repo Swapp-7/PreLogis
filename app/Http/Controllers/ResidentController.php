@@ -25,7 +25,7 @@ class ResidentController extends Controller
     public function index($IdBatiment, $NumChambre)
     {
         $chambre = Chambre::where('IDBATIMENT', $IdBatiment)->where('NUMEROCHAMBRE', $NumChambre)->first();
- 
+        
         return view('resident-chambre', ['chambre' => $chambre]);
     }
     public function getResident($IdResident)
@@ -34,6 +34,7 @@ class ResidentController extends Controller
         if (!$resident) {
             return redirect()->back()->with('error', 'Résident non trouvé');
         }
+        
         return view('resident', ['resident' => $resident]);
     }
     public function getAllResident()
@@ -199,12 +200,16 @@ class ResidentController extends Controller
             $adresse->save();
         }
 
-        $chambre = Chambre::where('IDRESIDENT',$idResident)->first();   
+        // Après la modification, rediriger en fonction du type de résident
         if($resident->chambre){
-            return redirect()->route('resident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE]);
-
-        }else{
-            return redirect()->route('getResident', ['IdResident' => $resident->IDRESIDENT]);
+            $chambre = Chambre::where('IDRESIDENT',$idResident)->first();
+            // Si le résident a une chambre, rediriger vers la page de la chambre
+            return redirect()->route('resident', ['IdBatiment' => $chambre->IDBATIMENT,'NumChambre' => $chambre->NUMEROCHAMBRE])
+                            ->with('success', 'Résident modifié avec succès');
+        } else {
+            // Si le résident n'a pas de chambre (futur résident), rediriger vers sa page individuelle
+            return redirect()->route('allResident')
+                            ->with('success', 'Résident modifié avec succès');
         }
     }
     
@@ -496,6 +501,5 @@ class ResidentController extends Controller
         
         return Excel::download(new ResidentsExport($query), 'residents.xlsx');
     }
-
     
 }

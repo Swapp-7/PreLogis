@@ -31,6 +31,18 @@
             </div>
         </div>
         
+        <!-- Section Compte Admin -->
+        <div class="parametre-card">
+            <div class="parametre-header">
+                <i class="fas fa-user-cog"></i>
+                <h2>Compte Administrateur</h2>
+            </div>
+            <div class="parametre-content">
+                <p>Modifiez les paramètres de votre compte</p>
+                <a href="{{ route('parametres.admin') }}" class="btn-parametre">Gérer mon compte</a>
+            </div>
+        </div>
+        
     </div>
 </div>
 

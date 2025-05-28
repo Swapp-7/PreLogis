@@ -64,7 +64,7 @@
                 <tbody>
                     @foreach($chambres as $chambre)
                     <tr data-id="{{ $chambre->IDCHAMBRE }}">
-                        <td>{{ $chambre->NUMEROCHAMBRE }}</td>
+                        <td>{{ $batiment->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}</td>
                         <td>
                             @if($chambre->IDRESIDENT)
                                 <span class="status occupied">Occupée</span>
@@ -78,8 +78,9 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             @else
-                                <button class="btn-action btn-info" title="Voir le résident" data-id="{{ $chambre->IDRESIDENT }}">
-                                    <i class="fas fa-user"></i>
+                                <a href="{{ route('resident', ['IdBatiment' => $batiment->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="btn-action btn-info" title="Voir la chambre">
+                                    <i class="fas fa-door-open"></i>
+                                </a>
                                 </button>
                             @endif
                         </td>

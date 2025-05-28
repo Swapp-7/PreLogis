@@ -7,15 +7,9 @@
 <div class="container">
     <div class="page-header">
         <h2>Modifier un Résident</h2>
-        @if ($resident->chambre)
-            <a href="{{ route('resident', ['IdBatiment' => $resident->chambre->IDBATIMENT, 'NumChambre' => $resident->chambre->NUMEROCHAMBRE]) }}" class="btn-return">
-                <i class="fas fa-arrow-left"></i> Retour
-            </a>
-        @else
-            <a href="{{ route('getResident', parameters: ['IdResident' => $resident->IDRESIDENT]) }}" class="btn-return">
-                <i class="fas fa-arrow-left"></i> Retour
-            </a>
-        @endif
+        <a href="javascript:history.back()" class="btn-return">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
     </div>
 
     @if ($errors->any())
