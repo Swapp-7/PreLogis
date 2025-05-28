@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Modifier un Résident')
+
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/modifier-resident.css') }}">
 <div class="container">

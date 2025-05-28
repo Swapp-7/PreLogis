@@ -1,5 +1,6 @@
 
 @extends('layouts.app')
+@section('title', 'Résident Archivé')
 @section('content')
 @php
     $resident = $residentA 
@@ -21,7 +22,13 @@
                 <img src="{{ asset('storage/' . $resident->PHOTOARCHIVE) }}"
                     alt="Photo du résident" class="resident-photo">
                 @endif
-                <div class="resident-badge">{{ $resident->chambre->IDBATIMENT }}{{ $resident->chambre->NUMEROCHAMBRE }}</div>
+                <div class="resident-badge">
+                    @if($resident->chambre)
+                        {{ $resident->chambre->IDBATIMENT }}{{ $resident->chambre->NUMEROCHAMBRE }}
+                    @else
+                        <span>Chambre supprimé</span>
+                    @endif
+                </div>
             </div>
             
             <div class="resident-identity">

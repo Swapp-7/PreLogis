@@ -59,4 +59,41 @@ class FichierController extends Controller
 
         return redirect()->back()->with('success', 'File deleted successfully.');
     }
+    
+    public function telechargerTousFichiers($idResident)
+    {
+        $resident = Resident::find($idResident);
+        
+        if (!$resident) {
+            return redirect()->back()->with('error', 'Résident non trouvé.');
+        }
+        
+        $fichiers = $resident->fichiers;
+        
+        if ($fichiers->isEmpty()) {
+            return redirect()->back()->with('error', 'Aucun document disponible pour ce résident.');
+        }
+        
+        $zipFileName = $resident->NOMRESIDENT . '_' . $resident->PRENOMRESIDENT . '_documents.zip';
+        $zipFilePath = storage_path('app/public/' . $zipFileName);
+        
+        // Créer une nouvelle archive ZIP
+        $zip = new \ZipArchive();
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE) !== TRUE) {
+            return redirect()->back()->with('error', 'Impossible de créer l\'archive zip.');
+        }
+        
+        // Ajouter les fichiers à l'archive
+        foreach ($fichiers as $fichier) {
+            $filePath = public_path($fichier->CHEMINFICHIER);
+            if (file_exists($filePath)) {
+                $zip->addFile($filePath, $fichier->NOMFICHIER);
+            }
+        }
+        
+        $zip->close();
+        
+        // Téléchargement du fichier ZIP
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
 }

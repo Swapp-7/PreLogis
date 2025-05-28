@@ -15,14 +15,29 @@
                     @php
                         $dateMini = max(strtotime('tomorrow'), strtotime($resident->DATEINSCRIPTION));
                         $dateMin = date('Y-m-d', $dateMini);
+                        // Ajout : calcul de la date max si un futur résident existe
+                        // Utilise $resident->chambre si $chambre n'est pas défini
+                        $chambreObj = isset($chambre) ? $chambre : $resident->chambre;
+                        $futureResidents = $chambreObj ? $chambreObj->futureResidents : null;
+                        $dateMax = null;
+                        if ($futureResidents && $futureResidents->count() > 0) {
+                            // Date maximum = un jour avant l'arrivée du futur résident
+                            $dateFutureResident = strtotime($futureResidents->first()->DATEINSCRIPTION);
+                            $dateJourAvant = strtotime('-1 day', $dateFutureResident);
+                            $dateMax = date('Y-m-d', $dateJourAvant);
+                        }
                     @endphp
                     <input type="date" id="dateDepart" name="DATEDEPART" class="form-control" 
                            min="{{ $dateMin }}" 
+                           @if($dateMax) max="{{ $dateMax }}" @endif
                            value="{{ $resident->DATEDEPART ?? '' }}" required>
                     <small class="form-text">À cette date, le résident sera automatiquement archivé et la chambre sera libérée.</small>
                     @if($resident->DATEINSCRIPTION)
                         <small class="form-text form-text-info">
                             <i class="fas fa-info-circle"></i> La date de départ doit être après la date d'arrivée ({{ \Carbon\Carbon::parse($resident->DATEINSCRIPTION)->translatedFormat('d F Y') }})
+                            @if($dateMax)
+                                <br><i class="fas fa-info-circle"></i> La date de départ doit être au plus tard un jour avant l'arrivée du prochain futur résident ({{ \Carbon\Carbon::parse($dateMax)->translatedFormat('d F Y') }})
+                            @endif
                         </small>
                     @endif
                 </div>
@@ -193,11 +208,18 @@ document.addEventListener('DOMContentLoaded', function() {
         departForm.addEventListener('submit', function(event) {
             const dateDepart = document.getElementById('dateDepart').value;
             const dateArrivee = "{{ $resident->DATEINSCRIPTION ?? '' }}";
-            
+            const dateMax = "{{ $dateMax ?? '' }}";
+            // Nouvelle règle : la date de départ doit être strictement inférieure à la date d'inscription du futur résident
             if (dateArrivee && dateDepart && new Date(dateDepart) <= new Date(dateArrivee)) {
                 event.preventDefault();
                 alert('La date de départ doit être postérieure à la date d\'arrivée (' + 
                       new Date(dateArrivee).toLocaleDateString() + ')');
+                return;
+            }
+            if (dateMax && dateDepart && new Date(dateDepart) > new Date(dateMax)) {
+                event.preventDefault();
+                alert('La date de départ doit être au plus tard un jour avant l\'arrivée du prochain futur résident (' + new Date(dateMax).toLocaleDateString() + ')');
+                return;
             }
         });
     }

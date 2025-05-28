@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Archives des Résidents')
+
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/archive.css') }}">
     <div class="container">
@@ -38,7 +40,13 @@
                             <td>{{ $resident->TELRESIDENTARCHIVE }}</td>
                             <td>{{ \Carbon\Carbon::parse($resident->DATEINSCRIPTIONARCHIVE)->translatedFormat('d M Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($resident->DATEARCHIVE)->translatedFormat('d M Y') }}</td>
-                            <td>{{ $resident->chambre->IDBATIMENT }}{{ $resident->chambre->NUMEROCHAMBRE }}</td>
+                            <td>
+                                @if($resident->chambre)
+                                    {{ $resident->chambre->IDBATIMENT }}{{ $resident->chambre->NUMEROCHAMBRE }}
+                                @else
+                                    <span class="text-muted">Chambre supprimé</span>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

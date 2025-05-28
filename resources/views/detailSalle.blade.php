@@ -4,6 +4,7 @@
 
 
 @extends('layouts.app')
+@section('title', 'Détails de la Salle')
 @section('content')
 <div class="page-container">
     <h1 class="page-title">Détails de la Salle</h1>

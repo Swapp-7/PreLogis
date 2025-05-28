@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Batiment extends Model
 {
     protected $table = "BATIMENT";
-    protected $primaryKey = "IdBatiment";
+    protected $primaryKey = "IDBATIMENT";
+    protected $keyType = 'string';
+    public $incrementing = false;
     public $timestamps = false;
 
     public function chambres(): HasMany

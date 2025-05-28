@@ -1,6 +1,8 @@
 <!-- filepath: /home/berman/stage/PreLogis/PreLogis/resources/views/planning-resident.blade.php -->
 @extends('layouts.app')
 
+@section('title', 'Planning des Résidents')
+
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/planning-resident.css') }}">
 

@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Informations Résident')
+
 @section('content')
 @php
     $resident = $chambre->resident;
@@ -58,9 +60,9 @@
                         <a href="{{ route('modifierResident', ['idResident' => $resident->IDRESIDENT]) }}" class="btn-action btn-edit">
                             <i class="fas fa-edit"></i> Modifier Résident
                         </a>
-                        <button type="button" class="btn-action btn-schedule" onclick="openDepartModal()">
+                        <a href="javascript:void(0);" class="btn-action btn-schedule" onclick="openDepartModal()">
                             <i class="fas fa-calendar-check"></i> Planifier Départ
-                        </button>
+                        </a>
                         <a href="{{ route('supprimerResident', ['idResident' => $resident->IDRESIDENT]) }}" 
                            class="btn-action btn-delete" 
                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce résident ? Cette action est irréversible.')">
@@ -120,29 +122,34 @@
             <div class="files-section">
                 <h2 class="section-title">Documents</h2>
                 @if($resident->fichiers && $resident->fichiers->count() > 0)
-                    <div class="file-gallery">
+                <div class="file-gallery">
                     @foreach($resident->fichiers as $fichier)
-                        <div class="file-item">
+                    <div class="file-item">
                         @if(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
-                            <div class="file-preview">
+                        <div class="file-preview">
                             <img src="{{ asset($fichier->CHEMINFICHIER) }}" alt="{{ $fichier->NOMFICHIER }}" class="file-image">
-                            </div>
+                        </div>
                         @elseif(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['pdf']))
-                            <div class="file-preview">
+                        <div class="file-preview">
                             <embed src="{{ asset($fichier->CHEMINFICHIER) }}" type="application/pdf" class="file-pdf">
                             </div>
-                        @endif
-                        <div class="file-info">
-                            <a href="{{ asset($fichier->CHEMINFICHIER) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
-                        </div>
-                        <form action="{{ route('supprimerFichier', ['idFichier' => $fichier->IDFICHIER]) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.')">Supprimer</button>
-                        </form>
+                            @endif
+                            <div class="file-info">
+                                <a href="{{ asset($fichier->CHEMINFICHIER) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
+                            </div>
+                            <form action="{{ route('supprimerFichier', ['idFichier' => $fichier->IDFICHIER]) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.')">Supprimer</button>
+                            </form>
                         </div>
                     @endforeach
-                    </div>
+                </div>
+                <div class="files-section-footer">
+                    <a href="{{ route('telechargerTousFichiers', ['idResident' => $resident->IDRESIDENT]) }}" class="btn-upload">
+                        <i class="fas fa-download"></i> Télécharger tous
+                    </a>
+                </div>
                 @else
                     <p class="no-files">Aucun documents</p>
                 @endif
@@ -205,9 +212,9 @@
                                     <a href="{{ route('modifierResident', ['idResident' => $futureResident->IDRESIDENT]) }}" class="btn-action btn-sm" onclick="event.stopPropagation();">
                                         <i class="fas fa-edit"></i> Modifier
                                     </a>
-                                    <button class="btn-action btn-sm" onclick="event.stopPropagation(); openDateModal('{{ $futureResident->IDRESIDENT }}', '{{ $futureResident->NOMRESIDENT }} {{ $futureResident->PRENOMRESIDENT }}', '{{ $futureResident->DATEINSCRIPTION }}', '{{ $futureResident->DATEDEPART }}');">
+                                    <a href="javascript:void(0);" class="btn-action btn-sm" onclick="event.stopPropagation(); openDateModal('{{ $futureResident->IDRESIDENT }}', '{{ $futureResident->NOMRESIDENT }} {{ $futureResident->PRENOMRESIDENT }}', '{{ $futureResident->DATEINSCRIPTION }}', '{{ $futureResident->DATEDEPART }}');">
                                         <i class="fas fa-calendar-alt"></i> Dates
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         @endforeach

@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'Tableau de Bord')
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/tableau-de-bord.css') }}">
 <div class="dashboard-container">

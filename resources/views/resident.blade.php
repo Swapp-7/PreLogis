@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Fiche Résident')
+
 @section('content')
 @if ($resident->NOMRESIDENT =="Berthet" && $resident->PRENOMRESIDENT == "Mano")
     <link rel="stylesheet" href="{{ asset('css/resident-mano.css') }}">
@@ -54,9 +56,9 @@
                         <i class="fas fa-edit"></i> Modifier Résident
                     </a>
                     @if($resident->chambre)
-                        <button type="button" class="btn-action btn-schedule" onclick="openDepartModal()">
+                        <a href="javascript:void(0);" class="btn-action btn-schedule" onclick="openDepartModal()">
                             <i class="fas fa-calendar-check"></i> Planifier Départ
-                        </button>
+                        </a>
                     @endif
                     <a href="{{ route('supprimerResident', ['idResident' => $resident->IDRESIDENT]) }}" 
                        class="btn-action btn-delete" 
@@ -138,6 +140,11 @@
                     </form>
                     </div>
                 @endforeach
+                </div>
+                <div class="files-section-footer">
+                    <a href="{{ route('telechargerTousFichiers', parameters: ['idResident' => $resident->IDRESIDENT]) }}" class="btn-upload">
+                        <i class="fas fa-download"></i> Télécharger tous
+                    </a>
                 </div>
             @else
                 <p class="no-files">Aucun documents</p>

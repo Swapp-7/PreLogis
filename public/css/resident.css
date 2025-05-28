@@ -463,6 +463,27 @@ body {
     transition: all 0.2s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
+.files-section-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.files-section-footer .btn-upload {
+    text-decoration: none;
+    background-color: #FDC11F;
+    color: #20364B;
+}
+
+.files-section-footer .btn-upload:hover {
+    background-color: #e6ae15;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.files-section-footer i {
+    margin-right: 8px;
+}
 
 .btn-add-future:hover {
     background-color: #e6ae15;

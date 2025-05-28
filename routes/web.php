@@ -9,6 +9,8 @@ use App\Http\Controllers\FichierController;
 use App\Http\Controllers\SalleController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\PlanningResidentController;
+use App\Http\Controllers\ParametreBatimentController;
+use App\Http\Controllers\ParametreChambreController;
 
 // Public routes - only login pages
 Route::get('/admin/login', function () {
@@ -46,6 +48,24 @@ Route::middleware(['admin'])->group(function () {
             'year' => now()->year
         ]);
     })->name('chambreLibre');
+    Route::get('/parametres', function () {
+        return view('parametre');
+    })->name('parametres');
+    
+    // Routes pour la gestion des groupes
+    Route::get('/parametres/groupes', [EvenementController::class, 'index'])->name('parametres.groupes');
+    Route::put('/parametres/groupes/{id}', [EvenementController::class, 'update'])->name('parametres.groupes.update');
+    Route::delete('/parametres/groupes/{id}', [EvenementController::class, 'destroy'])->name('parametres.groupes.destroy');
+    
+    // Routes pour la gestion des bâtiments
+    Route::get('/parametres/batiments', [ParametreBatimentController::class, 'index'])->name('parametres.batiments');
+    Route::post('/parametres/batiments', [ParametreBatimentController::class, 'store'])->name('parametres.batiments.store');
+    Route::delete('/parametres/batiments/{id}', [ParametreBatimentController::class, 'destroy'])->name('parametres.batiments.destroy');
+    
+    // Routes pour la gestion des chambres
+    Route::get('/parametres/batiments/{batimentId}/chambres', [ParametreChambreController::class, 'index'])->name('parametres.chambres');
+    Route::post('/parametres/batiments/{batimentId}/chambres', [ParametreChambreController::class, 'store'])->name('parametres.chambres.store');
+    Route::delete('/parametres/chambres/{id}', [ParametreChambreController::class, 'destroy'])->name('parametres.chambres.destroy');
 
     Route::get('/ChambreLibre', [ChambreController::class, 'showDepartingResidents'])->name('chambreLibre');
     Route::get("/Batiment", [BatimentController::class, "index"])->name('batiment');
@@ -71,6 +91,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post("/NouveauResident/{IdBatiment}/{NumChambre}", [ResidentController::class, "store"])->name('resident.store');
     Route::post("/UploadFichier/{idResident}", [FichierController::class, "uploadFichier"])->name('uploadFichier');
     Route::delete("/SupprimerFichier/{idFichier}", [FichierController::class, "supprimerFichier"])->name('supprimerFichier');
+    Route::get("/TelechargerTousFichiers/{idResident}", [FichierController::class, "telechargerTousFichiers"])->name('telechargerTousFichiers');
     Route::post('/NouvelEvenement', [EvenementController::class, 'store'])->name('nouvelEvenement');
     Route::post('/NouvelleOccupation', [SalleController::class, 'nouvelleOccupation'])->name('nouvelleOccupation');
     Route::post('/gererOccupation', [SalleController::class, 'gererOccupation'])->name('gererOccupation');

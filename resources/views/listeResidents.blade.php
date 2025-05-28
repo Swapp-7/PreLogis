@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Liste des Résidents')
+
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/liste-residents.css') }}">
     <div class="container">

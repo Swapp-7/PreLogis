@@ -1,5 +1,6 @@
 @php use App\Helpers\ColorHelper; @endphp
 @extends('layouts.app')
+@section('title', 'Planning des Salles')
 <link rel="stylesheet" href="{{ asset('css/calendrier-salle.css') }}">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
 
