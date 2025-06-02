@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('residents:supprimer-archives')->daily();
         $schedule->command('residents:remove-departed')->dailyAt('00:00');
         $schedule->command('chambres:assigner')->dailyAt('00:01');
+        $schedule->command('files:cleanup-temp')->hourly();
+
     }
 
     /**

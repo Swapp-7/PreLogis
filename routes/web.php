@@ -74,6 +74,8 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/parametres/optimisation-occupation', [ParametreOccupationController::class, 'index'])->name('parametres.optimisation-occupation');
     Route::post('/parametres/optimisation-occupation', [ParametreOccupationController::class, 'optimiserOccupations'])->name('parametres.optimisation-occupation.optimiser');
 
+    Route::get("/ViewFile/{idFichier}", [FichierController::class, "viewFile"])->name('viewFile');
+
     Route::get('/ChambreLibre', [ChambreController::class, 'showDepartingResidents'])->name('chambreLibre');
     Route::get("/Batiment", [BatimentController::class, "index"])->name('batiment');
     Route::get("/Batiment/{IdBatiment}", [ChambreController::class, "index"])->name('chambre');

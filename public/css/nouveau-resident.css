@@ -121,6 +121,65 @@ body {
     border: 1px solid rgba(253, 193, 31, 0.3);
 }
 
+/* Styles pour les onglets de formulaire */
+.form-tabs {
+    display: flex;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(253, 193, 31, 0.3);
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-button.active {
+    color: #FDC11F;
+    opacity: 1;
+    border-bottom: 3px solid #FDC11F;
+}
+
+.tab-button i {
+    margin-right: 8px;
+}
+
+.tab-button:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Styles pour les badges de compteur */
+.tab-count {
+    background-color: #FDC11F;
+    color: #20364B;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+}
+
 .parent-block {
     background-color: rgba(255, 255, 255, 0.05);
     padding: 15px;

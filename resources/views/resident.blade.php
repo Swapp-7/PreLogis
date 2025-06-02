@@ -121,24 +121,24 @@
                 <div class="file-gallery">
                 @foreach($resident->fichiers as $fichier)
                     <div class="file-item">
-                    @if(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
+                   @if(in_array(pathinfo($fichier->NOMFICHIER, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
                         <div class="file-preview">
-                        <img src="{{ asset($fichier->CHEMINFICHIER) }}" alt="{{ $fichier->NOMFICHIER }}" class="file-image">
+                            <img src="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" alt="{{ $fichier->NOMFICHIER }}" class="file-image">
                         </div>
-                    @elseif(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['pdf']))
+                        @elseif(in_array(pathinfo($fichier->NOMFICHIER, PATHINFO_EXTENSION), ['pdf']))
                         <div class="file-preview">
-                        <embed src="{{ asset($fichier->CHEMINFICHIER) }}" type="application/pdf" class="file-pdf">
+                            <embed src="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" type="application/pdf" class="file-pdf">
+                            </div>
+                            @endif
+                            <div class="file-info">
+                                <a href="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
+                            </div>
+                            <form action="{{ route('supprimerFichier', ['idFichier' => $fichier->IDFICHIER]) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.')">Supprimer</button>
+                            </form>
                         </div>
-                    @endif
-                    <div class="file-info">
-                        <a href="{{ asset($fichier->CHEMINFICHIER) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
-                    </div>
-                    <form action="{{ route('supprimerFichier', ['idFichier' => $fichier->IDFICHIER]) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.')">Supprimer</button>
-                    </form>
-                    </div>
                 @endforeach
                 </div>
                 <div class="files-section-footer">

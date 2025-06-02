@@ -6,7 +6,13 @@
 <link rel="stylesheet" href="{{ asset('css/modifier-resident.css') }}">
 <div class="container">
     <div class="page-header">
-        <h2>Modifier un Résident</h2>
+        <h2>
+            @if($resident->TYPE == 'group')
+                Modifier un Groupe
+            @else
+                Modifier un Résident
+            @endif
+        </h2>
         <a href="javascript:history.back()" class="btn-return">
             <i class="fas fa-arrow-left"></i> Retour
         </a>
@@ -30,35 +36,51 @@
             <!-- Colonne gauche - Identité -->
             <div class="form-section">
                 <div class="section-header">
-                    <i class="fas fa-user"></i>
-                    <h3>Identité</h3>
+                    @if($resident->TYPE == 'group')
+                        <i class="fas fa-users"></i>
+                        <h3>Informations du Groupe</h3>
+                    @else
+                        <i class="fas fa-user"></i>
+                        <h3>Identité</h3>
+                    @endif
                 </div>
                 
-                <div class="photo-upload">
-                    <div class="current-photo">
-                        @if($resident->PHOTO == "photo" || !$resident->PHOTO)
-                            <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Photo actuelle">
-                        @else
-                            <img src="{{ asset('storage/' . $resident->PHOTO) }}" alt="Photo actuelle">
-                        @endif
+                @if($resident->TYPE != 'group')
+                    <div class="photo-upload">
+                        <div class="current-photo">
+                            @if($resident->PHOTO == "photo" || !$resident->PHOTO)
+                                <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Photo actuelle">
+                            @else
+                                <img src="{{ asset('storage/' . $resident->PHOTO) }}" alt="Photo actuelle">
+                            @endif
+                        </div>
+                        <div class="upload-control">
+                            <label for="photo">Modifier la photo :</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                        </div>
                     </div>
-                    <div class="upload-control">
-                        <label for="photo">Modifier la photo :</label>
-                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
-                    </div>
-                </div>
+                @endif
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="nom">Nom :</label>
+                        <label for="nom">
+                            @if($resident->TYPE == 'group')
+                                Nom du groupe :
+                            @else
+                                Nom :
+                            @endif
+                        </label>
                         <input type="text" class="form-control" id="nom" name="nom" value="{{$resident->NOMRESIDENT}}" required>
                     </div>
-                    <div class="form-group">
-                        <label for="prenom">Prénom :</label>
-                        <input type="text" class="form-control" id="prenom" name="prenom" value="{{$resident->PRENOMRESIDENT}}" required>
-                    </div>
+                    @if($resident->TYPE != 'group')
+                        <div class="form-group">
+                            <label for="prenom">Prénom :</label>
+                            <input type="text" class="form-control" id="prenom" name="prenom" value="{{$resident->PRENOMRESIDENT}}" required>
+                        </div>
+                    @endif
                 </div>
                 
+                @if($resident->TYPE != 'group')
                 <div class="form-row">
                     <div class="form-group">
                         <label for="anniversaire">Date de Naissance :</label>
@@ -69,6 +91,7 @@
                         <input type="text" class="form-control" id="nationalite" name="nationalite" value="{{$resident->NATIONALITE}}" required>
                     </div>
                 </div>
+                @endif
                 
                 <div class="section-header">
                     <i class="fas fa-graduation-cap"></i>
@@ -146,7 +169,8 @@
             </div>
         </div>
         
-        <!-- Section Parents -->
+        <!-- Section Parents (uniquement pour les résidents individuels) -->
+        @if($resident->TYPE != 'group')
         <div class="form-section parents-section">
             <div class="section-header">
                 <i class="fas fa-users"></i>
@@ -176,6 +200,7 @@
                 <p class="no-data">Aucun parent enregistré</p>
             @endif
         </div>
+        @endif
         
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">

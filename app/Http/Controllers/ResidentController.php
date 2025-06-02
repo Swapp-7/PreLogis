@@ -88,35 +88,63 @@ class ResidentController extends Controller
             $chambreOccupee->save();
         }
         
-        // Supprimer les associations avec les parents
-        if ($resident->parents) {
-            foreach ($resident->parents as $parent) {
-                $parent->pivot->delete(); 
+        // Gestion différente pour les groupes et les résidents individuels
+        if ($resident->TYPE == 'group') {
+            // Pour un groupe, on le retire juste de cette chambre sans le supprimer
+            if ($chambreOccupee) {
+                $chambreOccupee->IDRESIDENT = null;
+                $chambreOccupee->save();
+            }
+            
+            if ($fromCommand) {
+                return true;
+            }
+            
+            $successMessage = 'Groupe retiré de la chambre avec succès';
+            
+            if ($chambreOccupee) {
+                return redirect()->route('chambre', ['IdBatiment' => $chambreOccupee->IDBATIMENT])
+                    ->with('success', $successMessage);
+            } elseif ($chambreAssignee) {
+                return redirect()->route('chambre', ['IdBatiment' => $chambreAssignee->IDBATIMENT])
+                    ->with('success', $successMessage);
+            } else {
+                return redirect()->route('allResident')
+                    ->with('success', $successMessage);
+            }
+        } else {
+            // Pour un résident individuel, on suit le processus standard
+            // Supprimer les associations avec les parents
+            if ($resident->parents) {
+                foreach ($resident->parents as $parent) {
+                    $parent->pivot->delete(); 
+                }
+            }
+            
+            // Supprimer le résident
+            $resident->delete();
+    
+            if ($fromCommand) {
+                return true;
+            }
+            
+            // Rediriger vers la page appropriée selon le contexte
+            if ($chambreOccupee) {
+                // Si c'était un résident actuel, rediriger vers la page de la chambre
+                return redirect()->route('chambre', ['IdBatiment' => $chambreOccupee->IDBATIMENT])
+                    ->with('success', 'Résident supprimé avec succès');
+            } elseif ($chambreAssignee) {
+                // Si c'était un futur résident, rediriger vers la page de la chambre assignée
+                return redirect()->route('chambre', ['IdBatiment' => $chambreAssignee->IDBATIMENT])
+                    ->with('success', 'Futur résident supprimé avec succès');
+            } else {
+                // Si c'était un résident sans chambre assignée
+                return redirect()->route('allResident')
+                    ->with('success', 'Résident supprimé avec succès');
             }
         }
-        
-        // Supprimer le résident
-        $resident->delete();
-
-        if ($fromCommand) {
-            return true;
-        }
-        
-        // Rediriger vers la page appropriée selon le contexte
-        if ($chambreOccupee) {
-            // Si c'était un résident actuel, rediriger vers la page de la chambre
-            return redirect()->route('chambre', ['IdBatiment' => $chambreOccupee->IDBATIMENT])
-                ->with('success', 'Résident supprimé avec succès');
-        } elseif ($chambreAssignee) {
-            // Si c'était un futur résident, rediriger vers la page de la chambre assignée
-            return redirect()->route('chambre', ['IdBatiment' => $chambreAssignee->IDBATIMENT])
-                ->with('success', 'Futur résident supprimé avec succès');
-        } else {
-            // Si c'était un résident sans chambre assignée
-            return redirect()->route('allResident')
-                ->with('success', 'Résident supprimé avec succès');
-        }
     }
+    
     public function nouveauResident($IdBatiment, $NumChambre)
     {
         $chambre = Chambre::where('IDBATIMENT', $IdBatiment)->where('NUMEROCHAMBRE', $NumChambre)->first();
@@ -164,30 +192,40 @@ class ResidentController extends Controller
 
         $resident = Resident::find($idResident);
         $resident->NOMRESIDENT = $request->input('nom');
-        $resident->PRENOMRESIDENT = $request->input('prenom');
         $resident->MAILRESIDENT = $request->input('email');
         $resident->TELRESIDENT = ltrim($request->input('tel'));
-        $resident->DATENAISSANCE = $request->input('anniversaire');
-        $resident->NATIONALITE = $request->input('nationalite');
         $resident->ETABLISSEMENT = $request->input('etablissement');
         $resident->ANNEEETUDE = $request->input('annee_etude');
         
-
-        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-
-            $photo = $request->file('photo');
-            $photoPath = $photo->store('photos', 'public');
-            $resident->PHOTO = $photoPath;
+        // Traitement différent selon le type de résident
+        if ($resident->TYPE != 'group') {
+            // Champs spécifiques aux résidents individuels
+            $resident->PRENOMRESIDENT = $request->input('prenom');
+            $resident->DATENAISSANCE = $request->input('anniversaire');
+            $resident->NATIONALITE = $request->input('nationalite');
+            
+            if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+                $photo = $request->file('photo');
+                $photoPath = $photo->store('photos', 'public');
+                $resident->PHOTO = $photoPath;
+            }
         }
+        
         $resident->save();
 
-        if ($request->has('parents')) {
+        // Gestion des parents uniquement pour les résidents individuels
+        if ($resident->TYPE != 'group' && $request->has('parents')) {
             foreach ($request->input('parents') as $index => $parentData) {
                 $parent = $resident->parents[$index] ?? new Parents();
                 $parent->NOMPARENT = $parentData['nom'];
                 $parent->TELPARENT = $parentData['tel'];
                 $parent->PROFESSION = $parentData['profession'];
                 $parent->save();
+                
+                // Si c'est un nouveau parent, l'attacher au résident
+                if (!isset($resident->parents[$index])) {
+                    $resident->parents()->attach($parent->IDPARENT);
+                }
             }
         }
 
@@ -215,19 +253,28 @@ class ResidentController extends Controller
     
     public function store(Request $request, $IdBatiment, $NumChambre)
     {
-        
         $chambre = Chambre::where('IDBATIMENT', $IdBatiment)->where('NUMEROCHAMBRE', $NumChambre)->first();
         $futureResident = Resident::where('CHAMBREASSIGNE', $chambre->IDCHAMBRE)
                              ->where('DATEINSCRIPTION', '>', now())
                              ->orderBy('DATEINSCRIPTION', 'asc')
                              ->first();
-    
+        
+        $type = $request->input('type', 'individual');
+        
         $rules = [
             'email' => 'required|email|max:255',
             'tel' => 'required|string|max:10',
             'adresse.code_postal' => 'required|string|max:10',
             'date_entree' => 'required|date',
         ];
+        
+        // Si c'est un membre de groupe existant, on ne valide que certains champs
+        if ($type === 'group_member') {
+            $rules = [
+                'existing_group_id' => 'required|exists:RESIDENT,IDRESIDENT',
+                'date_entree' => 'required|date'
+            ];
+        }
         
         $messages = [
             'email.required' => 'L\'adresse email est obligatoire.',
@@ -241,15 +288,42 @@ class ResidentController extends Controller
             'adresse.code_postal.max' => 'Le code postal ne doit pas dépasser 10 caractères.',
             'date_entree.required' => 'La date d\'entrée est obligatoire.',
             'date_entree.date' => 'La date d\'entrée n\'est pas valide.',
+            'existing_group_id.required' => 'Veuillez sélectionner un groupe.',
+            'existing_group_id.exists' => 'Le groupe sélectionné n\'existe pas.',
         ];
-        
-        // Ajouter la règle de validation pour la date de départ s'il y a un futur résident
-       
         
         $request->validate($rules, $messages);
         
+        // Si on ajoute un membre à un groupe existant, pas besoin de créer un nouveau résident
+        if ($type === 'group_member') {
+            $group = Resident::findOrFail($request->input('existing_group_id'));
+            
+            // Vérifier que c'est bien un groupe
+            if ($group->TYPE !== 'group') {
+                return redirect()->back()->with('error', 'Le résident sélectionné n\'est pas un groupe.');
+            }
+            
+            $dateEntree = \Carbon\Carbon::parse($request->input('date_entree'));
+            $aujourdhui = now()->startOfDay();
+            
+            // Si la date d'entrée est aujourd'hui ou dans le passé, assigner directement le groupe à la chambre
+            if ($dateEntree->lte($aujourdhui)) {
+                $chambre->IDRESIDENT = $group->IDRESIDENT;
+                $chambre->save();
+            } else {
+                // Futur occupant
+                $group->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
+                $group->DATEINSCRIPTION = $request->input('date_entree');
+                $group->DATEDEPART = $request->input('date_depart');
+                $group->save();
+            }
+            
+            return redirect()->route('resident', ['IdBatiment' => $IdBatiment, 'NumChambre' => $NumChambre])
+                ->with('success', 'Groupe assigné à la chambre avec succès');
+        }
         
         $resident = new Resident();
+        $resident->TYPE = $type;
         
         
         //-----------------------------------------
@@ -270,30 +344,33 @@ class ResidentController extends Controller
         //-----------------------------------------
 
         $resident->NOMRESIDENT = $request->input('nom');
-        $resident->PRENOMRESIDENT = $request->input('prenom');
         $resident->MAILRESIDENT = $request->input('email');
         $resident->TELRESIDENT = ltrim($request->input('tel'));
-        $resident->DATENAISSANCE = $request->input('anniversaire');
-        $resident->NATIONALITE = $request->input('nationalite');
         $resident->ETABLISSEMENT = $request->input('etablissement');
         $resident->ANNEEETUDE = $request->input('annee_etude');
         $resident->DATEINSCRIPTION = $request->input('date_entree', now());
         $resident->DATEDEPART = $request->input('date_depart'); 
-
         $resident->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
-
-        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-            $photo = $request->file('photo');
-            $photoPath = $photo->store('photos', 'public');
-            $resident->PHOTO = $photoPath;
+        
+        // Champs spécifiques au type individuel
+        if ($type === 'individual') {
+            $resident->PRENOMRESIDENT = $request->input('prenom');
+            $resident->DATENAISSANCE = $request->input('anniversaire');
+            $resident->NATIONALITE = $request->input('nationalite');
+            
+            if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+                $photo = $request->file('photo');
+                $photoPath = $photo->store('photos', 'public');
+                $resident->PHOTO = $photoPath;
+            }
         }
 
         $resident->save();
 
-        if ($request->has('parents')) {
+        // Ajouter les parents seulement pour les résidents individuels
+        if ($type === 'individual' && $request->has('parents')) {
             foreach ($request->input('parents') as $parentData) {
                 if (!empty($parentData['nom']) && !empty($parentData['tel']) && !empty($parentData['profession'])) {
-                    
                     $parent = new Parents();
                     $parent->NOMPARENT = $parentData['nom'];
                     $parent->TELPARENT = $parentData['tel'];
@@ -308,14 +385,15 @@ class ResidentController extends Controller
         $aujourdhui = now()->startOfDay();
 
         if ($dateEntree->lte($aujourdhui)) {
-            
             if ($chambre) {
                 $chambre->IDRESIDENT = $resident->IDRESIDENT;
                 $chambre->save();
             }
         }
 
-        return redirect()->route('resident', ['IdBatiment' => $IdBatiment, 'NumChambre' => $NumChambre]);
+        $successMessage = $type === 'individual' ? 'Résident ajouté avec succès' : 'Groupe créé avec succès';
+        return redirect()->route('resident', ['IdBatiment' => $IdBatiment, 'NumChambre' => $NumChambre])
+                         ->with('success', $successMessage);
     }
     public function archiverResident($idResident)
     {

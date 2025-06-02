@@ -4,62 +4,66 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Models\Adresse;
-use App\Models\Batiment;
-use App\Models\Chambre;
-use App\Models\Dates;
-use App\Models\Evenement;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Fichier;
-use App\Models\MomentEvenement;
-use App\Models\Occupation;
-use App\Models\Parents;
 use App\Models\Resident;
-use App\Models\ResidentArchive;
-use App\Models\Salle;
+use App\Services\FileEncryptionService;
 
 class FichierController extends Controller
 {
-    public function uploadFichier(Request $request, $idResident){
-        $request->validate([
-            'fichier.*' => 'required|mimes:jpg,jpeg,png,pdf,gif|max:2048', // Valider chaque fichier
-        ]);
+    protected $encryptionService;
     
+    public function __construct(FileEncryptionService $encryptionService)
+    {
+        $this->encryptionService = $encryptionService;
+    }
+
+    public function uploadFichier(Request $request, $idResident)
+    {
+        $request->validate([
+            'fichier.*' => 'required|mimes:jpg,jpeg,png,pdf,gif|max:2048',
+        ]);
+
         if ($request->hasFile('fichier')) {
             foreach ($request->file('fichier') as $file) {
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $path = public_path('uploads');
-                $file->move($path, $filename);
-    
-                $fichier = new Fichier();
-                $fichier->NOMFICHIER = $file->getClientOriginalName();
-                $fichier->CHEMINFICHIER = 'uploads/' . $filename;
-                $fichier->IDRESIDENT = $idResident;
-                $fichier->save();
+                try {
+                    // Chiffrer et sauvegarder le fichier
+                    $encryptedPath = $this->encryptionService->encryptAndStore($file);
+                    
+                    // Sauvegarder les informations en base
+                    $fichier = new Fichier();
+                    $fichier->NOMFICHIER = $file->getClientOriginalName();
+                    $fichier->CHEMINFICHIER = $encryptedPath;
+                    $fichier->IDRESIDENT = $idResident;
+                    $fichier->save();
+                } catch (\Exception $e) {
+                    Log::error('Erreur lors du chiffrement du fichier: ' . $e->getMessage());
+                    return redirect()->back()->with('error', 'Erreur lors du téléchargement du fichier.');
+                }
             }
         }
-        
 
-        return redirect()->back()->with('success', 'File uploaded successfully.');
+        return redirect()->back()->with('success', 'Fichiers téléchargés et chiffrés avec succès.');
     }
+
     public function supprimerFichier($idFichier)
     {
         $fichier = Fichier::find($idFichier);
 
         if (!$fichier) {
-            return redirect()->back()->with('error', 'File not found.');
+            return redirect()->back()->with('error', 'Fichier non trouvé.');
         }
 
-        $filePath = public_path($fichier->CHEMINFICHIER);
-
-        if (file_exists($filePath)) {
-            unlink($filePath);
+        // Supprimer le fichier chiffré du stockage
+        if (Storage::exists($fichier->CHEMINFICHIER)) {
+            Storage::delete($fichier->CHEMINFICHIER);
         }
 
         $fichier->delete();
 
-        return redirect()->back()->with('success', 'File deleted successfully.');
+        return redirect()->back()->with('success', 'Fichier supprimé avec succès.');
     }
-    
+
     public function telechargerTousFichiers($idResident)
     {
         $resident = Resident::find($idResident);
@@ -75,7 +79,12 @@ class FichierController extends Controller
         }
         
         $zipFileName = $resident->NOMRESIDENT . '_' . $resident->PRENOMRESIDENT . '_documents.zip';
-        $zipFilePath = storage_path('app/public/' . $zipFileName);
+        $zipFilePath = storage_path('app/temp/' . $zipFileName);
+        
+        // Créer le dossier temp s'il n'existe pas
+        if (!is_dir(dirname($zipFilePath))) {
+            mkdir(dirname($zipFilePath), 0755, true);
+        }
         
         // Créer une nouvelle archive ZIP
         $zip = new \ZipArchive();
@@ -83,11 +92,13 @@ class FichierController extends Controller
             return redirect()->back()->with('error', 'Impossible de créer l\'archive zip.');
         }
         
-        // Ajouter les fichiers à l'archive
+        // Ajouter les fichiers déchiffrés à l'archive
         foreach ($fichiers as $fichier) {
-            $filePath = public_path($fichier->CHEMINFICHIER);
-            if (file_exists($filePath)) {
-                $zip->addFile($filePath, $fichier->NOMFICHIER);
+            try {
+                $decryptedContent = $this->encryptionService->decrypt($fichier->CHEMINFICHIER);
+                $zip->addFromString($fichier->NOMFICHIER, $decryptedContent);
+            } catch (\Exception $e) {
+                Log::error('Erreur lors du déchiffrement du fichier: ' . $e->getMessage());
             }
         }
         
@@ -95,5 +106,46 @@ class FichierController extends Controller
         
         // Téléchargement du fichier ZIP
         return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
+    
+    /**
+     * Afficher un fichier déchiffré
+     */
+    public function viewFile($idFichier)
+    {
+        $fichier = Fichier::find($idFichier);
+        
+        if (!$fichier) {
+            abort(404);
+        }
+        
+        try {
+            $decryptedContent = $this->encryptionService->decrypt($fichier->CHEMINFICHIER);
+            
+            // Déterminer le type MIME
+            $extension = pathinfo($fichier->NOMFICHIER, PATHINFO_EXTENSION);
+            $mimeType = $this->getMimeType($extension);
+            
+            return response($decryptedContent)
+                ->header('Content-Type', $mimeType)
+                ->header('Content-Disposition', 'inline; filename="' . $fichier->NOMFICHIER . '"');
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du déchiffrement du fichier: ' . $e->getMessage());
+            abort(500);
+        }
+    }
+    
+    private function getMimeType($extension)
+    {
+        $mimeTypes = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'pdf' => 'application/pdf',
+        ];
+        
+        return $mimeTypes[strtolower($extension)] ?? 'application/octet-stream';
     }
 }

@@ -32,14 +32,17 @@
         
         @if($resident)
             <div class="page-header">
-                <h1>Information du Résident</h1>
+                <h1>Information de l'Occupant</h1>
             </div>
             
             <div class="resident-layout">
                 <!-- Colonne gauche - Photo et info principale -->
                 <div class="resident-main">
                     <div class="resident-photo-container">
-                        @if($resident->PHOTO == "photo" || $resident->PHOTO == null)
+                        @if($resident->TYPE == 'group')
+                            <img src="https://st4.depositphotos.com/11574170/23077/v/450/depositphotos_230773030-stock-illustration-group-icon-avatar-icon-people.jpg"
+                                alt="Icon groupe" class="resident-photo">
+                        @elseif($resident->PHOTO == "photo" || $resident->PHOTO == null)
                             <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
                                 alt="Photo par défaut" class="resident-photo">
                         @else
@@ -50,10 +53,20 @@
                     </div>
                     
                     <div class="resident-identity">
-                        <h2 class="resident-name">{{ $resident->NOMRESIDENT }} {{ $resident->PRENOMRESIDENT }}</h2>
+                        @if($resident->TYPE == 'group')
+                            <h2 class="resident-name">
+                                <i class="fas fa-users"></i> 
+                                {{ $resident->NOMRESIDENT }}
+                                <span class="group-tag">Groupe</span>
+                            </h2>
+                        @else
+                            <h2 class="resident-name">{{ $resident->NOMRESIDENT }} {{ $resident->PRENOMRESIDENT }}</h2>
+                        @endif
                         <p class="resident-mail"><i class="fas fa-envelope"></i> {{ $resident->MAILRESIDENT }}</p>
                         <p class="resident-phone"><i class="fas fa-phone"></i> {{ $resident->TELRESIDENT }}</p>
-                        <p class="resident-nationality"><i class="fas fa-flag"></i> {{ $resident->NATIONALITE }}</p>
+                        @if($resident->TYPE != 'group')
+                            <p class="resident-nationality"><i class="fas fa-flag"></i> {{ $resident->NATIONALITE }}</p>
+                        @endif
                     </div>
                     
                     <div class="action-buttons">
@@ -85,7 +98,9 @@
                     <div class="details-section">
                         <h3><i class="fas fa-calendar-alt"></i> Dates</h3>
                         <div class="details-grid">
-                            <p><span>Naissance:</span> {{ \Carbon\Carbon::parse($resident->DATENAISSANCE )->translatedFormat('d M Y') }}</p>
+                            @if($resident->TYPE != 'group')
+                                <p><span>Naissance:</span> {{ \Carbon\Carbon::parse($resident->DATENAISSANCE )->translatedFormat('d M Y') }}</p>
+                            @endif
                             <p><span>Arrivée:</span> {{ \Carbon\Carbon::parse($resident->DATEINSCRIPTION )->translatedFormat('d M Y') }}</p>
                             @if($resident->DATEDEPART)
                                 <p><span>Départ prévu:</span> {{ \Carbon\Carbon::parse($resident->DATEDEPART)->translatedFormat('d M Y') }}</p>
@@ -103,7 +118,7 @@
                         <p>{{ $resident->adresse->PAYS }}</p>
                     </div>
                     
-                    @if($resident->parents && count($resident->parents) > 0)
+                    @if($resident->TYPE != 'group' && $resident->parents && count($resident->parents) > 0)
                     <div class="details-section">
                         <h3><i class="fas fa-users"></i> Parents</h3>
                         @foreach($resident->parents as $parent)
@@ -125,24 +140,24 @@
                 <div class="file-gallery">
                     @foreach($resident->fichiers as $fichier)
                     <div class="file-item">
-                        @if(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
-                        <div class="file-preview">
-                            <img src="{{ asset($fichier->CHEMINFICHIER) }}" alt="{{ $fichier->NOMFICHIER }}" class="file-image">
-                        </div>
-                        @elseif(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['pdf']))
-                        <div class="file-preview">
-                            <embed src="{{ asset($fichier->CHEMINFICHIER) }}" type="application/pdf" class="file-pdf">
+                        @if(in_array(pathinfo($fichier->NOMFICHIER, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
+                            <div class="file-preview">
+                                <img src="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" alt="{{ $fichier->NOMFICHIER }}" class="file-image">
                             </div>
-                            @endif
-                            <div class="file-info">
-                                <a href="{{ asset($fichier->CHEMINFICHIER) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
+                        @elseif(in_array(pathinfo($fichier->NOMFICHIER, PATHINFO_EXTENSION), ['pdf']))
+                            <div class="file-preview">
+                                <embed src="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" type="application/pdf" class="file-pdf">
                             </div>
-                            <form action="{{ route('supprimerFichier', ['idFichier' => $fichier->IDFICHIER]) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.')">Supprimer</button>
-                            </form>
+                        @endif
+                        <div class="file-info">
+                            <a href="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
                         </div>
+                        <form action="{{ route('supprimerFichier', ['idFichier' => $fichier->IDFICHIER]) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.')">Supprimer</button>
+                        </form>
+                    </div>
                     @endforeach
                 </div>
                 <div class="files-section-footer">

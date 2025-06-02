@@ -694,3 +694,16 @@ body {
         text-align: center;
     }
 }
+
+.group-tag {
+    background-color: #FDC11F;
+    color: #20364B;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    vertical-align: middle;
+    display: inline-block;
+}
