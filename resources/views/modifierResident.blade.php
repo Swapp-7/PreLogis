@@ -45,21 +45,29 @@
                     @endif
                 </div>
                 
-                @if($resident->TYPE != 'group')
-                    <div class="photo-upload">
-                        <div class="current-photo">
-                            @if($resident->PHOTO == "photo" || !$resident->PHOTO)
-                                <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Photo actuelle">
+                <div class="photo-upload">
+                    <div class="current-photo">
+                        @if($resident->PHOTO == "photo" || !$resident->PHOTO)
+                            @if($resident->TYPE == 'group')
+                                <img src="https://cdn-icons-png.flaticon.com/512/166/166258.png" alt="Photo actuelle du groupe">
                             @else
-                                <img src="{{ asset('storage/' . $resident->PHOTO) }}" alt="Photo actuelle">
+                                <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Photo actuelle">
                             @endif
-                        </div>
-                        <div class="upload-control">
-                            <label for="photo">Modifier la photo :</label>
-                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
-                        </div>
+                        @else
+                            <img src="{{ asset('storage/' . $resident->PHOTO) }}" alt="Photo actuelle">
+                        @endif
                     </div>
-                @endif
+                    <div class="upload-control">
+                        <label for="photo">
+                            @if($resident->TYPE == 'group')
+                                Modifier la photo du groupe :
+                            @else
+                                Modifier la photo :
+                            @endif
+                        </label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                    </div>
+                </div>
                 
                 <div class="form-row">
                     <div class="form-group">
@@ -93,6 +101,7 @@
                 </div>
                 @endif
                 
+                @if($resident->TYPE != 'group')
                 <div class="section-header">
                     <i class="fas fa-graduation-cap"></i>
                     <h3>Études</h3>
@@ -114,6 +123,7 @@
                         </select>
                     </div>
                 </div>
+                @endif
                 
             </div>
             

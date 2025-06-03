@@ -250,27 +250,18 @@
                     </div>
                 </div>
                 
-                <div class="section-header">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h3>Origine</h3>
-                </div>
-                
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="etablissement">Établissement :</label>
-                        <input type="text" class="form-control" id="etablissement" name="etablissement" value="{{ old('etablissement') }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="annee_etude">Année d'étude :</label>
-                        <select class="form-control" id="annee_etude" name="annee_etude" required>
-                            <option value="1re" {{ old('annee_etude') == '1re' ? 'selected' : '' }}>1re</option>
-                            <option value="2e" {{ old('annee_etude') == '2e' ? 'selected' : '' }}>2e</option>
-                            <option value="3e" {{ old('annee_etude') == '3e' ? 'selected' : '' }}>3e</option>
-                            <option value="4e" {{ old('annee_etude') == '4e' ? 'selected' : '' }}>4e</option>
-                            <option value="5e" {{ old('annee_etude') == '5e' ? 'selected' : '' }}>5e</option>
-                        </select>
+                    <div class="form-group full-width">
+                        <label for="photo_group">Photo du groupe :</label>
+                        <div class="photo-upload-container">
+                            <input type="file" class="form-control" id="photo_group" name="photo" accept="image/*">
+                            <div class="upload-preview">
+                                <img id="photo-preview-group" src="https://cdn-icons-png.flaticon.com/512/166/166258.png" alt="Aperçu photo du groupe">
+                            </div>
+                        </div>
                     </div>
                 </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="date_entree_group">Date d'entrée :</label>

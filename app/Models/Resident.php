@@ -32,7 +32,20 @@ class Resident extends Model
     
     public function chambre()
     {
-        return $this->hasOne(Chambre::class, 'IDRESIDENT', 'IDRESIDENT');
+        // Pour les résidents individuels, retourne une seule chambre
+        if ($this->TYPE === self::TYPE_GROUP) {
+            // Pour les groupes, retourne la première chambre (pour compatibilité)
+            return $this->hasOne(Chambre::class, 'IDRESIDENT', 'IDRESIDENT');
+        } else {
+            return $this->hasOne(Chambre::class, 'IDRESIDENT', 'IDRESIDENT');
+        }
+    }
+    
+    public function chambres()
+    {
+        // Pour tous les résidents, retourne toutes les chambres associées
+        // (pour les résidents individuels, c'est généralement une seule)
+        return $this->hasMany(Chambre::class, 'IDRESIDENT', 'IDRESIDENT');
     }
     
     public function chambreAssigne()

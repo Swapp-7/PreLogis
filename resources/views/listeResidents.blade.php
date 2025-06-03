@@ -23,6 +23,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Type</th>
                     <th>Nom</th>
                     <th>Prénom</th>
                     <th>Email</th>
@@ -30,18 +31,24 @@
                     <th>Nom parent 1</th>
                     <th>Tel parent 1</th>
                     <th>Chambre</th>
-
                 </tr>
             </thead>
             <tbody>
             @foreach($residents as $resident)
                 @php $chambre = $resident->chambre; @endphp
-                <tr onclick="window.location='{{ route('getResident', ['IdResident' => $resident->IDRESIDENT]) }}'" >
+                <tr onclick="window.location='{{ $resident->isGroup() ? route('groups.show', ['id' => $resident->IDRESIDENT]) : route('getResident', ['IdResident' => $resident->IDRESIDENT]) }}'" >
+                    <td>
+                        @if($resident->TYPE == 'group')
+                            <span class="badge badge-primary"><i class="fas fa-users"></i> Groupe</span>
+                        @else
+                            <span class="badge badge-secondary"><i class="fas fa-user"></i> Individuel</span>
+                        @endif
+                    </td>
                     <td>{{ $resident->NOMRESIDENT }}</td>
-                    <td>{{ $resident->PRENOMRESIDENT }}</td>
+                    <td>{{ $resident->TYPE == 'group' ? '' : $resident->PRENOMRESIDENT }}</td>
                     <td>{{ $resident->MAILRESIDENT }}</td>
                     <td>{{ $resident->TELRESIDENT }}</td>
-                    @if ($resident->parents->isEmpty())
+                    @if ($resident->TYPE == 'group' || $resident->parents->isEmpty())
                         <td><em>Non renseigné</em></td>
                         <td><em>Non renseigné</em></td>
                     @else

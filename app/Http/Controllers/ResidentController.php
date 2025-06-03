@@ -8,6 +8,7 @@ use App\Models\Adresse;
 use App\Models\Batiment;
 use App\Models\Chambre;
 use App\Models\Dates;
+use Illuminate\Support\Facades\DB;
 use App\Models\Evenement;
 use App\Models\Fichier;
 use App\Models\MomentEvenement;
@@ -194,21 +195,22 @@ class ResidentController extends Controller
         $resident->NOMRESIDENT = $request->input('nom');
         $resident->MAILRESIDENT = $request->input('email');
         $resident->TELRESIDENT = ltrim($request->input('tel'));
-        $resident->ETABLISSEMENT = $request->input('etablissement');
-        $resident->ANNEEETUDE = $request->input('annee_etude');
         
         // Traitement différent selon le type de résident
         if ($resident->TYPE != 'group') {
+            $resident->ETABLISSEMENT = $request->input('etablissement');
+            $resident->ANNEEETUDE = $request->input('annee_etude');
             // Champs spécifiques aux résidents individuels
             $resident->PRENOMRESIDENT = $request->input('prenom');
             $resident->DATENAISSANCE = $request->input('anniversaire');
             $resident->NATIONALITE = $request->input('nationalite');
-            
-            if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-                $photo = $request->file('photo');
-                $photoPath = $photo->store('photos', 'public');
-                $resident->PHOTO = $photoPath;
-            }
+        }
+        
+        // Traitement de la photo pour tous les types de résidents
+        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+            $photo = $request->file('photo');
+            $photoPath = $photo->store('photos', 'public');
+            $resident->PHOTO = $photoPath;
         }
         
         $resident->save();
@@ -346,23 +348,27 @@ class ResidentController extends Controller
         $resident->NOMRESIDENT = $request->input('nom');
         $resident->MAILRESIDENT = $request->input('email');
         $resident->TELRESIDENT = ltrim($request->input('tel'));
-        $resident->ETABLISSEMENT = $request->input('etablissement');
-        $resident->ANNEEETUDE = $request->input('annee_etude');
         $resident->DATEINSCRIPTION = $request->input('date_entree', now());
         $resident->DATEDEPART = $request->input('date_depart'); 
         $resident->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
         
-        // Champs spécifiques au type individuel
+        // Champs spécifiques au type
         if ($type === 'individual') {
+            $resident->ETABLISSEMENT = $request->input('etablissement');
+            $resident->ANNEEETUDE = $request->input('annee_etude');
             $resident->PRENOMRESIDENT = $request->input('prenom');
             $resident->DATENAISSANCE = $request->input('anniversaire');
             $resident->NATIONALITE = $request->input('nationalite');
-            
-            if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-                $photo = $request->file('photo');
-                $photoPath = $photo->store('photos', 'public');
-                $resident->PHOTO = $photoPath;
-            }
+        } else if ($type === 'group') {
+            $resident->ETABLISSEMENT = '';
+            $resident->ANNEEETUDE = '';
+        }
+        
+        // Traitement de la photo pour tous les types de résidents
+        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+            $photo = $request->file('photo');
+            $photoPath = $photo->store('photos', 'public');
+            $resident->PHOTO = $photoPath;
         }
 
         $resident->save();
@@ -401,6 +407,11 @@ class ResidentController extends Controller
         
         if (!$resident) {
             return false;
+        }
+        
+        // Si c'est un groupe, ne pas l'archiver
+        if ($resident->TYPE == 'group') {
+            return true;
         }
         
         // Trouver la chambre correcte, que ce soit l'occupant actuel ou un futur résident
@@ -580,4 +591,48 @@ class ResidentController extends Controller
         return Excel::download(new ResidentsExport($query), 'residents.xlsx');
     }
     
+    public function archiverGroupe($idGroupe)
+    {
+        $groupe = Resident::with(['chambres', 'adresse'])->find($idGroupe);
+        
+        if (!$groupe || $groupe->TYPE !== 'group') {
+            return false;
+        }
+        
+        // Créer l'archive du groupe
+        $archivedGroupe = new ResidentArchive();
+        $archivedGroupe->IDCHAMBRE = null; // Les groupes peuvent avoir plusieurs chambres
+        $archivedGroupe->IDADRESSE = $groupe->IDADRESSE;
+        $archivedGroupe->NOMRESIDENTARCHIVE = $groupe->NOMRESIDENT;
+        $archivedGroupe->PRENOMRESIDENTARCHIVE = null; // Les groupes n'ont pas de prénom
+        $archivedGroupe->TELRESIDENTARCHIVE = $groupe->TELRESIDENT;
+        $archivedGroupe->MAILRESIDENTARCHIVE = $groupe->MAILRESIDENT;
+        $archivedGroupe->DATENAISSANCEARCHIVE = null; // Les groupes n'ont pas de date de naissance
+        $archivedGroupe->NATIONALITEARCHIVE = null; // Les groupes n'ont pas de nationalité
+        $archivedGroupe->ETABLISSEMENTARCHIVE = $groupe->ETABLISSEMENT;
+        $archivedGroupe->ANNEEETUDEARCHIVE = $groupe->ANNEEETUDE;
+        $archivedGroupe->PHOTOARCHIVE = $groupe->PHOTO;
+        $archivedGroupe->DATEINSCRIPTIONARCHIVE = $groupe->DATEINSCRIPTION;
+        $archivedGroupe->DATEARCHIVE = now();
+        $archivedGroupe->TYPEARCHIVE = 'group'; // Nouveau champ pour identifier les groupes
+        
+        // Créer une liste des chambres occupées pour le nouveau champ texte
+        $chambresOccupees = [];
+        foreach ($groupe->chambres as $chambre) {
+            $chambresOccupees[] = "Bât. {$chambre->IDBATIMENT} - Ch. {$chambre->NUMEROCHAMBRE} (ID: {$chambre->IDCHAMBRE})";
+        }
+        $archivedGroupe->CHAMBREOCCUPEESARCHIVE = implode(' | ', $chambresOccupees);
+        
+        $archivedGroupe->save();
+        
+        // Mettre à jour les fichiers pour pointer vers l'archive
+        DB::table('FICHIER')
+            ->where('IDRESIDENT', $idGroupe)
+            ->update([
+                'IDRESIDENT' => null,
+                'IDRESIDENTARCHIVE' => $archivedGroupe->IDRESIDENTARCHIVE
+            ]);
+        
+        return true;
+    }
 }

@@ -36,9 +36,13 @@
                     <div class="resident-info">
                         <div class="resident-photo">
                             @if($chambre->resident->PHOTO == "photo" || !$chambre->resident->PHOTO)
-                                <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Profile Placeholder">
+                                @if($chambre->resident->TYPE == 'group')
+                                    <img src="https://cdn-icons-png.flaticon.com/512/166/166258.png" alt="Photo actuelle du groupe">
+                                @else
+                                    <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" alt="Photo actuelle">
+                                @endif
                             @else
-                                <img src="{{ asset('storage/' . $chambre->resident->PHOTO) }}" alt="Profile Photo">
+                                <img src="{{ asset('storage/' . $chambre->resident->PHOTO) }}" alt="Photo actuelle">
                             @endif
                         </div>
                         <div class="resident-name">

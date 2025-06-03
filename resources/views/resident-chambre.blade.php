@@ -36,18 +36,19 @@
             </div>
             
             <div class="resident-layout">
+
+                
                 <!-- Colonne gauche - Photo et info principale -->
                 <div class="resident-main">
                     <div class="resident-photo-container">
-                        @if($resident->TYPE == 'group')
-                            <img src="https://st4.depositphotos.com/11574170/23077/v/450/depositphotos_230773030-stock-illustration-group-icon-avatar-icon-people.jpg"
-                                alt="Icon groupe" class="resident-photo">
-                        @elseif($resident->PHOTO == "photo" || $resident->PHOTO == null)
-                            <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
-                                alt="Photo par défaut" class="resident-photo">
+                        @if($resident->PHOTO == "photo" || !$resident->PHOTO)
+                            @if($resident->TYPE == 'group')
+                                <img src="https://cdn-icons-png.flaticon.com/512/166/166258.png" class="resident-photo" alt="Photo actuelle du groupe">
+                            @else
+                                <img src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg" class="resident-photo" alt="Photo actuelle">
+                            @endif
                         @else
-                            <img src="{{ asset('storage/' . $resident->PHOTO) }}"
-                                alt="Photo du résident" class="resident-photo">
+                            <img src="{{ asset('storage/' . $resident->PHOTO) }}" alt="Photo actuelle" class="resident-photo">
                         @endif
                         <div class="resident-badge">{{ $chambre->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}</div>
                     </div>

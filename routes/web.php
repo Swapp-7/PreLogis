@@ -51,10 +51,19 @@ Route::middleware(['admin'])->group(function () {
         return view('parametre');
     })->name('parametres');
     
-    // Routes pour la gestion des groupes
+    // Routes pour la gestion des groupes d'événements
     Route::get('/parametres/groupes', [EvenementController::class, 'index'])->name('parametres.groupes');
     Route::put('/parametres/groupes/{id}', [EvenementController::class, 'update'])->name('parametres.groupes.update');
     Route::delete('/parametres/groupes/{id}', [EvenementController::class, 'destroy'])->name('parametres.groupes.destroy');
+    
+    // Routes pour la gestion des groupes de résidents
+    Route::get('/groupes', [App\Http\Controllers\GroupController::class, 'index'])->name('groups.index');
+    Route::get('/groupes/creer', [App\Http\Controllers\GroupController::class, 'create'])->name('groups.create');
+    Route::post('/groupes', [App\Http\Controllers\GroupController::class, 'store'])->name('groups.store');
+    Route::get('/groupes/{id}', [App\Http\Controllers\GroupController::class, 'show'])->name('groups.show');
+    Route::put('/groupes/{id}', [App\Http\Controllers\GroupController::class, 'update'])->name('groups.update');
+    Route::delete('/groupes/{id}', [App\Http\Controllers\GroupController::class, 'destroy'])->name('groups.destroy');
+    Route::delete('/groupes/{id}/chambres/{roomId}', [App\Http\Controllers\GroupController::class, 'removeFromRoom'])->name('groups.rooms.remove');
     
     // Routes pour la gestion des bâtiments
     Route::get('/parametres/batiments', [ParametreBatimentController::class, 'index'])->name('parametres.batiments');

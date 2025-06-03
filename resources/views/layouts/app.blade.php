@@ -29,6 +29,10 @@
                             <i class="fas fa-users"></i><span class="nav-text">Résidents</span>
                         </a></li>
                         
+                        <li><a href="{{ url('/groupes') }}" class="{{ request()->is('groupes') || request()->is('groupes/*') ? 'active' : '' }}">
+                            <i class="fas fa-user-friends"></i><span class="nav-text">Groupes</span>
+                        </a></li>
+                        
                         <li><a href="{{ url('/Salle') }}" class="{{ request()->is('Salle') ? 'active' : '' }}">
                             <i class="fas fa-door-open"></i><span class="nav-text">Salles</span>
                         </a></li>

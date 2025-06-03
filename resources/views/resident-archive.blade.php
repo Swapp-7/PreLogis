@@ -1,6 +1,6 @@
 
 @extends('layouts.app')
-@section('title', 'Résident Archivé')
+@section('title', 'Archive')
 @section('content')
 @php
     $resident = $residentA 
@@ -8,7 +8,17 @@
 <link rel="stylesheet" href="{{ asset('css/resident-archive.css') }}">
 <div class="archive-container">
     <div class="page-header">
-        <h1>Archive {{ $resident->NOMRESIDENTARCHIVE }} {{ $resident->PRENOMRESIDENTARCHIVE }}</h1>
+        @if($resident->isGroup())
+            <h1>Archive du Groupe {{ $resident->NOMRESIDENTARCHIVE }}</h1>
+            <div class="archive-type-indicator group-indicator">
+                <i class="fas fa-users"></i> Groupe Archivé
+            </div>
+        @else
+            <h1>Archive {{ $resident->NOMRESIDENTARCHIVE }} {{ $resident->PRENOMRESIDENTARCHIVE }}</h1>
+            <div class="archive-type-indicator individual-indicator">
+                <i class="fas fa-user"></i> Résident Individuel Archivé
+            </div>
+        @endif
     </div>
     
     <div class="resident-layout">
@@ -20,55 +30,101 @@
                     alt="Photo par défaut" class="resident-photo">
                 @else
                 <img src="{{ asset('storage/' . $resident->PHOTOARCHIVE) }}"
-                    alt="Photo du résident" class="resident-photo">
+                    alt="Photo {{ $resident->isGroup() ? 'du groupe' : 'du résident' }}" class="resident-photo">
                 @endif
-                <div class="resident-badge">
-                    @if($resident->chambre)
-                        {{ $resident->chambre->IDBATIMENT }}{{ $resident->chambre->NUMEROCHAMBRE }}
-                    @else
-                        <span>Chambre supprimé</span>
-                    @endif
-                </div>
+                
+                @if($resident->isGroup())
+                    <div class="resident-badge group-badge">
+                        @php
+                            $chambres = $resident->getChambresOccupees();
+                        @endphp
+                        @if(count($chambres) > 0)
+                            <span class="chambres-count">{{ count($chambres) }} chambre(s)</span>
+                        @else
+                            <span>Aucune chambre</span>
+                        @endif
+                    </div>
+                @else
+                    <div class="resident-badge">
+                        @if($resident->chambre)
+                            {{ $resident->chambre->IDBATIMENT }}{{ $resident->chambre->NUMEROCHAMBRE }}
+                        @else
+                            <span>Chambre supprimée</span>
+                        @endif
+                    </div>
+                @endif
             </div>
             
             <div class="resident-identity">
-                <h2 class="resident-name">{{ $resident->NOMRESIDENTARCHIVE }} {{ $resident->PRENOMRESIDENTARCHIVE }}</h2>
+                @if($resident->isGroup())
+                    <h2 class="resident-name">{{ $resident->NOMRESIDENTARCHIVE }}</h2>
+                    <p class="group-description">Groupe de résidents</p>
+                @else
+                    <h2 class="resident-name">{{ $resident->NOMRESIDENTARCHIVE }} {{ $resident->PRENOMRESIDENTARCHIVE }}</h2>
+                    @if($resident->NATIONALITEARCHIVE)
+                        <p class="resident-nationality"><i class="fas fa-flag"></i> {{ $resident->NATIONALITEARCHIVE }}</p>
+                    @endif
+                @endif
                 <p class="resident-mail"><i class="fas fa-envelope"></i> {{ $resident->MAILRESIDENTARCHIVE }}</p>
                 <p class="resident-phone"><i class="fas fa-phone"></i> {{ $resident->TELRESIDENTARCHIVE }}</p>
-                <p class="resident-nationality"><i class="fas fa-flag"></i> {{ $resident->NATIONALITEARCHIVE }}</p>
             </div>
         </div>
         
         <!-- Colonne centrale - Infos détaillées -->
         <div class="resident-details">
-            <div class="details-section">
-                <h3><i class="fas fa-user-graduate"></i> Études</h3>
-                <div class="details-grid">
-                    <p><span>Établissement:</span> {{ $resident->ETABLISSEMENTARCHIVE }}</p>
-                    <p><span>Année:</span> {{ $resident->ANNEEETUDEARCHIVE }}</p>
+            @if($resident->isGroup())
+                <div class="details-section">
+                    <h3><i class="fas fa-home"></i> Chambres Occupées</h3>
+                    <div class="chambres-group-list">
+                        @php
+                            $chambres = $resident->getChambresOccupees();
+                        @endphp
+                        @if(count($chambres) > 0)
+                            @foreach($chambres as $chambre)
+                                <div class="chambre-item">
+                                    <i class="fas fa-bed"></i>
+                                    <span>{{ $chambre }}</span>
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="no-data">Aucune chambre enregistrée pour ce groupe</p>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="details-section">
+                    <h3><i class="fas fa-user-graduate"></i> Études</h3>
+                    <div class="details-grid">
+                        <p><span>Établissement:</span> {{ $resident->ETABLISSEMENTARCHIVE ?: 'Non renseigné' }}</p>
+                        <p><span>Année:</span> {{ $resident->ANNEEETUDEARCHIVE ?: 'Non renseigné' }}</p>
+                    </div>
+                </div>
+            @endif
             
             <div class="details-section">
                 <h3><i class="fas fa-calendar-alt"></i> Dates</h3>
                 <div class="details-grid">
-                    <p><span>Naissance:</span> {{ \Carbon\Carbon::parse($resident->DATENAISSANCEARCHIVE )->translatedFormat('d M Y') }}</p>
-                    <p><span>Arrivée:</span> {{ \Carbon\Carbon::parse($resident->DATEINSCRIPTIONARCHIVE )->translatedFormat('d M Y') }}</p>
-                    <p><span>Archivé le:</span> {{ \Carbon\Carbon::parse($resident->DATEARCHIVE )->translatedFormat('d M Y') }}</p>
+                    @if(!$resident->isGroup() && $resident->DATENAISSANCEARCHIVE)
+                        <p><span>Naissance:</span> {{ \Carbon\Carbon::parse($resident->DATENAISSANCEARCHIVE)->translatedFormat('d M Y') }}</p>
+                    @endif
+                    <p><span>Arrivée:</span> {{ \Carbon\Carbon::parse($resident->DATEINSCRIPTIONARCHIVE)->translatedFormat('d M Y') }}</p>
+                    <p><span>Archivé le:</span> {{ \Carbon\Carbon::parse($resident->DATEARCHIVE)->translatedFormat('d M Y') }}</p>
                 </div>
             </div>
         </div>
         
         <!-- Colonne droite - Coordonnées -->
         <div class="resident-contacts">
-            <div class="details-section address-section">
-                <h3><i class="fas fa-home"></i> Adresse</h3>
-                <p>{{ $resident->adresse->ADRESSE }}</p>
-                <p>{{ $resident->adresse->CODEPOSTAL }} {{ $resident->adresse->VILLE }}</p>
-                <p>{{ $resident->adresse->PAYS }}</p>
-            </div>
+            @if($resident->adresse)
+                <div class="details-section address-section">
+                    <h3><i class="fas fa-home"></i> Adresse</h3>
+                    <p>{{ $resident->adresse->ADRESSE }}</p>
+                    <p>{{ $resident->adresse->CODEPOSTAL }} {{ $resident->adresse->VILLE }}</p>
+                    <p>{{ $resident->adresse->PAYS }}</p>
+                </div>
+            @endif
             
-            @if($resident->parents && count($resident->parents) > 0)
+            @if(!$resident->isGroup() && $resident->parents && count($resident->parents) > 0)
             <div class="details-section">
                 <h3><i class="fas fa-users"></i> Parents</h3>
                 @foreach($resident->parents as $parent)
@@ -117,6 +173,108 @@
 </div>
 
 <style>
+/* Styles spécifiques pour les groupes archivés */
+.archive-type-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+}
 
+.group-indicator {
+    background-color: #FDC11F;
+    color: #20364B;
+}
+
+.individual-indicator {
+    background-color: #20364B;
+    color: #fff;
+    border: 2px solid #FDC11F;
+}
+
+.archive-type-indicator i {
+    margin-right: 6px;
+    font-size: 1rem;
+}
+
+.group-badge {
+    background-color: #FDC11F !important;
+    color: #20364B !important;
+    font-weight: 600;
+}
+
+.chambres-count {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.group-description {
+    color: #FDC11F;
+    font-style: italic;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.chambres-group-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.chambre-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: rgba(253, 193, 31, 0.1);
+    border: 1px solid rgba(253, 193, 31, 0.3);
+    border-radius: 8px;
+    color: #FDC11F;
+    font-weight: 500;
+}
+
+.chambre-item i {
+    margin-right: 8px;
+    color: #FDC11F;
+}
+
+.no-data {
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Responsive adjustments for groups */
+@media (max-width: 768px) {
+    .archive-type-indicator {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+    
+    .chambres-group-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .chambre-item {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Override existing styles for better group display */
+.resident-name {
+    color: #FDC11F !important;
+}
+
+.details-section h3 {
+    border-bottom: 2px solid #FDC11F;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
 </style>
 @endsection
