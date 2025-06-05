@@ -386,6 +386,32 @@
             </button>
         </div>
     </form>
+    
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    
+    @if (session('warning'))
+        <div class="alert alert-warning">
+            {{ session('warning') }}
+        </div>
+    @endif
+    
+    @if (session('import_results'))
+        <div class="import-results">
+            <h4>Résultats de l'importation :</h4>
+            <div class="results-container">
+                @foreach (session('import_results') as $result)
+                    <div class="result-item {{ $result['status'] }}">
+                        <span class="result-row">Ligne {{ $result['row'] }}:</span>
+                        <span class="result-message">{{ $result['message'] }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>
 
 <script>

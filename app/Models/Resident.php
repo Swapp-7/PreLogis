@@ -74,6 +74,26 @@ class Resident extends Model
     {
         return self::where('TYPE', self::TYPE_GROUP);
     }
+    
+    /**
+     * Obtenir l'URL complète de la photo
+     */
+    public function getPhotoUrl()
+    {
+        if (!$this->PHOTO || $this->PHOTO === 'photo') {
+            return 'https://cdn-icons-png.flaticon.com/512/166/166258.png'; // Photo par défaut
+        }
+        
+        return asset('storage/' . $this->PHOTO);
+    }
+    
+    /**
+     * Vérifier si le résident a une photo personnalisée
+     */
+    public function hasCustomPhoto()
+    {
+        return $this->PHOTO && $this->PHOTO !== 'photo';
+    }
 }
 
 

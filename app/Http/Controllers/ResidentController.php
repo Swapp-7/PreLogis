@@ -175,26 +175,145 @@ class ResidentController extends Controller
     }
     public function modifierResident(Request $request, $idResident)
     {
-        $request->validate([
+        $resident = Resident::find($idResident);
+        
+        if (!$resident) {
+            return redirect()->back()->with('error', 'Résident non trouvé.');
+        }
+        
+        $rules = [
+            'nom' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
             'email' => 'required|email|max:255',
-            'tel' => 'required|string|max:10',
-            'adresse.code_postal' => 'required|string|max:10',
-        ], [
+            'tel' => 'required|string',
+            'adresse.adresse' => 'required|string|min:5|max:255',
+            'adresse.code_postal' => 'required|string|regex:/^[0-9]{5}$/',
+            'adresse.ville' => 'required|string|min:2|max:70|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+            'adresse.pays' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
+        
+        // Validations spécifiques pour les résidents individuels
+        if ($resident->TYPE !== 'group') {
+            $rules = array_merge($rules, [
+                'prenom' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+                'anniversaire' => 'required|date|before:today',
+                'nationalite' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+                'etablissement' => 'required|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
+                'annee_etude' => 'required|in:1re,2e,3e,4e,5e',
+                'parents.*.nom' => 'nullable|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+                'parents.*.tel' => 'nullable|string',
+                'parents.*.profession' => 'nullable|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
+            ]);
+        }
+        
+        $messages = [
+            // Messages pour les champs communs
+            'nom.required' => 'Le nom est obligatoire.',
+            'nom.string' => 'Le nom doit être une chaîne de caractères.',
+            'nom.min' => 'Le nom doit contenir au moins 2 caractères.',
+            'nom.max' => 'Le nom ne doit pas dépasser 50 caractères.',
+            'nom.regex' => 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'prenom.required' => 'Le prénom est obligatoire.',
+            'prenom.string' => 'Le prénom doit être une chaîne de caractères.',
+            'prenom.min' => 'Le prénom doit contenir au moins 2 caractères.',
+            'prenom.max' => 'Le prénom ne doit pas dépasser 50 caractères.',
+            'prenom.regex' => 'Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email n\'est pas valide.',
             'email.max' => 'L\'adresse email ne doit pas dépasser 255 caractères.',
+            
             'tel.required' => 'Le numéro de téléphone est obligatoire.',
             'tel.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
-            'tel.max' => 'Le numéro de téléphone ne doit pas dépasser 10 caractères.',
+            'tel.regex' => 'Le format du téléphone n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
+            
+            'anniversaire.required' => 'La date de naissance est obligatoire.',
+            'anniversaire.date' => 'La date de naissance n\'est pas valide.',
+            'anniversaire.before' => 'La date de naissance doit être antérieure à aujourd\'hui.',
+            
+            'nationalite.required' => 'La nationalité est obligatoire.',
+            'nationalite.string' => 'La nationalité doit être une chaîne de caractères.',
+            'nationalite.min' => 'La nationalité doit contenir au moins 2 caractères.',
+            'nationalite.max' => 'La nationalité ne doit pas dépasser 50 caractères.',
+            'nationalite.regex' => 'La nationalité ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'etablissement.required' => 'L\'établissement est obligatoire.',
+            'etablissement.string' => 'L\'établissement doit être une chaîne de caractères.',
+            'etablissement.min' => 'L\'établissement doit contenir au moins 2 caractères.',
+            'etablissement.max' => 'L\'établissement ne doit pas dépasser 100 caractères.',
+            'etablissement.regex' => 'L\'établissement contient des caractères non autorisés.',
+            
+            'annee_etude.required' => 'L\'année d\'étude est obligatoire.',
+            'annee_etude.in' => 'L\'année d\'étude doit être l\'une des valeurs suivantes: 1re, 2e, 3e, 4e, 5e.',
+            
+            // Messages pour l'adresse
+            'adresse.adresse.required' => 'L\'adresse est obligatoire.',
+            'adresse.adresse.string' => 'L\'adresse doit être une chaîne de caractères.',
+            'adresse.adresse.min' => 'L\'adresse doit contenir au moins 5 caractères.',
+            'adresse.adresse.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
+            
             'adresse.code_postal.required' => 'Le code postal est obligatoire.',
             'adresse.code_postal.string' => 'Le code postal doit être une chaîne de caractères.',
-            'adresse.code_postal.max' => 'Le code postal ne doit pas dépasser 10 caractères.',
-        ]);
+            'adresse.code_postal.regex' => 'Le code postal doit contenir exactement 5 chiffres.',
+            
+            'adresse.ville.required' => 'La ville est obligatoire.',
+            'adresse.ville.string' => 'La ville doit être une chaîne de caractères.',
+            'adresse.ville.min' => 'La ville doit contenir au moins 2 caractères.',
+            'adresse.ville.max' => 'La ville ne doit pas dépasser 50 caractères.',
+            'adresse.ville.regex' => 'La ville ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'adresse.pays.required' => 'Le pays est obligatoire.',
+            'adresse.pays.string' => 'Le pays doit être une chaîne de caractères.',
+            'adresse.pays.min' => 'Le pays doit contenir au moins 2 caractères.',
+            'adresse.pays.max' => 'Le pays ne doit pas dépasser 50 caractères.',
+            'adresse.pays.regex' => 'Le pays ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            // Messages pour les parents
+            'parents.*.nom.string' => 'Le nom du parent doit être une chaîne de caractères.',
+            'parents.*.nom.min' => 'Le nom du parent doit contenir au moins 2 caractères.',
+            'parents.*.nom.max' => 'Le nom du parent ne doit pas dépasser 50 caractères.',
+            'parents.*.nom.regex' => 'Le nom du parent ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'parents.*.tel.string' => 'Le téléphone du parent doit être une chaîne de caractères.',
+            'parents.*.tel.regex' => 'Le format du téléphone du parent n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
+            
+            'parents.*.profession.string' => 'La profession du parent doit être une chaîne de caractères.',
+            'parents.*.profession.min' => 'La profession du parent doit contenir au moins 2 caractères.',
+            'parents.*.profession.max' => 'La profession du parent ne doit pas dépasser 100 caractères.',
+            'parents.*.profession.regex' => 'La profession du parent contient des caractères non autorisés.',
+            
+            // Messages pour la photo
+            'photo.image' => 'Le fichier doit être une image.',
+            'photo.mimes' => 'L\'image doit être au format: jpeg, png, jpg ou gif.',
+            'photo.max' => 'L\'image ne doit pas dépasser 2MB.',
+        ];
+        
+        $request->validate($rules, $messages);
+        
+        // Validations personnalisées supplémentaires pour les parents
+        if ($resident->TYPE !== 'group' && $request->has('parents')) {
+            $parentErrors = $this->validateParentsData($request->input('parents'));
+            
+            // Si des erreurs de cohérence sont trouvées, les retourner
+            if (!empty($parentErrors)) {
+                return redirect()->back()
+                    ->withErrors($parentErrors)
+                    ->withInput();
+            }
+        }
+        
+        // Validation personnalisée du téléphone principal
+        if (!$this->isValidInternationalPhone($request->input('tel'))) {
+            return redirect()->back()
+                ->withErrors(['tel' => 'Le format du téléphone principal n\'est pas valide.'])
+                ->withInput();
+        }
 
         $resident = Resident::find($idResident);
         $resident->NOMRESIDENT = $request->input('nom');
         $resident->MAILRESIDENT = $request->input('email');
-        $resident->TELRESIDENT = ltrim($request->input('tel'));
+        $resident->TELRESIDENT = $this->cleanPhoneNumber($request->input('tel'));
         
         // Traitement différent selon le type de résident
         if ($resident->TYPE != 'group') {
@@ -220,7 +339,7 @@ class ResidentController extends Controller
             foreach ($request->input('parents') as $index => $parentData) {
                 $parent = $resident->parents[$index] ?? new Parents();
                 $parent->NOMPARENT = $parentData['nom'];
-                $parent->TELPARENT = $parentData['tel'];
+                $parent->TELPARENT = $this->cleanPhoneNumber($parentData['tel']);
                 $parent->PROFESSION = $parentData['profession'];
                 $parent->save();
                 
@@ -264,37 +383,156 @@ class ResidentController extends Controller
         $type = $request->input('type', 'individual');
         
         $rules = [
+            'nom' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
             'email' => 'required|email|max:255',
-            'tel' => 'required|string|max:10',
-            'adresse.code_postal' => 'required|string|max:10',
-            'date_entree' => 'required|date',
+            'tel' => 'required|string',
+            'date_entree' => 'required|date|after_or_equal:today',
+            'date_depart' => 'nullable|date|after:date_entree',
+            'adresse.adresse' => 'required|string|min:5|max:255',
+            'adresse.code_postal' => 'required|string|regex:/^[0-9]{5}$/',
+            'adresse.ville' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+            'adresse.pays' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
+        
+        // Validations spécifiques selon le type
+        if ($type === 'individual') {
+            $rules = array_merge($rules, [
+                'prenom' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+                'anniversaire' => 'required|date|before:today',
+                'nationalite' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+                'etablissement' => 'required|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
+                'annee_etude' => 'required|in:1re,2e,3e,4e,5e',
+                'parents.*.nom' => 'nullable|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
+                'parents.*.tel' => 'nullable|string',
+                'parents.*.profession' => 'nullable|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
+            ]);
+        }
         
         // Si c'est un membre de groupe existant, on ne valide que certains champs
         if ($type === 'group_member') {
             $rules = [
                 'existing_group_id' => 'required|exists:RESIDENT,IDRESIDENT',
-                'date_entree' => 'required|date'
+                'date_entree' => 'required|date|after_or_equal:today',
+                'date_depart' => 'nullable|date|after:date_entree',
             ];
         }
         
         $messages = [
+            // Messages pour les champs communs
+            'nom.required' => 'Le nom est obligatoire.',
+            'nom.string' => 'Le nom doit être une chaîne de caractères.',
+            'nom.min' => 'Le nom doit contenir au moins 2 caractères.',
+            'nom.max' => 'Le nom ne doit pas dépasser 50 caractères.',
+            'nom.regex' => 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'prenom.required' => 'Le prénom est obligatoire.',
+            'prenom.string' => 'Le prénom doit être une chaîne de caractères.',
+            'prenom.min' => 'Le prénom doit contenir au moins 2 caractères.',
+            'prenom.max' => 'Le prénom ne doit pas dépasser 50 caractères.',
+            'prenom.regex' => 'Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email n\'est pas valide.',
             'email.max' => 'L\'adresse email ne doit pas dépasser 255 caractères.',
+            
             'tel.required' => 'Le numéro de téléphone est obligatoire.',
             'tel.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
-            'tel.max' => 'Le numéro de téléphone ne doit pas dépasser 10 caractères.',
+            'tel.regex' => 'Le format du téléphone n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
+            
+            'anniversaire.required' => 'La date de naissance est obligatoire.',
+            'anniversaire.date' => 'La date de naissance n\'est pas valide.',
+            'anniversaire.before' => 'La date de naissance doit être antérieure à aujourd\'hui.',
+            
+            'nationalite.required' => 'La nationalité est obligatoire.',
+            'nationalite.string' => 'La nationalité doit être une chaîne de caractères.',
+            'nationalite.min' => 'La nationalité doit contenir au moins 2 caractères.',
+            'nationalite.max' => 'La nationalité ne doit pas dépasser 50 caractères.',
+            'nationalite.regex' => 'La nationalité ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'etablissement.required' => 'L\'établissement est obligatoire.',
+            'etablissement.string' => 'L\'établissement doit être une chaîne de caractères.',
+            'etablissement.min' => 'L\'établissement doit contenir au moins 2 caractères.',
+            'etablissement.max' => 'L\'établissement ne doit pas dépasser 100 caractères.',
+            'etablissement.regex' => 'L\'établissement contient des caractères non autorisés.',
+            
+            'annee_etude.required' => 'L\'année d\'étude est obligatoire.',
+            'annee_etude.in' => 'L\'année d\'étude doit être l\'une des valeurs suivantes: 1re, 2e, 3e, 4e, 5e.',
+            
+            // Messages pour l'adresse
+            'adresse.adresse.required' => 'L\'adresse est obligatoire.',
+            'adresse.adresse.string' => 'L\'adresse doit être une chaîne de caractères.',
+            'adresse.adresse.min' => 'L\'adresse doit contenir au moins 5 caractères.',
+            'adresse.adresse.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
+            
             'adresse.code_postal.required' => 'Le code postal est obligatoire.',
             'adresse.code_postal.string' => 'Le code postal doit être une chaîne de caractères.',
-            'adresse.code_postal.max' => 'Le code postal ne doit pas dépasser 10 caractères.',
+            'adresse.code_postal.regex' => 'Le code postal doit contenir exactement 5 chiffres.',
+            
+            'adresse.ville.required' => 'La ville est obligatoire.',
+            'adresse.ville.string' => 'La ville doit être une chaîne de caractères.',
+            'adresse.ville.min' => 'La ville doit contenir au moins 2 caractères.',
+            'adresse.ville.max' => 'La ville ne doit pas dépasser 50 caractères.',
+            'adresse.ville.regex' => 'La ville ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'adresse.pays.required' => 'Le pays est obligatoire.',
+            'adresse.pays.string' => 'Le pays doit être une chaîne de caractères.',
+            'adresse.pays.min' => 'Le pays doit contenir au moins 2 caractères.',
+            'adresse.pays.max' => 'Le pays ne doit pas dépasser 50 caractères.',
+            'adresse.pays.regex' => 'Le pays ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            // Messages pour les dates
             'date_entree.required' => 'La date d\'entrée est obligatoire.',
             'date_entree.date' => 'La date d\'entrée n\'est pas valide.',
+            'date_entree.after_or_equal' => 'La date d\'entrée ne peut pas être antérieure à aujourd\'hui.',
+            
+            'date_depart.date' => 'La date de départ n\'est pas valide.',
+            'date_depart.after' => 'La date de départ doit être postérieure à la date d\'entrée.',
+            
+            // Messages pour les parents
+            'parents.*.nom.string' => 'Le nom du parent doit être une chaîne de caractères.',
+            'parents.*.nom.min' => 'Le nom du parent doit contenir au moins 2 caractères.',
+            'parents.*.nom.max' => 'Le nom du parent ne doit pas dépasser 50 caractères.',
+            'parents.*.nom.regex' => 'Le nom du parent ne peut contenir que des lettres, espaces, tirets et apostrophes.',
+            
+            'parents.*.tel.string' => 'Le téléphone du parent doit être une chaîne de caractères.',
+            'parents.*.tel.regex' => 'Le format du téléphone du parent n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
+            
+            'parents.*.profession.string' => 'La profession du parent doit être une chaîne de caractères.',
+            'parents.*.profession.min' => 'La profession du parent doit contenir au moins 2 caractères.',
+            'parents.*.profession.max' => 'La profession du parent ne doit pas dépasser 100 caractères.',
+            'parents.*.profession.regex' => 'La profession du parent contient des caractères non autorisés.',
+            
+            // Messages pour la photo
+            'photo.image' => 'Le fichier doit être une image.',
+            'photo.mimes' => 'L\'image doit être au format: jpeg, png, jpg ou gif.',
+            'photo.max' => 'L\'image ne doit pas dépasser 2MB.',
+            
+            // Messages pour groupe existant
             'existing_group_id.required' => 'Veuillez sélectionner un groupe.',
             'existing_group_id.exists' => 'Le groupe sélectionné n\'existe pas.',
         ];
         
         $request->validate($rules, $messages);
+        
+        // Validations personnalisées supplémentaires
+        if ($type === 'individual' && $request->has('parents')) {
+            $parentErrors = $this->validateParentsData($request->input('parents'));
+            
+            // Si des erreurs de cohérence sont trouvées, les retourner
+            if (!empty($parentErrors)) {
+                return redirect()->back()
+                    ->withErrors($parentErrors)
+                    ->withInput();
+            }
+        }
+        
+        // Validation personnalisée du téléphone principal
+        if (!$this->isValidInternationalPhone($request->input('tel'))) {
+            return redirect()->back()
+                ->withErrors(['tel' => 'Le format du téléphone principal n\'est pas valide.'])
+                ->withInput();
+        }
         
         // Si on ajoute un membre à un groupe existant, pas besoin de créer un nouveau résident
         if ($type === 'group_member') {
@@ -347,7 +585,7 @@ class ResidentController extends Controller
 
         $resident->NOMRESIDENT = $request->input('nom');
         $resident->MAILRESIDENT = $request->input('email');
-        $resident->TELRESIDENT = ltrim($request->input('tel'));
+        $resident->TELRESIDENT = $this->cleanPhoneNumber($request->input('tel'));
         $resident->DATEINSCRIPTION = $request->input('date_entree', now());
         $resident->DATEDEPART = $request->input('date_depart'); 
         $resident->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
@@ -376,11 +614,11 @@ class ResidentController extends Controller
         // Ajouter les parents seulement pour les résidents individuels
         if ($type === 'individual' && $request->has('parents')) {
             foreach ($request->input('parents') as $parentData) {
-                if (!empty($parentData['nom']) && !empty($parentData['tel']) && !empty($parentData['profession'])) {
+                if (!empty($parentData['nom']) && !empty($parentData['tel'])) {
                     $parent = new Parents();
                     $parent->NOMPARENT = $parentData['nom'];
-                    $parent->TELPARENT = $parentData['tel'];
-                    $parent->PROFESSION = $parentData['profession'];
+                    $parent->TELPARENT = $this->cleanPhoneNumber($parentData['tel']);
+                    $parent->PROFESSION = $parentData['profession'] ?? '';
                     $parent->save();
                     $resident->parents()->attach($parent->IDPARENT);
                 }
@@ -619,7 +857,7 @@ class ResidentController extends Controller
         // Créer une liste des chambres occupées pour le nouveau champ texte
         $chambresOccupees = [];
         foreach ($groupe->chambres as $chambre) {
-            $chambresOccupees[] = "Bât. {$chambre->IDBATIMENT} - Ch. {$chambre->NUMEROCHAMBRE} (ID: {$chambre->IDCHAMBRE})";
+            $chambresOccupees[] = "{$chambre->IDBATIMENT} {$chambre->NUMEROCHAMBRE} ";
         }
         $archivedGroupe->CHAMBREOCCUPEESARCHIVE = implode(' | ', $chambresOccupees);
         
@@ -634,5 +872,134 @@ class ResidentController extends Controller
             ]);
         
         return true;
+    }
+    
+    /**
+     * Nettoie et formate un numéro de téléphone
+     * 
+     * @param string $phone
+     * @return string
+     */
+    private function cleanPhoneNumber($phone)
+    {
+        if (empty($phone)) {
+            return '';
+        }
+        
+        // Supprimer tous les espaces, points, tirets, parenthèses
+        $cleaned = preg_replace('/[\s\.\-\(\)]/', '', $phone);
+        
+        return $cleaned;
+    }
+    
+    /**
+     * Valide un numéro de téléphone français
+     * 
+     * @param string $phone
+     * @return bool
+     */
+    private function isValidFrenchPhone($phone)
+    {
+        if (empty($phone)) {
+            return false;
+        }
+        
+        $cleaned = $this->cleanPhoneNumber($phone);
+        
+        // Format français : +33 ou 0
+        return preg_match('/^(?:\+33[1-9][0-9]{8}|0[1-9][0-9]{8})$/', $cleaned) === 1;
+    }
+
+    /**
+     * Valide un numéro de téléphone international
+     * 
+     * @param string $phone
+     * @return bool
+     */
+    private function isValidInternationalPhone($phone)
+    {
+        if (empty($phone)) {
+            return false;
+        }
+        
+        $cleaned = $this->cleanPhoneNumber($phone);
+        
+        // Support international étendu avec indicatifs pays courants
+        $patterns = [
+            // France : +33 ou 0
+            '/^(?:\+33[1-9][0-9]{8}|0[1-9][0-9]{8})$/',
+            // USA/Canada : +1
+            '/^\+1[2-9][0-9]{9}$/',
+            // Royaume-Uni : +44
+            '/^\+44[1-9][0-9]{8,9}$/',
+            // Allemagne : +49
+            '/^\+49[1-9][0-9]{8,11}$/',
+            // Italie : +39
+            '/^\+39[0-9]{8,11}$/',
+            // Espagne : +34
+            '/^\+34[6-9][0-9]{8}$/',
+            // Portugal : +351
+            '/^\+351[2-9][0-9]{8}$/',
+            // Belgique : +32
+            '/^\+32[2-9][0-9]{7,8}$/',
+            // Suisse : +41
+            '/^\+41[2-9][0-9]{8}$/',
+            // Maroc : +212
+            '/^\+212[5-7][0-9]{8}$/',
+            // Algérie : +213
+            '/^\+213[5-7][0-9]{8}$/',
+            // Tunisie : +216
+            '/^\+216[2-9][0-9]{7}$/'
+        ];
+        
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $cleaned) === 1) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Valide les données des parents et retourne les erreurs
+     * 
+     * @param array $parents
+     * @return array
+     */
+    private function validateParentsData($parents)
+    {
+        $errors = [];
+        
+        foreach ($parents as $index => $parentData) {
+            $parentNumber = $index + 1;
+            
+            // Si un nom est renseigné, vérifier que les autres champs importants le sont aussi
+            if (!empty($parentData['nom'])) {
+                if (empty($parentData['tel'])) {
+                    $errors["parents.{$index}.tel"] = "Le téléphone est obligatoire si le nom du parent {$parentNumber} est renseigné.";
+                } elseif (!$this->isValidInternationalPhone($parentData['tel'])) {
+                    $errors["parents.{$index}.tel"] = "Le format du téléphone du parent {$parentNumber} n'est pas valide.";
+                }
+            }
+            
+            // Si un téléphone est renseigné, vérifier que le nom l'est aussi
+            if (!empty($parentData['tel'])) {
+                if (empty($parentData['nom'])) {
+                    $errors["parents.{$index}.nom"] = "Le nom est obligatoire si le téléphone du parent {$parentNumber} est renseigné.";
+                } elseif (!$this->isValidInternationalPhone($parentData['tel'])) {
+                    $errors["parents.{$index}.tel"] = "Le format du téléphone du parent {$parentNumber} n'est pas valide.";
+                }
+            }
+            
+            // Si une profession est renseignée, vérifier que le nom l'est aussi
+            if (!empty($parentData['profession'])) {
+                if (empty($parentData['nom'])) {
+                    $errors["parents.{$index}.nom"] = "Le nom est obligatoire si la profession du parent {$parentNumber} est renseignée.";
+                }
+            }
+        }
+        
+        return $errors;
     }
 }

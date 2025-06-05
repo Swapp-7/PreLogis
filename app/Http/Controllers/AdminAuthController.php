@@ -25,7 +25,7 @@ class AdminAuthController extends Controller
         $admin = Admin::where('NOMUTILISATEUR', $credentials['username'])->first();
         
         // Check if admin exists and password matches
-        if ($admin && Hash::check($credentials['password'], $admin->MODEPASSE)) {
+        if ($admin && Hash::check($credentials['password'], $admin->MOTDEPASSE)) {
             $request->session()->put('admin_logged_in', true);
             $request->session()->put('admin_id', $admin->IDADMIN);
             return redirect()->route('tableauDeBord');
@@ -120,7 +120,7 @@ class AdminAuthController extends Controller
         }
         
         // Met à jour le mot de passe et supprime le token
-        $admin->MODEPASSE = Hash::make($request->password); 
+        $admin->MOTDEPASSE = Hash::make($request->password); 
         $admin->TOKEN_RESET_PASSWORD = null;
         $admin->TOKEN_EXPIRES_AT = null;
         $admin->save();

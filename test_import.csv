@@ -1,0 +1,3 @@
+nom;prenom;email;telephone;date_naissance;batiment;numero_chambre;nationalite;etablissement;annee_etude;date_entree;date_depart;adresse;code_postal;ville;pays;parent1_nom;parent1_telephone;parent1_profession;parent2_nom;parent2_telephone;parent2_profession
+Dupont;Jean;jean.dupont@email.com;01.23.45.67.89;15/01/2000;A;101;Française;Université Paris;2;01/09/2024;30/06/2025;123 Rue de la Paix;75001;Paris;France;Marie Dupont;01-23-45-67-88;Ingénieur;Pierre Dupont;+33123456787;Médecin
+Martin;Sophie;sophie.martin@email.com;09-87-65-43-21;20/05/1999;B;205;Française;INSA Lyon;3;01/09/2024;30/06/2025;456 Avenue des Champs;69000;Lyon;France;Claire Martin;0987654320;Professeur;Paul Martin;09.87.65.43.19;Avocat

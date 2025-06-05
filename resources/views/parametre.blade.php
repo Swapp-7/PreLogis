@@ -31,17 +31,19 @@
             </div>
         </div>
         
-        <!-- Section Compte Admin -->
+        <!-- Section Compte Admin - Visible uniquement pour l'administrateur principal (ID=1, nom="admin") -->
+        @if(isset($isMainAdmin) && $isMainAdmin)
         <div class="parametre-card">
             <div class="parametre-header">
                 <i class="fas fa-user-cog"></i>
                 <h2>Compte Administrateur</h2>
             </div>
             <div class="parametre-content">
-                <p>Modifiez les paramètres de votre compte</p>
-                <a href="{{ route('parametres.admin') }}" class="btn-parametre">Gérer mon compte</a>
+                <p>Modifiez les paramètres des comptes administrateurs (réservé à l'administrateur principal)</p>
+                <a href="{{ route('parametres.admin') }}" class="btn-parametre">Gérer les comptes administrateurs</a>
             </div>
         </div>
+        @endif
         
         <!-- Section Optimisation des Occupations -->
         <div class="parametre-card">
@@ -52,6 +54,30 @@
             <div class="parametre-content">
                 <p>Supprimez les anciennes occupations pour optimiser les performances</p>
                 <a href="{{ route('parametres.optimisation-occupation') }}" class="btn-parametre">Nettoyer les données</a>
+            </div>
+        </div>
+        
+        <!-- Section Gestion Salles -->
+        <div class="parametre-card">
+            <div class="parametre-header">
+                <i class="fas fa-door-open"></i>
+                <h2>Gestion Salles</h2>
+            </div>
+            <div class="parametre-content">
+                <p>Ajoutez, modifiez ou supprimez des salles</p>
+                <a href="{{ route('parametres.salles') }}" class="btn-parametre">Gérer les salles</a>
+            </div>
+        </div>
+        
+        <!-- Section Importation Excel -->
+        <div class="parametre-card">
+            <div class="parametre-header">
+                <i class="fas fa-file-excel"></i>
+                <h2>Importation Excel</h2>
+            </div>
+            <div class="parametre-content">
+                <p>Importez plusieurs résidents depuis un fichier Excel avec spécification des bâtiments et chambres</p>
+                <a href="{{ route('parametres.import-excel') }}" class="btn-parametre">Importer des résidents</a>
             </div>
         </div>
         

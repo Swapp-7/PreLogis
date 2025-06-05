@@ -44,45 +44,9 @@
 
     <!-- Chambres Section -->
     <div class="chambres-container">
-        <!-- Section 1: Chambres libres -->
-        <div class="section">
-            <h2>Chambres libres</h2>
-            
-            @php
-                // Group rooms by building
-                $chambresByBuilding = $chambresLibre->where('IDRESIDENT', null)
-                    ->where(function($chambre) {
-                        return $chambre->futureResidents->count() == 0;
-                    })
-                    ->groupBy('IDBATIMENT');
-                
-                $foundFree = $chambresByBuilding->count() > 0;
-            @endphp
-            
-            @if ($foundFree)
-                @foreach ($chambresByBuilding as $buildingId => $chambres)
-                    <div class="building-section">
-                        <h3 class="building-title">Bâtiment {{ $buildingId }}</h3>
-                        <div class="chambres-grid">
-                            @foreach ($chambres as $chambre)
-                                <a href="{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="chambre-link">
-                                    <div class="chambre free">
-                                        <h3>Chambre {{ $chambre->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}</h3>
-                                        <p class="status">Statut: <span class="badge badge-success">Libre</span></p>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-            @else
-                <div class="empty-message">
-                    <p>Aucune chambre libre pour le moment</p>
-                </div>
-            @endif
-        </div>
+        
 
-        <!-- Section 2: Résidents qui partent ce mois-ci -->
+        <!-- Section 1: Résidents qui partent ce mois-ci -->
         <div class="section">
             <h2>Résidents qui partent ce mois-ci ou avant</h2>
             
@@ -130,7 +94,7 @@
             @endif
         </div>
         
-        <!-- Section 3: Futurs résidents qui partent -->
+        <!-- Section 2: Futurs résidents qui partent -->
         <div class="section">
             <h2>Futurs résidents qui partent</h2>
             
@@ -171,6 +135,43 @@
             @else
                 <div class="empty-message">
                     <p>Aucun futur résident ne part jusqu'à cette date</p>
+                </div>
+            @endif
+        </div>
+        <!-- Section 3: Chambres libres -->
+        <div class="section">
+            <h2>Chambres libres</h2>
+            
+            @php
+                // Group rooms by building
+                $chambresByBuilding = $chambresLibre->where('IDRESIDENT', null)
+                    ->where(function($chambre) {
+                        return $chambre->futureResidents->count() == 0;
+                    })
+                    ->groupBy('IDBATIMENT');
+                
+                $foundFree = $chambresByBuilding->count() > 0;
+            @endphp
+            
+            @if ($foundFree)
+                @foreach ($chambresByBuilding as $buildingId => $chambres)
+                    <div class="building-section">
+                        <h3 class="building-title">Bâtiment {{ $buildingId }}</h3>
+                        <div class="chambres-grid">
+                            @foreach ($chambres as $chambre)
+                                <a href="{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="chambre-link">
+                                    <div class="chambre free">
+                                        <h3>Chambre {{ $chambre->IDBATIMENT }}{{ $chambre->NUMEROCHAMBRE }}</h3>
+                                        <p class="status">Statut: <span class="badge badge-success">Libre</span></p>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="empty-message">
+                    <p>Aucune chambre libre pour le moment</p>
                 </div>
             @endif
         </div>

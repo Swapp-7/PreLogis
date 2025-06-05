@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BatimentController;
 use App\Http\Controllers\ChambreController;
 use App\Http\Controllers\ResidentController;
+use App\Http\Controllers\ResidentImportController;
 use App\Http\Controllers\ResidentArchiveController;
 use App\Http\Controllers\FichierController;
 use App\Http\Controllers\SalleController;
@@ -12,6 +13,9 @@ use App\Http\Controllers\PlanningResidentController;
 use App\Http\Controllers\ParametreBatimentController;
 use App\Http\Controllers\ParametreChambreController;
 use App\Http\Controllers\ParametreOccupationController;
+use App\Http\Controllers\ParametreSalleController;
+use App\Http\Controllers\ParametresImportController;
+use App\Http\Controllers\ParametreController;
 
 // Public routes - only login pages
 Route::get('/admin/login', function () {
@@ -47,9 +51,12 @@ Route::middleware(['admin'])->group(function () {
             'year' => now()->year
         ]);
     })->name('chambreLibre');
-    Route::get('/parametres', function () {
-        return view('parametre');
-    })->name('parametres');
+    Route::get('/parametres', [App\Http\Controllers\ParametreController::class, 'index'])->name('parametres');
+    
+    // Routes pour l'importation Excel des résidents
+    Route::get('/parametres/import-excel', [ParametresImportController::class, 'index'])->name('parametres.import-excel');
+    Route::post('/parametres/import-excel', [ParametresImportController::class, 'processImport'])->name('parametres.import-excel.process');
+    Route::get('/parametres/import-excel/template', [ParametresImportController::class, 'downloadTemplate'])->name('parametres.import-excel.template');
     
     // Routes pour la gestion des groupes d'événements
     Route::get('/parametres/groupes', [EvenementController::class, 'index'])->name('parametres.groupes');
@@ -75,9 +82,20 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/parametres/batiments/{batimentId}/chambres', [ParametreChambreController::class, 'store'])->name('parametres.chambres.store');
     Route::delete('/parametres/chambres/{id}', [ParametreChambreController::class, 'destroy'])->name('parametres.chambres.destroy');
     
+    // Routes pour la gestion des salles
+    Route::get('/parametres/salles', [ParametreSalleController::class, 'index'])->name('parametres.salles');
+    Route::post('/parametres/salles', [ParametreSalleController::class, 'store'])->name('parametres.salles.store');
+    Route::put('/parametres/salles/{id}', [ParametreSalleController::class, 'update'])->name('parametres.salles.update');
+    Route::delete('/parametres/salles/{id}', [ParametreSalleController::class, 'destroy'])->name('parametres.salles.destroy');
+    
     // Routes pour la gestion des paramètres admin
     Route::get('/parametres/admin', [App\Http\Controllers\ParametreAdminController::class, 'index'])->name('parametres.admin');
     Route::put('/parametres/admin/update-email', [App\Http\Controllers\ParametreAdminController::class, 'updateEmail'])->name('parametres.admin.updateEmail');
+    
+    // Routes pour la gestion des utilisateurs (par l'admin)
+    Route::post('/parametres/admin/users', [App\Http\Controllers\ParametreAdminController::class, 'createUser'])->name('parametres.admin.users.create');
+    Route::put('/parametres/admin/users/{id}', [App\Http\Controllers\ParametreAdminController::class, 'updateUser'])->name('parametres.admin.users.update');
+    Route::delete('/parametres/admin/users/{id}', [App\Http\Controllers\ParametreAdminController::class, 'deleteUser'])->name('parametres.admin.users.delete');
     
     // Routes pour l'optimisation des occupations
     Route::get('/parametres/optimisation-occupation', [ParametreOccupationController::class, 'index'])->name('parametres.optimisation-occupation');
@@ -108,6 +126,8 @@ Route::middleware(['admin'])->group(function () {
     Route::get("/LesResidents", [ResidentController::class, "getAllResident"])->name('allResident');
     Route::put("/Modifier-Resident/{idResident}", [ResidentController::class, "modifierResident"])->name('resident.update');
     Route::post("/NouveauResident/{IdBatiment}/{NumChambre}", [ResidentController::class, "store"])->name('resident.store');
+    Route::post("/ImporterResidents/{IdBatiment}/{NumChambre}", [ResidentImportController::class, "importExcel"])->name('resident.import');
+    Route::get("/TelechargerModeleImport", [ResidentImportController::class, "downloadTemplate"])->name('resident.template');
     Route::post("/UploadFichier/{idResident}", [FichierController::class, "uploadFichier"])->name('uploadFichier');
     Route::delete("/SupprimerFichier/{idFichier}", [FichierController::class, "supprimerFichier"])->name('supprimerFichier');
     Route::get("/TelechargerTousFichiers/{idResident}", [FichierController::class, "telechargerTousFichiers"])->name('telechargerTousFichiers');

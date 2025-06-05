@@ -344,40 +344,161 @@ input[type="file"].form-control {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* Styles pour l'importation Excel */
+.import-instructions {
+    margin-bottom: 25px;
+}
+
+.instruction-card {
+    background-color: rgba(76, 107, 138, 0.3);
+    border: 1px solid rgba(76, 107, 138, 0.5);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.instruction-card h4 {
+    color: #FDC11F;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.instruction-card ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #e0e0e0;
+}
+
+.instruction-card li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.file-upload-container {
+    position: relative;
+}
+
+.file-upload-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    color: #b0b0b0;
+    font-size: 0.9rem;
+}
+
+.file-upload-info i {
+    color: #FDC11F;
+}
+
+.template-download {
+    text-align: center;
+    margin: 25px 0;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid #FDC11F;
+    color: #FDC11F;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-outline:hover {
+    background-color: #FDC11F;
+    color: #20364B;
+    text-decoration: none;
+}
+
+/* Styles pour les résultats d'importation */
+.import-results {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.import-results h4 {
+    color: #FDC11F;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.results-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.result-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.result-item.success {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-left: 3px solid #28a745;
+}
+
+.result-item.error {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-left: 3px solid #dc3545;
+}
+
+.result-row {
+    font-weight: 600;
+    color: #FDC11F;
+    min-width: 80px;
+}
+
+.result-message {
+    flex: 1;
+    color: #e0e0e0;
+}
+
+/* Messages d'alerte */
 .alert {
     padding: 15px;
-    border-radius: 8px;
     margin-bottom: 20px;
-    font-size: 0.95rem;
+    border-radius: 5px;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-color: #28a745;
+    color: #d4edda;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    border-color: #ffc107;
+    color: #fff3cd;
 }
 
 .alert-danger {
     background-color: rgba(220, 53, 69, 0.2);
-    color: #ff6b6b;
-    border: 1px solid rgba(220, 53, 69, 0.5);
+    border-color: #dc3545;
+    color: #f8d7da;
 }
 
-.alert-danger ul {
-    margin: 8px 0 0 20px;
-    padding: 0;
-}
-
-.help-text {
-    font-size: 0.8rem;
-    color: #e67e22;
-    margin-top: 5px;
-}
-
-.help-text i {
-    margin-right: 5px;
-}
-
-input:invalid {
-    border-color: #e74c3c;
-}
-
-input:invalid:focus {
-    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+.alert ul {
+    margin: 0;
+    padding-left: 20px;
 }
 
 @media screen and (max-width: 768px) {
@@ -410,5 +531,26 @@ input:invalid:focus {
     select.form-control {
         font-size: 0.9rem;
         padding: 12px;
+    }
+
+    .instruction-card {
+        padding: 15px;
+    }
+    
+    .instruction-card h4 {
+        font-size: 1rem;
+    }
+    
+    .import-results {
+        padding: 15px;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .result-row {
+        min-width: auto;
     }
 }

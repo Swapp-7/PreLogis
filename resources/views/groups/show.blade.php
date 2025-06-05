@@ -44,7 +44,7 @@
                         <i class="fas fa-users"></i>
                     </div>
                 @else
-                    <img src="{{ asset('storage/photos/' . $group->PHOTO) }}" alt="Photo du groupe" class="group-photo">
+                    <img src="{{ asset('storage/' . $group->PHOTO) }}" alt="Photo du groupe" class="group-photo">
                 @endif
                 <div class="group-badge">
                     <i class="fas fa-users"></i> Groupe
@@ -127,15 +127,21 @@
                             </div>
                         </div>
                         <div class="chamber-actions">
-                            <a href="{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="btn btn-sm btn-secondary">
+                            <a href="{{ route('resident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="btn btn-sm btn-secondary btn-eye">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <form action="{{ route('groups.rooms.remove', ['id' => $group->IDRESIDENT, 'roomId' => $chambre->IDCHAMBRE]) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Retirer ce groupe de cette chambre ?')">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                            <a href="#" class="btn btn-sm btn-danger" 
+                                onclick="event.preventDefault(); 
+                                            if(confirm('Retirer ce groupe de cette chambre ?')) {
+                                                 document.getElementById('remove-room-{{ $chambre->IDCHAMBRE }}').submit();
+                                            }">
+                                 <i class="fas fa-times"></i>
+                            </a>
+                            <form id="remove-room-{{ $chambre->IDCHAMBRE }}" 
+                                    action="{{ route('groups.rooms.remove', ['id' => $group->IDRESIDENT, 'roomId' => $chambre->IDCHAMBRE]) }}" 
+                                    method="POST" style="display: none;">
+                                 @csrf
+                                 @method('DELETE')
                             </form>
                         </div>
                     </div>
@@ -169,10 +175,10 @@
                             <label for="photo_modal">Photo du groupe</label>
                             <div class="photo-upload-container">
                                 <div class="upload-preview">
-                                    @if($group->PHOTO && $group->PHOTO !== 'photo' && file_exists(public_path('storage/photos/' . $group->PHOTO)))
-                                        <img id="photo-preview-modal" src="{{ asset('storage/photos/' . $group->PHOTO) }}" alt="Aperçu photo">
+                                    @if($group->PHOTO == "photo" || !$group->PHOTO)
+                                        <img src="https://cdn-icons-png.flaticon.com/512/166/166258.png" class="resident-photo" alt="Photo actuelle du groupe">
                                     @else
-                                        <img id="photo-preview-modal" src="https://cdn-icons-png.flaticon.com/512/166/166258.png" alt="Aperçu photo">
+                                        <img src="{{ asset('storage/' . $group->PHOTO) }}" alt="Photo actuelle" class="resident-photo">
                                     @endif
                                 </div>
                                 <input type="file" class="form-control" id="photo_modal" name="photo" accept="image/*">
@@ -255,9 +261,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-annuler" onclick="closeDeleteModal()">
-                    <i class="fas fa-times"></i> Annuler
-                </button>
+                <form>
+                    @csrf
+                    <button type="button" class="btn btn-secondary btn-annuler" onclick="closeDeleteModal()">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                </form>
+                
                 <form action="{{ route('groups.destroy', $group->IDRESIDENT) }}" method="POST" class="d-inline" id="deleteForm">
                     @csrf
                     @method('DELETE')

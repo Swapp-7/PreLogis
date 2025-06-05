@@ -10,4 +10,10 @@ class Admin extends Model
     protected $table = "ADMIN";
     protected $primaryKey = "IDADMIN";
     public $timestamps = false;
+    
+    protected $fillable = [
+        'NOMUTILISATEUR',
+        'EMAIL',
+        'MOTDEPASSE'
+    ];
 }
