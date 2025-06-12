@@ -136,6 +136,8 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/gererOccupation', [SalleController::class, 'gererOccupation'])->name('gererOccupation');
     Route::post('/resident/planifier-depart', [App\Http\Controllers\ResidentController::class, 'planifierDepart'])->name('planifierDepart');
     Route::post('/update-future-resident-dates', [App\Http\Controllers\ResidentController::class, 'updateFutureResidentDates'])->name('updateFutureResidentDates');
+    Route::get('/resident/{idResident}/solde-tout-compte-pdf', [App\Http\Controllers\ResidentController::class, 'generateSoldeToutComptePdf'])->name('resident.solde-tout-compte-pdf');
+    Route::post('/resident/{idResident}/solde-tout-compte-pdf', [App\Http\Controllers\ResidentController::class, 'generateSoldeToutComptePdf'])->name('resident.solde-tout-compte-pdf.post');
 });
 
 // Redirect all undefined routes to the login page

@@ -17,7 +17,6 @@ use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -31,7 +30,6 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
 
     public function __construct()
     {
-        Log::info('MultiResidentsImport initialized');
     }
 
     /**
@@ -39,37 +37,20 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
      */
     public function collection(Collection $collection)
     {
-        Log::info('=== DÉBUT IMPORTATION MULTI-RÉSIDENTS ===');
-        Log::info('Starting import with ' . $collection->count() . ' rows');
-        
         if ($collection->isEmpty()) {
-            Log::warning('Collection is empty - no data to import');
             return;
-        }
-        
-        // Log the first few rows to see the structure
-        foreach ($collection->take(2) as $index => $row) {
-            Log::info('Row ' . ($index + 1) . ' structure:', $row->toArray());
         }
         
         DB::beginTransaction();
 
         try {
             foreach ($collection as $index => $row) {
-                Log::info('=== PROCESSING ROW ' . ($index + 1) . ' ===');
-                Log::info('Row data:', $row->toArray());
                 $this->processRow($row, $index + 1);
             }
 
             DB::commit();
-            Log::info('=== Import completed successfully ===');
-            Log::info('Success count: ' . $this->successCount);
-            Log::info('Error count: ' . $this->errorCount);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('=== Import failed ===');
-            Log::error('Error: ' . $e->getMessage());
-            Log::error('Trace: ' . $e->getTraceAsString());
             throw $e;
         }
     }
@@ -77,15 +58,6 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
     protected function processRow($row, $rowNumber)
     {
         try {
-            Log::info('=== DÉBUT PROCESSROW ===');
-            Log::info('Processing resident data', [
-                'nom' => $row['nom'] ?? 'missing',
-                'prenom' => $row['prenom'] ?? 'missing', 
-                'email' => $row['email'] ?? 'missing',
-                'batiment' => $row['batiment'] ?? 'missing',
-                'numero_chambre' => $row['numero_chambre'] ?? 'missing'
-            ]);
-
             // Vérifier si la ligne est vide
             $rowArray = $row->toArray();
             $hasData = false;
@@ -97,15 +69,12 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             }
             
             if (!$hasData) {
-                Log::info('Row is empty, skipping');
                 return;
             }
 
             // Validation des formats AVANT traitement
             $validationErrors = $this->validateRowFormats($row, $rowNumber);
             if (!empty($validationErrors)) {
-                Log::error('Validation errors for row ' . $rowNumber, $validationErrors);
-                
                 $this->errorCount++;
                 $this->importResults[] = [
                     'status' => 'error',
@@ -119,7 +88,6 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             $requiredFields = ['nom', 'prenom', 'email', 'telephone', 'date_naissance', 'batiment', 'numero_chambre'];
             foreach ($requiredFields as $field) {
                 if (empty($row[$field])) {
-                    Log::warning("Missing required field: $field", ['row' => $rowArray]);
                     throw new \Exception("Champ obligatoire manquant: $field");
                 }
             }
@@ -139,73 +107,44 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 throw new \Exception("Chambre {$row['numero_chambre']} non trouvée dans le bâtiment {$row['batiment']}");
             }
 
-            Log::info('Chamber found', [
-                'IDCHAMBRE' => $chambre->IDCHAMBRE,
-                'IDBATIMENT' => $chambre->IDBATIMENT,
-                'NUMEROCHAMBRE' => $chambre->NUMEROCHAMBRE
-            ]);
-
-            Log::info('All required fields present, creating address...');
-
             // Créer ou récupérer l'adresse
-            $adresse = $this->createOrUpdateAdresse($row);
-            Log::info('Address created with ID: ' . $adresse->IDADRESSE);
+            $adresse = $this->createOrUpdateAdresse($row);            // Vérifier d'abord la disponibilité de la chambre AVANT de créer le résident
+            $dateInscription = $this->parseDate($row['date_entree'] ?? '');
+            $dateEntree = $dateInscription ? \Carbon\Carbon::parse($dateInscription->format('Y-m-d')) : null;
+            $aujourdhui = now()->startOfDay();
 
-            Log::info('Creating resident...');
+            // Si la date d'entrée est dans le passé ou aujourd'hui, vérifier que la chambre est libre
+            if ($dateEntree && $dateEntree->lte($aujourdhui)) {
+                if ($chambre->IDRESIDENT !== null) {
+                    throw new \Exception("La chambre {$row['numero_chambre']} du bâtiment {$row['batiment']} est déjà occupée");
+                }
+            }
+
             // Créer le résident
             $resident = new Resident();
+
             $resident->NOMRESIDENT = $row['nom'] ?? '';
             $resident->PRENOMRESIDENT = $row['prenom'] ?? '';
             $resident->MAILRESIDENT = $row['email'] ?? '';
             $resident->TELRESIDENT = $row['telephone'] ?? '';
-            
-            // Parser les dates et les formater pour la base de données
             $dateNaissance = $this->parseDate($row['date_naissance'] ?? '');
             $resident->DATENAISSANCE = $dateNaissance ? $dateNaissance->format('Y-m-d') : null;
-            
             $resident->NATIONALITE = $row['nationalite'] ?? '';
             $resident->ETABLISSEMENT = $row['etablissement'] ?? '';
             $resident->ANNEEETUDE = $row['annee_etude'] ?? '';
-            
-            $dateInscription = $this->parseDate($row['date_entree'] ?? '');
-            $resident->DATEINSCRIPTION = $dateInscription ? $dateInscription->format('Y-m-d') : null;
-            
+            $resident->DATEINSCRIPTION = $dateEntree ? $dateEntree->format('Y-m-d') : null;
             $dateDepart = $this->parseDate($row['date_depart'] ?? '');
             $resident->DATEDEPART = $dateDepart ? $dateDepart->format('Y-m-d') : null;
-            
             $resident->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
             $resident->IDADRESSE = $adresse->IDADRESSE;
             $resident->TYPE = Resident::TYPE_INDIVIDUAL;
-            $resident->PHOTO = null; // Photo par défaut
-            
-            Log::info('Saving resident...', [
-                'NOMRESIDENT' => $resident->NOMRESIDENT,
-                'PRENOMRESIDENT' => $resident->PRENOMRESIDENT,
-                'CHAMBREASSIGNE' => $resident->CHAMBREASSIGNE
-            ]);
+            $resident->PHOTO = null; 
             
             $resident->save();
-            Log::info('Resident created with ID: ' . $resident->IDRESIDENT);
 
-            // Logique d'assignation de chambre comme dans le contrôleur
-            $dateEntree = \Carbon\Carbon::parse($resident->DATEINSCRIPTION);
-            $aujourdhui = now()->startOfDay();
-
-            if ($dateEntree->lte($aujourdhui)) {
+            // Logique d'assignation de chambre
+            if ($dateEntree && $dateEntree->lte($aujourdhui)) {
                 // Date d'entrée dans le passé ou aujourd'hui -> occupant actuel
-                // Vérifier si la chambre est libre
-                if ($chambre->IDRESIDENT !== null) {
-                    Log::warning('Chamber already occupied', [
-                        'chambre_id' => $chambre->IDCHAMBRE,
-                        'current_resident' => $chambre->IDRESIDENT
-                    ]);
-                    throw new \Exception("La chambre {$row['numero_chambre']} du bâtiment {$row['batiment']} est déjà occupée");
-                }
-                
-                Log::info('Assigning resident as current occupant (IDRESIDENT)', [
-                    'chambre_id' => $chambre->IDCHAMBRE,
-                    'resident_id' => $resident->IDRESIDENT
-                ]);
                 $chambre->IDRESIDENT = $resident->IDRESIDENT;
                 $chambre->save();
                 // Réinitialiser CHAMBREASSIGNE car il est maintenant occupant actuel
@@ -213,14 +152,9 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 $resident->save();
             } else {
                 // Date d'entrée dans le futur -> futur résident (CHAMBREASSIGNE déjà défini)
-                Log::info('Resident assigned as future occupant (CHAMBREASSIGNE)', [
-                    'chambre_id' => $chambre->IDCHAMBRE,
-                    'date_entree' => $resident->DATEINSCRIPTION
-                ]);
             }
 
             // Créer les parents
-            Log::info('Creating parents...');
             $this->createParents($resident, $row);
 
             $this->successCount++;
@@ -229,16 +163,8 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'row' => $rowNumber,
                 'message' => "Résident {$resident->NOMRESIDENT} {$resident->PRENOMRESIDENT} importé avec succès dans la chambre {$row['numero_chambre']} du bâtiment {$row['batiment']}"
             ];
-            
-            Log::info('=== ROW PROCESSED SUCCESSFULLY ===');
 
         } catch (\Exception $e) {
-            Log::error('=== ERROR PROCESSING ROW ===');
-            Log::error('Error processing row: ' . $e->getMessage(), [
-                'row_data' => $row->toArray(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
             $this->errorCount++;
             $this->importResults[] = [
                 'status' => 'error',
@@ -250,13 +176,6 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
 
     protected function createOrUpdateAdresse($row)
     {
-        Log::info('Creating address with data:', [
-            'adresse' => $row['adresse'] ?? '',
-            'code_postal' => $row['code_postal'] ?? '',
-            'ville' => $row['ville'] ?? '',
-            'pays' => $row['pays'] ?? ''
-        ]);
-
         $adresse = new Adresse();
         $adresse->ADRESSE = $row['adresse'] ?? '';
         $adresse->CODEPOSTAL = $row['code_postal'] ?? '';
@@ -264,14 +183,11 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
         $adresse->PAYS = $row['pays'] ?? '';
         $adresse->save();
 
-        Log::info('Address created with ID: ' . $adresse->IDADRESSE);
         return $adresse;
     }
 
     protected function createParents($resident, $row)
     {
-        Log::info('Creating parents for resident ID: ' . $resident->IDRESIDENT);
-
         // Parent 1
         if (!empty($row['parent1_nom'])) {
             $parent1 = new Parents();
@@ -285,8 +201,6 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'IDRESIDENT' => $resident->IDRESIDENT,
                 'IDPARENT' => $parent1->IDPARENT
             ]);
-            
-            Log::info('Parent 1 created with ID: ' . $parent1->IDPARENT);
         }
 
         // Parent 2
@@ -302,8 +216,6 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'IDRESIDENT' => $resident->IDRESIDENT,
                 'IDPARENT' => $parent2->IDPARENT
             ]);
-            
-            Log::info('Parent 2 created with ID: ' . $parent2->IDPARENT);
         }
     }
 
@@ -320,11 +232,6 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             foreach ($formats as $format) {
                 $date = \DateTime::createFromFormat($format, $dateString);
                 if ($date !== false) {
-                    Log::info('Date parsed successfully', [
-                        'input' => $dateString,
-                        'format' => $format,
-                        'output' => $date->format('Y-m-d')
-                    ]);
                     // Retourner un objet Carbon au lieu d'une chaîne
                     return Carbon::createFromFormat($format, $dateString);
                 }
@@ -332,14 +239,9 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             
             // Si aucun format ne fonctionne, essayer Carbon
             $carbonDate = Carbon::parse($dateString);
-            Log::info('Date parsed with Carbon', [
-                'input' => $dateString,
-                'output' => $carbonDate->format('Y-m-d')
-            ]);
             return $carbonDate;
             
         } catch (\Exception $e) {
-            Log::error('Failed to parse date: ' . $dateString, ['error' => $e->getMessage()]);
             throw new \Exception("Format de date invalide: $dateString");
         }
     }
@@ -393,27 +295,22 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
     {
         $errors = [];
         
-        // Validation du nom (lettres, espaces, tirets, apostrophes seulement)
         if (!empty($row['nom']) && !preg_match('/^[a-zA-ZÀ-ÿ\s\-\']+$/u', trim($row['nom']))) {
             $errors[] = "Nom invalide (caractères non autorisés)";
         }
         
-        // Validation du prénom (lettres, espaces, tirets, apostrophes seulement)
         if (!empty($row['prenom']) && !preg_match('/^[a-zA-ZÀ-ÿ\s\-\']+$/u', trim($row['prenom']))) {
             $errors[] = "Prénom invalide (caractères non autorisés)";
         }
         
-        // Validation de l'email
         if (!empty($row['email']) && !filter_var(trim($row['email']), FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Email invalide";
         }
         
-        // Validation du téléphone (chiffres, espaces, tirets, points, parenthèses, + seulement)
         if (!empty($row['telephone']) && !preg_match('/^[\d\s\-\.\(\)\+]+$/', trim($row['telephone']))) {
             $errors[] = "Numéro de téléphone invalide (caractères non autorisés)";
         }
         
-        // Validation longueur téléphone (entre 8 et 20 caractères après nettoyage)
         if (!empty($row['telephone'])) {
             $cleanPhone = preg_replace('/[\s\-\.\(\)]/', '', trim($row['telephone']));
             if (strlen($cleanPhone) < 8 || strlen($cleanPhone) > 20) {

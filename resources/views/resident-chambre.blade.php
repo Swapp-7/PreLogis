@@ -15,6 +15,7 @@
 
 @if($resident)
     @include('partials.modal_depart')
+    @include('partials.modal_solde_compte')
 @endif
 @php
     $futureResidents = $chambre->futureResidents;
@@ -77,6 +78,14 @@
                         <a href="javascript:void(0);" class="btn-action btn-schedule" onclick="openDepartModal()">
                             <i class="fas fa-calendar-check"></i> Planifier Départ
                         </a>
+                        @if($resident->DATEDEPART)
+                        <a href="javascript:void(0);" 
+                           class="btn-action btn-pdf" 
+                           onclick="openSoldeCompteModal()"
+                           title="Générer le solde de tout compte en PDF">
+                           <i class="fas fa-file-pdf"></i> Solde de Tout Compte
+                        </a>
+                        @endif
                         <a href="{{ route('supprimerResident', ['idResident' => $resident->IDRESIDENT]) }}" 
                            class="btn-action btn-delete" 
                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce résident ? Cette action est irréversible.')">
@@ -259,7 +268,7 @@
                     @if(!$resident || $canAddAfterCurrent)
                     <div class="add-future-resident-container">
                         <a href="{{ route('nouveauResident', ['IdBatiment' => $chambre->IDBATIMENT, 'NumChambre' => $chambre->NUMEROCHAMBRE]) }}" class="btn-add-future">
-                            <i class="fas fa-user-plus"></i> Ajouter un futur résident
+                            <i class="fas fa-user-plus"></i> Ajouter un résident
                         </a>
                     </div>
                     @endif

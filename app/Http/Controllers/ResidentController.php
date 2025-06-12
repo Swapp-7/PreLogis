@@ -20,6 +20,7 @@ use App\Models\Salle;
 use Carbon\Carbon;
 use App\Exports\ResidentsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ResidentController extends Controller
 {
@@ -226,7 +227,6 @@ class ResidentController extends Controller
             
             'tel.required' => 'Le numéro de téléphone est obligatoire.',
             'tel.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
-            'tel.regex' => 'Le format du téléphone n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
             
             'anniversaire.required' => 'La date de naissance est obligatoire.',
             'anniversaire.date' => 'La date de naissance n\'est pas valide.',
@@ -276,7 +276,6 @@ class ResidentController extends Controller
             'parents.*.nom.regex' => 'Le nom du parent ne peut contenir que des lettres, espaces, tirets et apostrophes.',
             
             'parents.*.tel.string' => 'Le téléphone du parent doit être une chaîne de caractères.',
-            'parents.*.tel.regex' => 'Le format du téléphone du parent n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
             
             'parents.*.profession.string' => 'La profession du parent doit être une chaîne de caractères.',
             'parents.*.profession.min' => 'La profession du parent doit contenir au moins 2 caractères.',
@@ -438,7 +437,6 @@ class ResidentController extends Controller
             
             'tel.required' => 'Le numéro de téléphone est obligatoire.',
             'tel.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
-            'tel.regex' => 'Le format du téléphone n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
             
             'anniversaire.required' => 'La date de naissance est obligatoire.',
             'anniversaire.date' => 'La date de naissance n\'est pas valide.',
@@ -496,7 +494,6 @@ class ResidentController extends Controller
             'parents.*.nom.regex' => 'Le nom du parent ne peut contenir que des lettres, espaces, tirets et apostrophes.',
             
             'parents.*.tel.string' => 'Le téléphone du parent doit être une chaîne de caractères.',
-            'parents.*.tel.regex' => 'Le format du téléphone du parent n\'est pas valide. Utilisez le format: 0123456789 ou +33123456789.',
             
             'parents.*.profession.string' => 'La profession du parent doit être une chaîne de caractères.',
             'parents.*.profession.min' => 'La profession du parent doit contenir au moins 2 caractères.',
@@ -527,8 +524,8 @@ class ResidentController extends Controller
             }
         }
         
-        // Validation personnalisée du téléphone principal
-        if (!$this->isValidInternationalPhone($request->input('tel'))) {
+        // Validation personnalisée du téléphone principal (seulement pour individual et group)
+        if ($type !== 'group_member' && !$this->isValidInternationalPhone($request->input('tel'))) {
             return redirect()->back()
                 ->withErrors(['tel' => 'Le format du téléphone principal n\'est pas valide.'])
                 ->withInput();
@@ -926,7 +923,7 @@ class ResidentController extends Controller
         
         // Support international étendu avec indicatifs pays courants
         $patterns = [
-            // France : +33 ou 0
+            // France : +33 ou 0 (fixes: 01-05, 08-09; mobiles: 06-07)
             '/^(?:\+33[1-9][0-9]{8}|0[1-9][0-9]{8})$/',
             // USA/Canada : +1
             '/^\+1[2-9][0-9]{9}$/',
@@ -1001,5 +998,43 @@ class ResidentController extends Controller
         }
         
         return $errors;
+    }
+
+    /**
+     * Génère un PDF "solde de tout compte" pour un résident avec date de départ
+     */
+    public function generateSoldeToutComptePdf(Request $request, $idResident)
+    {
+        $resident = Resident::with(['chambre', 'adresse'])->findOrFail($idResident);
+        
+        // Vérifier que le résident a une date de départ
+        if (!$resident->DATEDEPART) {
+            return redirect()->back()->with('error', 'Le résident doit avoir une date de départ pour générer le solde de tout compte.');
+        }
+        
+        // Préparer les données pour le PDF
+        $data = [
+            'resident' => $resident,
+            'dateGeneration' => now()->format('d/m/Y'),
+            'heureGeneration' => now()->format('H:i'),
+            'redevance' => $request->input('redevance', '0'),
+            'depotGarantie' => $request->input('depot_garantie', '505'),
+            'deductions' => $request->input('deductions', '0'),
+            'soldeCaf' => $request->input('solde_caf', '0'),
+            'montantDuAuResident' => $request->input('montant_du_au_resident', '505'),
+            'montantDuParResident' => $request->input('montant_du_par_resident', '0'),
+            'dateReglement' => $request->input('date_reglement', now()->format('d/m/Y'))
+        ];
+        
+        // Générer le PDF
+        $pdf = Pdf::loadView('pdf.solde-tout-compte', $data);
+        
+        // Nom du fichier avec nom du résident et date
+        $fileName = 'Solde_tout_compte_' . 
+                   str_replace(' ', '_', $resident->NOMRESIDENT) . '_' . 
+                   str_replace(' ', '_', $resident->PRENOMRESIDENT ?? '') . '_' .
+                   now()->format('Y-m-d') . '.pdf';
+        
+        return $pdf->download($fileName);
     }
 }

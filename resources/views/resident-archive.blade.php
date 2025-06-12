@@ -8,6 +8,11 @@
 <link rel="stylesheet" href="{{ asset('css/resident-archive.css') }}">
 <div class="archive-container">
     <div class="page-header">
+        <div class="header-top">
+            <a href="{{ route('archive') }}" class="btn-return">
+                <i class="fas fa-arrow-left"></i> Retour aux archives
+            </a>
+        </div>
         @if($resident->isGroup())
             <h1>Archive du Groupe {{ $resident->NOMRESIDENTARCHIVE }}</h1>
             <div class="archive-type-indicator group-indicator">
@@ -143,29 +148,34 @@
     <div class="files-section">
         <h2 class="section-title">Documents</h2>
         @if($resident->fichiers && $resident->fichiers->count() > 0)
-            <div class="file-gallery">
+        <div class="file-gallery">
             @foreach($resident->fichiers as $fichier)
-                <div class="file-item">
-                @if(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
+            <div class="file-item">
+                @if(in_array(pathinfo($fichier->NOMFICHIER, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
                     <div class="file-preview">
-                    <img src="{{ asset($fichier->CHEMINFICHIER) }}" alt="{{ $fichier->NOMFICHIER }}" class="file-image">
+                        <img src="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" alt="{{ $fichier->NOMFICHIER }}" class="file-image">
                     </div>
-                @elseif(in_array(pathinfo($fichier->CHEMINFICHIER, PATHINFO_EXTENSION), ['pdf']))
+                @elseif(in_array(pathinfo($fichier->NOMFICHIER, PATHINFO_EXTENSION), ['pdf']))
                     <div class="file-preview">
-                    <embed src="{{ asset($fichier->CHEMINFICHIER) }}" type="application/pdf" class="file-pdf">
+                        <embed src="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" type="application/pdf" class="file-pdf">
                     </div>
                 @endif
                 <div class="file-info">
-                    <a href="{{ asset($fichier->CHEMINFICHIER) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
+                    <a href="{{ route('viewFile', ['idFichier' => $fichier->IDFICHIER]) }}" target="_blank" class="file-link">{{ $fichier->NOMFICHIER }}</a>
                 </div>
                 <form action="{{ route('supprimerFichier', ['idFichier' => $fichier->IDFICHIER]) }}" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.')">Supprimer</button>
                 </form>
-                </div>
-            @endforeach
             </div>
+            @endforeach
+        </div>
+        <div class="files-section-footer">
+            <a href="{{ route('telechargerTousFichiers', ['idResident' => $resident->IDRESIDENTARCHIVE]) }}" class="btn-upload">
+                <i class="fas fa-download"></i> Télécharger tous
+            </a>
+        </div>
         @else
             <p class="no-files">Aucun documents</p>
         @endif
@@ -173,6 +183,95 @@
 </div>
 
 <style>
+/* Styles pour le bouton retour - même style que la page résident */
+.header-top {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.btn-return {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #FDC11F;
+    text-decoration: none;
+    border-radius: 25px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    border: 2px solid #FDC11F;
+    transition: all 0.3s ease;
+}
+
+.btn-return:hover {
+    background-color: rgba(253, 193, 31, 0.2);
+    transform: translateX(-3px);
+    text-decoration: none;
+}
+
+/* Styles pour le bouton télécharger tous - même style que la page résident */
+.btn-upload {
+    align-self: center !important;
+    background-color: #FDC11F !important;
+    color: #20364B !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 25px !important;
+    cursor: pointer !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+}
+
+.btn-upload:hover {
+    background-color: #e6ae15 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    text-decoration: none !important;
+}
+
+.files-section-footer {
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 20px !important;
+}
+
+.files-section-footer .btn-upload {
+    text-decoration: none !important;
+    background-color: #FDC11F !important;
+    color: #20364B !important;
+}
+
+.files-section-footer .btn-upload:hover {
+    background-color: #e6ae15 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.files-section-footer i {
+    margin-right: 8px !important;
+}
+
+/* Responsive pour les boutons */
+@media (max-width: 768px) {
+    .btn-return {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-upload {
+        padding: 8px 16px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .header-top {
+        margin: 15px 0;
+    }
+}
+
 /* Styles spécifiques pour les groupes archivés */
 .archive-type-indicator {
     display: inline-flex;

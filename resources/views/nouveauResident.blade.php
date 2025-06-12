@@ -55,33 +55,33 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="nom">Nom :</label>
+                        <label for="nom">Nom <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="nom" name="nom" value="{{ old('nom') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="prenom">Prénom :</label>
+                        <label for="prenom">Prénom <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="prenom" name="prenom" value="{{ old('prenom') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="email">Email :</label>
+                        <label for="email">Email <span class="required">*</span> :</label>
                         <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="tel">Téléphone :</label>
+                        <label for="tel">Téléphone <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="tel" name="tel" value="{{ old('tel') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="anniversaire">Date de Naissance :</label>
+                        <label for="anniversaire">Date de Naissance <span class="required">*</span> :</label>
                         <input type="date" class="form-control" id="anniversaire" name="anniversaire" value="{{ old('anniversaire') }}" max="{{ date('Y-m-d') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="nationalite">Nationalité :</label>
+                        <label for="nationalite">Nationalité <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="nationalite" name="nationalite" value="{{ old('nationalite') }}" required>
                     </div>
                 </div>
@@ -94,11 +94,13 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="etablissement">Établissement :</label>
-                        <input type="text" class="form-control" id="etablissement" name="etablissement" value="{{ old('etablissement') }}" required>
+                        <input type="text" class="form-control" id="etablissement" name="etablissement" value="{{ old('etablissement') }}" >
                     </div>
                     <div class="form-group">
-                        <label for="annee_etude">Année d'étude :</label>
+                        <label for="annee_etude">Année d'étude <span class="required">*</span> :</label>
                         <select class="form-control" id="annee_etude" name="annee_etude" required>
+                            <option value="" {{ old('annee_etude') == '' ? 'selected' : '' }}>Non renseigné</option>
+
                             <option value="1re" {{ old('annee_etude') == '1re' ? 'selected' : '' }}>1re</option>
                             <option value="2e" {{ old('annee_etude') == '2e' ? 'selected' : '' }}>2e</option>
                             <option value="3e" {{ old('annee_etude') == '3e' ? 'selected' : '' }}>3e</option>
@@ -109,7 +111,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="date_entree">Date d'entrée :</label>
+                        <label for="date_entree">Date d'entrée <span class="required">*</span> :</label>
                         @php
                             // Détermine la date minimale d'entrée en fonction du résident actuel ou du dernier futur résident
                             $minDate = now()->format('Y-m-d');
@@ -160,25 +162,25 @@
                 
                 <div class="form-row">
                     <div class="form-group full-width">
-                        <label for="adresse">Rue :</label>
+                        <label for="adresse">Rue <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="adresse" name="adresse[adresse]" value="{{ old('adresse.adresse') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="code_postal">Code Postal :</label>
+                        <label for="code_postal">Code Postal <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="code_postal" name="adresse[code_postal]" value="{{ old('adresse.code_postal') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="ville">Ville :</label>
+                        <label for="ville">Ville <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="ville" name="adresse[ville]" value="{{ old('adresse.ville') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="pays">Pays :</label>
+                        <label for="pays">Pays <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="pays" name="adresse[pays]" value="{{ old('adresse.pays', 'France') }}" required>
                     </div>
                 </div>
@@ -234,18 +236,18 @@
                 
                 <div class="form-row">
                     <div class="form-group full-width">
-                        <label for="group_nom">Nom du groupe :</label>
+                        <label for="group_nom">Nom du groupe <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="group_nom" name="nom" value="{{ old('nom') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="email">Email :</label>
+                        <label for="email">Email <span class="required">*</span> :</label>
                         <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="tel">Téléphone :</label>
+                        <label for="tel">Téléphone <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="tel" name="tel" value="{{ old('tel') }}" required>
                     </div>
                 </div>
@@ -264,7 +266,7 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="date_entree_group">Date d'entrée :</label>
+                        <label for="date_entree_group">Date d'entrée <span class="required">*</span> :</label>
                         @php
                             // Détermine la date minimale d'entrée en fonction du résident actuel ou du dernier futur résident
                             $minDate = now()->format('Y-m-d');
@@ -302,25 +304,25 @@
                 
                 <div class="form-row">
                     <div class="form-group full-width">
-                        <label for="adresse_group">Rue :</label>
+                        <label for="adresse_group">Rue <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="adresse_group" name="adresse[adresse]" value="{{ old('adresse.adresse') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="code_postal_group">Code Postal :</label>
+                        <label for="code_postal_group">Code Postal <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="code_postal_group" name="adresse[code_postal]" value="{{ old('adresse.code_postal') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="ville_group">Ville :</label>
+                        <label for="ville_group">Ville <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="ville_group" name="adresse[ville]" value="{{ old('adresse.ville') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="pays_group">Pays :</label>
+                        <label for="pays_group">Pays <span class="required">*</span> :</label>
                         <input type="text" class="form-control" id="pays_group" name="adresse[pays]" value="{{ old('adresse.pays', 'France') }}" required>
                     </div>
                 </div>
@@ -349,14 +351,14 @@
                 
                 <div class="form-row">
                     <div class="form-group full-width">
-                        <label for="existing_group_id">Groupe :</label>
+                        <label for="existing_group_id">Groupe <span class="required">*</span> :</label>
                         <select class="form-control" id="existing_group_id" name="existing_group_id" required>
                             <option value="">-- Sélectionnez un groupe --</option>
                             @php
                                 $groups = \App\Models\Resident::where('TYPE', 'group')->orderBy('NOMRESIDENT')->get();
                             @endphp
                             @foreach($groups as $group)
-                                <option value="{{ $group->IDRESIDENT }}">{{ $group->NOMRESIDENT }} - {{ $group->ETABLISSEMENT }}</option>
+                                <option value="{{ $group->IDRESIDENT }}">{{ $group->NOMRESIDENT }} </option>
                             @endforeach
                         </select>
                     </div>
@@ -364,7 +366,7 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="date_entree_member">Date d'entrée :</label>
+                        <label for="date_entree_member">Date d'entrée <span class="required">*</span> :</label>
                         <input type="date" class="form-control" id="date_entree_member" name="date_entree" 
                                value="{{ old('date_entree', $minDate ?? now()->format('Y-m-d')) }}" 
                                min="{{ $minDate }}" 
@@ -399,19 +401,7 @@
         </div>
     @endif
     
-    @if (session('import_results'))
-        <div class="import-results">
-            <h4>Résultats de l'importation :</h4>
-            <div class="results-container">
-                @foreach (session('import_results') as $result)
-                    <div class="result-item {{ $result['status'] }}">
-                        <span class="result-row">Ligne {{ $result['row'] }}:</span>
-                        <span class="result-message">{{ $result['message'] }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
+   
 </div>
 
 <script>
@@ -479,4 +469,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<style>
+/* Style pour les champs obligatoires */
+.required {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-left: 2px;
+}
+</style>
 @endsection

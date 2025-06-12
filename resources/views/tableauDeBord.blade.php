@@ -251,7 +251,7 @@
                                             </td>
                                             <td class="parent-tel-cell">
                                                 @if($resident->parents && $resident->parents->first() && $resident->parents->first()->TELPARENT)
-                                                <a href="tel:{{ $resident->parents->first()->TELPARENT }}" class="tel-link">{{ $resident->parents->first()->TELPARENT }}</a>
+                                                    {{ $resident->parents->first()->TELPARENT }}
                                             @else
                                                 <span class="no-data">-</span>
                                                 @endif
@@ -322,7 +322,7 @@
                                             </td>
                                         <td class="parent-tel-cell">
                                             @if($resident->parents && $resident->parents->first() && $resident->parents->first()->TELPARENT)
-                                            <a href="tel:{{ $resident->parents->first()->TELPARENT }}" class="tel-link">{{ $resident->parents->first()->TELPARENT }}</a>
+                                            {{ $resident->parents->first()->TELPARENT }}
                                             @else
                                                 <span class="no-data">-</span>
                                             @endif

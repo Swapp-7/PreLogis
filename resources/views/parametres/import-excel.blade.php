@@ -6,7 +6,7 @@
 <div class="import-excel-container">
     <div class="page-header">
         <h1>Importation Excel - Résidents</h1>
-        <a href="{{ route('parametres.index') }}" class="btn-return">
+        <a href="{{ route('parametres') }}" class="btn-return">
             <i class="fas fa-arrow-left"></i> Retour aux paramètres
         </a>
     </div>

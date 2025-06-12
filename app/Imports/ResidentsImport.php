@@ -122,6 +122,23 @@ class ResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError, Ski
             $adresse = $this->createOrUpdateAdresse($row);
             Log::info('Address created with ID: ' . $adresse->IDADRESSE);
 
+            // Vérifier d'abord la disponibilité de la chambre AVANT de créer le résident
+            $dateInscription = $this->parseDate($row['date_entree'] ?? '');
+            $dateEntree = $dateInscription ? \Carbon\Carbon::parse($dateInscription->format('Y-m-d')) : null;
+            $aujourdhui = now()->startOfDay();
+
+            // Si la date d'entrée est dans le passé ou aujourd'hui, vérifier que la chambre est libre
+            if ($dateEntree && $dateEntree->lte($aujourdhui)) {
+                $chambre = Chambre::find($this->chambreId);
+                if ($chambre && $chambre->IDRESIDENT !== null) {
+                    Log::warning('Chamber already occupied', [
+                        'chambre_id' => $chambre->IDCHAMBRE,
+                        'current_resident' => $chambre->IDRESIDENT
+                    ]);
+                    throw new \Exception("La chambre est déjà occupée");
+                }
+            }
+
             Log::info('Creating resident...');
             // Créer le résident
             $resident = new Resident();
@@ -138,8 +155,7 @@ class ResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError, Ski
             $resident->ETABLISSEMENT = $row['etablissement'] ?? '';
             $resident->ANNEEETUDE = $row['annee_etude'] ?? '';
             
-            $dateInscription = $this->parseDate($row['date_entree'] ?? '');
-            $resident->DATEINSCRIPTION = $dateInscription ? $dateInscription->format('Y-m-d') : null;
+            $resident->DATEINSCRIPTION = $dateEntree ? $dateEntree->format('Y-m-d') : null;
             
             $dateDepart = $this->parseDate($row['date_depart'] ?? '');
             $resident->DATEDEPART = $dateDepart ? $dateDepart->format('Y-m-d') : null;
@@ -158,11 +174,8 @@ class ResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError, Ski
             $resident->save();
             Log::info('Resident created with ID: ' . $resident->IDRESIDENT);
 
-            // Logique d'assignation de chambre comme dans le contrôleur
-            $dateEntree = \Carbon\Carbon::parse($resident->DATEINSCRIPTION);
-            $aujourdhui = now()->startOfDay();
-
-            if ($dateEntree->lte($aujourdhui)) {
+            // Logique d'assignation de chambre
+            if ($dateEntree && $dateEntree->lte($aujourdhui)) {
                 // Date d'entrée dans le passé ou aujourd'hui -> occupant actuel
                 $chambre = Chambre::find($this->chambreId);
                 if ($chambre) {

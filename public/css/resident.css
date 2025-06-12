@@ -176,6 +176,17 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.btn-pdf {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-pdf:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 /* Colonne centrale - Détails */
 .resident-details {
     background: rgba(255, 255, 255, 0.08);
