@@ -110,6 +110,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get("/DetailSalle/{IdSalle}", [SalleController::class, "getSalle"])->name('detailSalle');
     Route::get('/Salle/{IdSalle}/{weekOffset?}', [SalleController::class, 'getSalle'])->name('getSalle');
     Route::get('/les-salles', [SalleController::class, 'lesSalles'])->name('lesSalles');
+    Route::get('/occupations/export', [SalleController::class, 'exportOccupationsExcel'])->name('occupations.export');
     Route::get("/archive", [ResidentArchiveController::class, "index"])->name('archive');
     Route::get('/resident-archive/{idResidentA}', [ResidentArchiveController::class, "getResidentArchive"])->name('resident-archive');
     Route::get('/archives/export', [ResidentArchiveController::class, 'exportExcel'])->name('archives.export');

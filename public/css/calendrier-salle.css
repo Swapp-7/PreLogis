@@ -108,6 +108,67 @@ a {
   font-family: 'Montserrat', sans-serif;
 }
 
+/* Styles spécifiques pour le week selector */
+.calendar-nav form,
+.week-selector-group form {
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: inline-block !important;
+}
+
+#weekSelectorForm {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: inline !important;
+}
+
+.week-selector-group {
+  height: 35px;
+  display: flex;
+  align-items: center;
+}
+
+.calendar-nav #weekSelector,
+#weekSelector {
+  padding: 7px 12px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--bg-dark);
+  cursor: pointer;
+  margin-left: 15px;
+  z-index: 3;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: auto !important;
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  -moz-appearance: auto !important;
+  background-image: none !important;
+}
+
+.calendar-nav #weekSelector:focus,
+#weekSelector:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(32, 54, 75, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.calendar-nav #weekSelector:hover,
+#weekSelector:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 /* === Tableau d'emploi du temps === */
 .schedule-table {
   width: 100%;
@@ -135,6 +196,30 @@ a {
   font-weight: 600;
   font-family: 'Montserrat', sans-serif;
   padding: 14px;
+}
+
+/* Styles pour les liens des salles */
+.salle-link {
+  color: var(--accent);
+  text-decoration: none;
+  display: block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  position: relative;
+}
+
+.salle-link:hover {
+  color: var(--bg-dark);
+  background-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(253, 193, 31, 0.3);
+}
+
+.salle-link:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(253, 193, 31, 0.3);
 }
 
 .schedule-table tbody tr:nth-child(even) {
@@ -197,6 +282,221 @@ a {
   background-color: var(--hover-accent);
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Section d'export */
+.export-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(253, 193, 31, 0.3);
+  margin-top: 20px;
+}
+
+.excel-export-group form {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.excel-export-group .form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--accent);
+  color: var(--white);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* === Export Excel Container === */
+.excel-export-container {
+  margin-top: 25px;
+}
+
+.export-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(253, 193, 31, 0.3);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+
+.export-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(253, 193, 31, 0.3);
+}
+
+.export-header i {
+  color: var(--accent);
+  font-size: 1.8rem;
+  margin-right: 12px;
+}
+
+.export-header h3 {
+  color: var(--accent);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.export-form {
+  display: flex;
+  align-items: end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.export-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.export-form .form-group label {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.form-select {
+  padding: 12px 15px;
+  border: 2px solid rgba(253, 193, 31, 0.5);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: 
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px);
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+}
+
+.form-select:hover {
+  border-color: var(--accent);
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(253, 193, 31, 0.2);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.form-select option {
+  background-color: var(--bg-dark);
+  color: var(--white);
+  padding: 12px;
+  font-size: 0.95rem;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, #e6ae15 100%);
+  color: var(--bg-dark);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(253, 193, 31, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-export::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  transition: left 0.5s ease;
+}
+
+.btn-export:hover::before {
+  left: 100%;
+}
+
+.btn-export:hover {
+  box-shadow: 0 8px 20px rgba(253, 193, 31, 0.4);
+  background: linear-gradient(135deg, #e6ae15 0%, var(--accent) 100%);
+}
+
+.btn-export:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(253, 193, 31, 0.3);
+}
+
+.btn-export i {
+  font-size: 1.1rem;
+}
+
+.btn-export span {
+  font-weight: 700;
+}
+
+/* Responsive pour l'export */
+@media (max-width: 768px) {
+  .export-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .export-form .form-group {
+    min-width: auto;
+  }
+  
+  .btn-export {
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .export-header h3 {
+    font-size: 1.1rem;
+  }
+}
+
+.excel-export-group .form-control:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(253, 193, 31, 0.3);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.excel-export-group .form-control option {
+  background-color: var(--bg-dark);
+  color: var(--white);
 }
 
 /* === Badges d'événement === */

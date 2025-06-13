@@ -55,6 +55,14 @@
                 border-right: 2px solid #FDC11F;
                 transition: width 0.3s ease;
                 overflow-y: auto;
+                /* Masquer la scrollbar */
+                -ms-overflow-style: none;  /* Internet Explorer 10+ */
+                scrollbar-width: none;  /* Firefox */
+            }
+            
+            /* Masquer la scrollbar pour WebKit (Chrome, Safari, Edge) */
+            .barre-navigation::-webkit-scrollbar {
+                display: none;
             }
 
             .barre-navigation:hover {

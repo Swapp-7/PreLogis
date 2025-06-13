@@ -10,7 +10,12 @@
     
     <div class="calendar-nav" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
         <a href="{{ route('lesSalles', ['weekOffset' => $weekOffset - 1]) }}" class="arrow-btn">← Semaine précédente</a>
-        <span class="week-label">{{ $startDate->translatedFormat('d M') }} – {{ $endDate->translatedFormat('d M Y') }}</span>
+        <div class="week-selector-group">
+            <span class="week-label">{{ $startDate->translatedFormat('d') }}-{{ $endDate->translatedFormat('d F Y') }}</span>
+            <form id="weekSelectorForm" method="GET" action="{{ route('lesSalles') }}" style="display:inline;">
+                <input type="date" name="date" id="weekSelector" value="{{ $startDate->toDateString() }}">
+            </form>
+        </div>
         <a href="{{ route('lesSalles', ['weekOffset' => $weekOffset + 1]) }}" class="arrow-btn">Semaine suivante →</a>
     </div>
 
@@ -21,7 +26,13 @@
                     <th>Jour</th>
                     <th>Moment</th>
                     @foreach($salles as $salle)
-                        <th>{{ $salle->LIBELLESALLE }}</th>
+                        <th>
+                            <a href="{{ route('getSalle', ['IdSalle' => $salle->IDSALLE, 'date' => $startDate->toDateString()]) }}" 
+                               class="salle-link" 
+                               title="Voir le détail de {{ $salle->LIBELLESALLE }}">
+                                {{ $salle->LIBELLESALLE }}
+                            </a>
+                        </th>
                     @endforeach
                 </tr>
             </thead>
@@ -63,8 +74,34 @@
         </table>
     </div>
     
-    <button id="export-img" class="btn btn-primary mt-4">Exporter en image</button>
-    <a href="{{ route('salle') }}" class="btn btn-primary mt-4">← Retour aux salles</a>
+    <div class="export-section" style="margin-top: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        <button id="export-img" class="btn btn-primary">Exporter en image</button>
+        
+        
+        <a href="{{ route('salle') }}" class="btn btn-primary">← Retour aux salles</a>
+    </div>
+    <div class="excel-export-container">
+        <div class="export-card">
+            <div class="export-header">
+                <i class="fas fa-file-excel"></i>
+                <h3>Export Planning Annuel</h3>
+            </div>
+            <form method="GET" action="{{ route('occupations.export') }}" class="export-form">
+                <div class="form-group">
+                    <label for="export-year">Année :</label>
+                    <select name="year" id="export-year" class="form-select">
+                        @for($i = now()->year - 1; $i <= now()->year + 5; $i++)
+                            <option value="{{ $i }}" {{ $i == now()->year ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <button type="submit" class="btn-export">
+                    <i class="fas fa-download"></i>
+                    <span>Télécharger Excel</span>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -102,6 +139,14 @@
         });
     } else {
         console.error('Le bouton d\'exportation n\'a pas été trouvé.');
+    }
+
+    // Gestionnaire pour le sélecteur de semaine
+    const weekSelector = document.getElementById('weekSelector');
+    if (weekSelector) {
+        weekSelector.addEventListener('change', function() {
+            document.getElementById('weekSelectorForm').submit();
+        });
     }
   });
 </script>

@@ -17,6 +17,11 @@ class Occupation extends Model
         return $this->belongsTo(MomentEvenement::class, 'IDMOMENT');
     }
 
+    public function moment()
+    {
+        return $this->belongsTo(MomentEvenement::class, 'IDMOMENT');
+    }
+
     public function salle()
     {
         return $this->belongsTo(Salle::class, 'IDSALLE');

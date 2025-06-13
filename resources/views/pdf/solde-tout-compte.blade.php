@@ -8,8 +8,15 @@
 </head>
 <body>
     <div class="header">
-        <h1>Solde de Tout Compte</h1>
-        <div class="subtitle">Document généré le {{ $dateGeneration }} à {{ $heureGeneration }}</div>
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="{{ public_path('images/image.png') }}" alt="Logo Pré Saint Jean" style="width: 160px; height: 50px;">
+            </div>
+            <div class="title-section">
+                <h1>Solde de Tout Compte</h1>
+                <div class="subtitle">Document généré le {{ $dateGeneration }} à {{ $heureGeneration }}</div>
+            </div>
+        </div>
     </div>
 
     <div class="info-section">
@@ -122,7 +129,7 @@
         <p><strong>Résidence Pré Saint Jean</strong></p>
         <p>11 Chemin du BRAY - ANNECY-LE-VIEUX - 74940 ANNECY – Siret : 338 051 899 00015</p>
         <p>Tel : 04 50 66 36 81 - Fax : 04 50 66 20 99</p>
-        <p>E-mail : residence.presaintjean@wanadoo.fr - www.presaintjean.com</p>
+        <p>E-mail : contact@pre-saint-jean.fr - www.pre-saint-jean.fr</p>
         <p style="margin-top: 15px; font-style: italic;">Document généré automatiquement le {{ $dateGeneration }} à {{ $heureGeneration }}</p>
     </div>
 </body>
@@ -137,15 +144,38 @@
         }
         
         .header {
-            text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             border-bottom: 2px solid #20364B;
-            padding-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        
+        .header-content {
+            display: table;
+            width: 100%;
+        }
+        
+        .logo-section {
+            display: table-cell;
+            width: 200px;
+            vertical-align: middle;
+            padding-right: 20px;
+        }
+        
+        .logo-section img {
+            width: 160px;
+            height: 50px;
+            object-fit: contain;
+        }
+        
+        .title-section {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
         }
         
         .header h1 {
             color: #20364B;
-            font-size: 24px;
+            font-size: 20px;
             margin: 0;
             font-weight: bold;
             text-transform: uppercase;

@@ -17,6 +17,8 @@ use App\Models\Parents;
 use App\Models\Resident;
 use App\Models\ResidentArchive;
 use App\Models\Salle;
+use App\Exports\OccupationsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SalleController extends Controller
 {
@@ -178,8 +180,22 @@ class SalleController extends Controller
     {
         $weekOffset = (int) $request->get('weekOffset', 0);
 
-        $startDate = Carbon::now()->startOfWeek()->addWeeks($weekOffset);
-        $endDate = Carbon::now()->endOfWeek()->addWeeks($weekOffset);
+        // Cas 1 : l'utilisateur vient avec ?date=YYYY-MM-DD
+        if ($request->filled('date')) {
+            $selectedDate = Carbon::parse($request->input('date'));
+            $startDate    = $selectedDate->copy()->startOfWeek();
+            $endDate      = $selectedDate->copy()->endOfWeek();
+
+            // Recalculer weekOffset pour garder la cohérence des liens fléchés
+            $weekOffset = now()
+                ->startOfWeek()
+                ->diffInWeeks($startDate, false);
+        }
+        // Cas 2 : l'utilisateur vient avec ?weekOffset=N (ou valeur par défaut 0)
+        else {
+            $startDate = Carbon::now()->startOfWeek()->addWeeks($weekOffset);
+            $endDate = Carbon::now()->endOfWeek()->addWeeks($weekOffset);
+        }
 
         $this->addDate($startDate, $endDate);
 
@@ -208,6 +224,53 @@ class SalleController extends Controller
         ]);
     }
 
-   
+    public function exportOccupationsExcel(Request $request)
+    {
+        $year = $request->input('year', now()->year);
+        
+        $fileName = 'planning_annuel_salles_' . $year . '.xlsx';
+        
+        return Excel::download(new OccupationsExport($year), $fileName);
+    }
     
+    public function planningAnnuel(Request $request)
+    {
+        $year = $request->input('year', now()->year);
+        
+        // Créer toutes les dates de l'année
+        $startDate = Carbon::createFromDate($year, 1, 1);
+        $endDate = Carbon::createFromDate($year, 12, 31);
+        
+        // Générer toutes les dates de l'année
+        $allDates = [];
+        $currentDate = $startDate->copy();
+        while ($currentDate <= $endDate) {
+            $allDates[] = $currentDate->format('Y-m-d');
+            $currentDate->addDay();
+        }
+        
+        // S'assurer que toutes les dates et occupations existent en base
+        $this->addDate($startDate, $endDate);
+        
+        // Récupérer toutes les salles et moments
+        $salles = Salle::all();
+        $moments = MomentEvenement::all();
+        
+        // Récupérer toutes les occupations de l'année
+        $occupations = Occupation::with('evenement')
+            ->whereBetween('DATEPLANNING', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get()
+            ->groupBy(function($item) {
+                return $item->IDSALLE . '_' . $item->IDMOMENT . '_' . $item->DATEPLANNING;
+            });
+        
+        return view('planningAnnuel', [
+            'year' => $year,
+            'allDates' => $allDates,
+            'salles' => $salles,
+            'moments' => $moments,
+            'occupations' => $occupations,
+        ]);
+    }
+
 }
