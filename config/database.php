@@ -46,11 +46,11 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', 'localhost'),
+            'host' => env('DB_HOST', 'hkdcwboprelogis.mysql.db'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'PreLogis'),
-            'username' => env('DB_USERNAME', 'berthet'),
-            'password' => env('DB_PASSWORD', 'Swapper750//'),
+            'database' => env('DB_DATABASE', 'hkdcwboprelogis'),
+            'username' => env('DB_USERNAME', 'hkdcwboprelogis'),
+            'password' => env('DB_PASSWORD', 'Patate74940'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
@@ -60,6 +60,8 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                PDO::MYSQL_ATTR_SSL_CIPHER => 'DHE-RSA-AES256-SHA',
             ]) : [],
         ],
 
