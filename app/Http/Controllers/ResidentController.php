@@ -199,8 +199,6 @@ class ResidentController extends Controller
                 'prenom' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
                 'anniversaire' => 'required|date|before:today',
                 'nationalite' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
-                'etablissement' => 'required|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
-                'annee_etude' => 'required|in:1re,2e,3e,4e,5e',
                 'parents.*.nom' => 'nullable|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
                 'parents.*.tel' => 'nullable|string',
                 'parents.*.profession' => 'nullable|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
@@ -237,16 +235,7 @@ class ResidentController extends Controller
             'nationalite.min' => 'La nationalité doit contenir au moins 2 caractères.',
             'nationalite.max' => 'La nationalité ne doit pas dépasser 50 caractères.',
             'nationalite.regex' => 'La nationalité ne peut contenir que des lettres, espaces, tirets et apostrophes.',
-            
-            'etablissement.required' => 'L\'établissement est obligatoire.',
-            'etablissement.string' => 'L\'établissement doit être une chaîne de caractères.',
-            'etablissement.min' => 'L\'établissement doit contenir au moins 2 caractères.',
-            'etablissement.max' => 'L\'établissement ne doit pas dépasser 100 caractères.',
-            'etablissement.regex' => 'L\'établissement contient des caractères non autorisés.',
-            
-            'annee_etude.required' => 'L\'année d\'étude est obligatoire.',
-            'annee_etude.in' => 'L\'année d\'étude doit être l\'une des valeurs suivantes: 1re, 2e, 3e, 4e, 5e.',
-            
+                        
             // Messages pour l'adresse
             'adresse.adresse.required' => 'L\'adresse est obligatoire.',
             'adresse.adresse.string' => 'L\'adresse doit être une chaîne de caractères.',
@@ -400,8 +389,6 @@ class ResidentController extends Controller
                 'prenom' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
                 'anniversaire' => 'required|date|before:today',
                 'nationalite' => 'required|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
-                'etablissement' => 'required|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
-                'annee_etude' => 'required|in:1re,2e,3e,4e,5e',
                 'parents.*.nom' => 'nullable|string|min:2|max:50|regex:/^[a-zA-ZÀ-ÿ\s\-\']+$/',
                 'parents.*.tel' => 'nullable|string',
                 'parents.*.profession' => 'nullable|string|min:2|max:100|regex:/^[a-zA-ZÀ-ÿ0-9\s\-\'\.]+$/',
@@ -437,16 +424,6 @@ class ResidentController extends Controller
             
             'tel.required' => 'Le numéro de téléphone est obligatoire.',
             'tel.string' => 'Le numéro de téléphone doit être une chaîne de caractères.',
-            
-            'anniversaire.required' => 'La date de naissance est obligatoire.',
-            'anniversaire.date' => 'La date de naissance n\'est pas valide.',
-            'anniversaire.before' => 'La date de naissance doit être antérieure à aujourd\'hui.',
-            
-            'nationalite.required' => 'La nationalité est obligatoire.',
-            'nationalite.string' => 'La nationalité doit être une chaîne de caractères.',
-            'nationalite.min' => 'La nationalité doit contenir au moins 2 caractères.',
-            'nationalite.max' => 'La nationalité ne doit pas dépasser 50 caractères.',
-            'nationalite.regex' => 'La nationalité ne peut contenir que des lettres, espaces, tirets et apostrophes.',
             
             'etablissement.required' => 'L\'établissement est obligatoire.',
             'etablissement.string' => 'L\'établissement doit être une chaîne de caractères.',

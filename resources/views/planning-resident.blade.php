@@ -165,7 +165,8 @@
                                     <th>Chambre</th>
                                     <th>Téléphone</th>
                                     <th>Email</th>
-                                    <th>Établissement</th>
+                                    <th>Nom parent 1</th>
+                                    <th>Tel parent 1</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -199,7 +200,14 @@
                                             @endif
                                         </td>
                                         <td>{{ $resident->MAILRESIDENT }}</td>
-                                        <td>{{ $resident->ETABLISSEMENT }}</td>
+                                         @if ($resident->parents->isEmpty())
+                                            <td><em>Non renseigné</em></td>
+                                            <td><em>Non renseigné</em></td>
+                                        @else
+                                            <td>{{ $resident->parents->first()->NOMPARENT }}</td>
+                                            <td>{{ $resident->parents->first()->TELPARENT }}</td>
+                                        
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>

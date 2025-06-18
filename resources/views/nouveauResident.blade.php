@@ -98,7 +98,7 @@
                     </div>
                     <div class="form-group">
                         <label for="annee_etude">Année d'étude <span class="required">*</span> :</label>
-                        <select class="form-control" id="annee_etude" name="annee_etude" required>
+                        <select class="form-control" id="annee_etude" name="annee_etude" >
                             <option value="" {{ old('annee_etude') == '' ? 'selected' : '' }}>Non renseigné</option>
 
                             <option value="1re" {{ old('annee_etude') == '1re' ? 'selected' : '' }}>1re</option>

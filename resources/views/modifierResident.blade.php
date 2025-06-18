@@ -110,11 +110,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="etablissement">Établissement :</label>
-                        <input type="text" class="form-control" id="etablissement" name="etablissement" value="{{$resident->ETABLISSEMENT}}" required>
+                        <input type="text" class="form-control" id="etablissement" name="etablissement" value="{{$resident->ETABLISSEMENT}}" >
                     </div>
                     <div class="form-group">
                         <label for="annee_etude">Année d'étude :</label>
-                        <select class="form-control" id="annee_etude" name="annee_etude" required>
+                        <select class="form-control" id="annee_etude" name="annee_etude" >
                             <option value="1re" {{ $resident->ANNEEETUDE == '1re' || $resident->ANNEEETUDE == '1ère' ? 'selected' : '' }}>1re</option>
                             <option value="2e"  {{ $resident->ANNEEETUDE == '2e' || $resident->ANNEEETUDE == '2ème' ? 'selected' : '' }}>2e</option>
                             <option value="3e"  {{ $resident->ANNEEETUDE == '3e' || $resident->ANNEEETUDE == '3ème' ? 'selected' : '' }}>3e</option>
