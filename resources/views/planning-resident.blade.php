@@ -47,6 +47,12 @@
                            Carbon\Carbon::parse($resident->DATEDEPART)->between($startOfMonth, $endOfMonth);
                 });
                 
+                // Séparer les résidents actuels et archivés pour les statistiques
+                $arriveesActuelles = $arrivees->reject(function($resident) { return isset($resident->isArchived); });
+                $arriveesArchivees = $arrivees->filter(function($resident) { return isset($resident->isArchived); });
+                $departsActuels = $departs->reject(function($resident) { return isset($resident->isArchived); });
+                $departsArchives = $departs->filter(function($resident) { return isset($resident->isArchived); });
+                
                 $countChambres = isset($chambres) ? count($chambres) : 0;
                 $countOccupation = isset($chambres) ? count($chambres->whereNotNull('IDRESIDENT')) : 0;
             @endphp
@@ -58,6 +64,9 @@
                 <div class="card-content">
                     <h3>Arrivées du mois</h3>
                     <div class="card-value">{{ count($arrivees) }}</div>
+                    @if($arriveesArchivees->count() > 0)
+                        <div class="card-sublabel">dont {{ $arriveesArchivees->count() }} archivée(s)</div>
+                    @endif
                 </div>
             </div>
             
@@ -68,6 +77,9 @@
                 <div class="card-content">
                     <h3>Départs du mois</h3>
                     <div class="card-value">{{ count($departs) }}</div>
+                    @if($departsArchives->count() > 0)
+                        <div class="card-sublabel">dont {{ $departsArchives->count() }} archivé(s)</div>
+                    @endif
                 </div>
             </div>         
         </div>
@@ -106,14 +118,21 @@
                             </thead>
                             <tbody>
                                 @foreach($arrivees->sortBy('DATEINSCRIPTION') as $resident)
-                                    <tr class="resident-row {{ Carbon\Carbon::parse($resident->DATEINSCRIPTION)->isToday() ? 'today' : '' }}">
+                                    <tr class="resident-row {{ Carbon\Carbon::parse($resident->DATEINSCRIPTION)->isToday() ? 'today' : '' }} {{ isset($resident->isArchived) ? 'archived' : '' }}">
                                         <td class="date-cell">
                                             <div class="date-display">
                                                 <div class="date-day">{{ Carbon\Carbon::parse($resident->DATEINSCRIPTION)->format('d') }}</div>
                                                 <div class="date-month">{{ Carbon\Carbon::parse($resident->DATEINSCRIPTION)->locale('fr')->shortMonthName }}</div>
                                             </div>
                                         </td>
-                                        <td>{{ $resident->NOMRESIDENT }} {{ $resident->PRENOMRESIDENT }}</td>
+                                        <td>
+                                            {{ $resident->NOMRESIDENT }} {{ $resident->PRENOMRESIDENT }}
+                                            @if(isset($resident->isArchived))
+                                                <span class="archived-badge">
+                                                    <i class="fas fa-archive"></i> Archivé
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td class="chambre-cell">
                                             @if($resident->chambre)
                                                 <span class="chambre-badge">{{ $resident->chambre->IDBATIMENT }}{{ str_pad($resident->chambre->NUMEROCHAMBRE, 2, '0', STR_PAD_LEFT) }}</span>
@@ -124,20 +143,25 @@
                                             @endif
                                         </td>
                                         <td class="tel-cell">
-                                            @if($resident->TELRESIDENT)
-                                                <a href="tel:{{ $resident->TELRESIDENT }}" class="tel-link">{{ $resident->TELRESIDENT }}</a>
+                                            @php
+                                                $telephone = $resident->TELRESIDENT ?? $resident->TELRESIDENTARCHIVE ?? null;
+                                            @endphp
+                                            @if($telephone)
+                                                <a href="tel:{{ $telephone }}" class="tel-link">{{ $telephone }}</a>
                                             @else
                                                 <span>-</span>
                                             @endif
                                         </td>
-                                        <td>{{ $resident->MAILRESIDENT }}</td>
-                                        @if ($resident->parents->isEmpty())
+                                        <td>{{ $resident->MAILRESIDENT ?? $resident->MAILRESIDENTARCHIVE ?? '-' }}</td>
+                                        @if ($resident->parents && $resident->parents->isEmpty())
                                             <td><em>Non renseigné</em></td>
                                             <td><em>Non renseigné</em></td>
-                                        @else
+                                        @elseif ($resident->parents && $resident->parents->isNotEmpty())
                                             <td>{{ $resident->parents->first()->NOMPARENT }}</td>
                                             <td>{{ $resident->parents->first()->TELPARENT }}</td>
-                                        
+                                        @else
+                                            <td><em>Non renseigné</em></td>
+                                            <td><em>Non renseigné</em></td>
                                         @endif
                                         
                                     </tr>
@@ -175,14 +199,21 @@
                                         $departDate = Carbon\Carbon::parse($resident->DATEDEPART);
                                         $isImminent = $departDate->isFuture() && $departDate->diffInDays(now()) <= 3;
                                     @endphp
-                                    <tr class="resident-row {{ $departDate->isToday() ? 'today' : '' }} {{ $departDate->isPast() ? 'past' : '' }} {{ $isImminent ? 'imminent' : '' }}">
+                                    <tr class="resident-row {{ $departDate->isToday() ? 'today' : '' }} {{ $departDate->isPast() ? 'past' : '' }} {{ $isImminent ? 'imminent' : '' }} {{ isset($resident->isArchived) ? 'archived' : '' }}">
                                         <td class="date-cell">
                                             <div class="date-display">
                                                 <div class="date-day">{{ $departDate->format('d') }}</div>
                                                 <div class="date-month">{{ $departDate->locale('fr')->shortMonthName }}</div>
                                             </div>
                                         </td>
-                                        <td>{{ $resident->NOMRESIDENT }} {{ $resident->PRENOMRESIDENT }}</td>
+                                        <td>
+                                            {{ $resident->NOMRESIDENT }} {{ $resident->PRENOMRESIDENT }}
+                                            @if(isset($resident->isArchived))
+                                                <span class="archived-badge">
+                                                    <i class="fas fa-archive"></i> Archivé
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td class="chambre-cell">
                                             @if($resident->chambre)
                                                 <span class="chambre-badge">{{ $resident->chambre->IDBATIMENT }}{{ str_pad($resident->chambre->NUMEROCHAMBRE, 2, '0', STR_PAD_LEFT) }}</span>
@@ -193,20 +224,26 @@
                                             @endif
                                         </td>
                                         <td class="tel-cell">
-                                            @if($resident->TELRESIDENT)
-                                                <a href="tel:{{ $resident->TELRESIDENT }}" class="tel-link">{{ $resident->TELRESIDENT }}</a>
+                                            @php
+                                                $telephone = $resident->TELRESIDENT ?? $resident->TELRESIDENTARCHIVE ?? null;
+                                            @endphp
+                                            @if($telephone)
+                                                <a href="tel:{{ $telephone }}" class="tel-link">{{ $telephone }}</a>
                                             @else
                                                 <span>-</span>
                                             @endif
                                         </td>
-                                        <td>{{ $resident->MAILRESIDENT }}</td>
-                                         @if ($resident->parents->isEmpty())
+                                        <td>{{ $resident->MAILRESIDENT ?? $resident->MAILRESIDENTARCHIVE ?? '-' }}</td>
+                                        
+                                        @if ($resident->parents && $resident->parents->isEmpty())
                                             <td><em>Non renseigné</em></td>
                                             <td><em>Non renseigné</em></td>
-                                        @else
+                                        @elseif ($resident->parents && $resident->parents->isNotEmpty())
                                             <td>{{ $resident->parents->first()->NOMPARENT }}</td>
                                             <td>{{ $resident->parents->first()->TELPARENT }}</td>
-                                        
+                                        @else
+                                            <td><em>Non renseigné</em></td>
+                                            <td><em>Non renseigné</em></td>
                                         @endif
                                     </tr>
                                 @endforeach

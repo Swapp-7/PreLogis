@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Chambre;
 use App\Models\Resident;
+use App\Models\ResidentArchive;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -129,16 +130,29 @@ class PlanningResidentExport implements FromCollection, WithHeadings, WithMappin
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $occupant = $this->getOccupantForDate($chambre, $date);
             $value = $occupant ? $occupant->NOMRESIDENT : '';
+            
+            // Ajouter un indicateur pour les résidents archivés
+            $isArchived = $occupant && isset($occupant->isArchived) && $occupant->isArchived;
+            if ($isArchived) {
+                $value = $value . ' (Archivé)';
+            }
+            
             $row[] = ''; // On laisse vide ici, on remplira lors de la fusion
             $rowValues[] = [
                 'value' => $value,
                 'month' => $date->month,
-                'day' => $date->day
+                'day' => $date->day,
+                'isArchived' => $isArchived
             ];
             
             // Attribuer une couleur cohérente à chaque résident
             if ($value && !isset($this->residentColors[$value])) {
-                $this->residentColors[$value] = $this->generatePastelColor($value);
+                if ($isArchived) {
+                    // Couleur plus terne pour les résidents archivés
+                    $this->residentColors[$value] = $this->generateGrayColor($value);
+                } else {
+                    $this->residentColors[$value] = $this->generatePastelColor($value);
+                }
             }
         }
         
@@ -150,7 +164,7 @@ class PlanningResidentExport implements FromCollection, WithHeadings, WithMappin
     /**
     * @param Chambre $chambre
     * @param Carbon $date
-    * @return Resident|null
+    * @return Resident|ResidentArchive|null
     */
     private function getOccupantForDate($chambre, $date)
     {
@@ -173,7 +187,7 @@ class PlanningResidentExport implements FromCollection, WithHeadings, WithMappin
             }
         }
         
-        // Vérifier les autres résidents qui ont occupé cette chambre à cette date
+        // Vérifier les autres résidents actuels qui ont occupé cette chambre à cette date
         $otherResident = Resident::where('CHAMBREASSIGNE', $chambre->IDCHAMBRE)
             ->where(function($query) use ($chambre) {
                 if ($chambre->IDRESIDENT) {
@@ -188,7 +202,24 @@ class PlanningResidentExport implements FromCollection, WithHeadings, WithMappin
             })
             ->first();
             
-        return $otherResident;
+        if ($otherResident) {
+            return $otherResident;
+        }
+        
+        // Vérifier les résidents archivés qui ont occupé cette chambre à cette date
+        $archivedResident = ResidentArchive::where('IDCHAMBRE', $chambre->IDCHAMBRE)
+            ->whereDate('DATEINSCRIPTIONARCHIVE', '<=', $date)
+            ->whereDate('DATEARCHIVE', '>=', $date)
+            ->first();
+            
+        if ($archivedResident) {
+            // Adapter les noms de propriétés pour la compatibilité
+            $archivedResident->NOMRESIDENT = $archivedResident->NOMRESIDENTARCHIVE;
+            $archivedResident->isArchived = true;
+            return $archivedResident;
+        }
+            
+        return null;
     }
 
     /**
@@ -209,6 +240,22 @@ class PlanningResidentExport implements FromCollection, WithHeadings, WithMappin
         $b = min(220, max(100, $b));
         
         return sprintf("%02X%02X%02X", $r, $g, $b);
+    }
+
+    /**
+    * Génère une couleur grise pour les résidents archivés
+    * @param string $value
+    * @return string Code couleur hexadécimal
+    */
+    private function generateGrayColor($value)
+    {
+        $colorHash = substr(md5($value), 0, 6);
+        $baseValue = hexdec(substr($colorHash, 0, 2));
+        
+        // Générer une nuance de gris basée sur le hash du nom
+        $grayValue = min(180, max(120, $baseValue));
+        
+        return sprintf("%02X%02X%02X", $grayValue, $grayValue, $grayValue);
     }
 
     /**
@@ -420,7 +467,7 @@ class PlanningResidentExport implements FromCollection, WithHeadings, WithMappin
                             // Placer la valeur uniquement dans la première cellule
                             $sheet->setCellValue($startColLetter . $rowNum, $seq['value']);
                             
-                            // Appliquer les styles
+                            // Appliquer les styles de base
                             $sheet->getStyle($startColLetter . $rowNum . ':' . $endColLetter . $rowNum)
                                 ->getAlignment()
                                 ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
@@ -432,6 +479,13 @@ class PlanningResidentExport implements FromCollection, WithHeadings, WithMappin
                                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                                 ->getStartColor()
                                 ->setRGB($color);
+                            
+                            // Style spécial pour les résidents archivés (italique)
+                            if (strpos($seq['value'], '(Archivé)') !== false) {
+                                $sheet->getStyle($startColLetter . $rowNum . ':' . $endColLetter . $rowNum)
+                                    ->getFont()
+                                    ->setItalic(true);
+                            }
                         }
                     }
                     

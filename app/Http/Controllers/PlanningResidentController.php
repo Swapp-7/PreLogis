@@ -33,23 +33,57 @@ class PlanningResidentController extends Controller
        
        $chambres = Chambre::all();
        
-       // Récupérer les résidents qui partent ce mois-ci avec leurs chambres
+       // Récupérer les résidents actuels qui partent ce mois-ci avec leurs chambres
        $departs = Resident::with('chambre')
            ->whereNotNull('DATEDEPART')
            ->whereDate('DATEDEPART', '>=', $startOfMonth)
            ->whereDate('DATEDEPART', '<=', $endOfMonth)
            ->get();
        
-       // Récupérer les résidents qui arrivent ce mois-ci avec leurs chambres
+       // Récupérer les résidents actuels qui arrivent ce mois-ci avec leurs chambres
        $arrivées = Resident::with('chambre')
            ->whereDate('DATEINSCRIPTION', '>=', $startOfMonth)
            ->whereDate('DATEINSCRIPTION', '<=', $endOfMonth)
            ->get();
        
-       // Combiner arrivées et départs pour l'affichage du calendrier
-       $residents = $departs->merge($arrivées)->unique('IDRESIDENT');
+       // Récupérer les résidents archivés qui sont arrivés ce mois-ci
+       $arrivéesArchivées = ResidentArchive::with('chambre')
+           ->whereDate('DATEINSCRIPTIONARCHIVE', '>=', $startOfMonth)
+           ->whereDate('DATEINSCRIPTIONARCHIVE', '<=', $endOfMonth)
+           ->get()
+           ->map(function($resident) {
+               // Adapter les noms de colonnes pour la compatibilité avec la vue
+               $resident->DATEINSCRIPTION = $resident->DATEINSCRIPTIONARCHIVE;
+               $resident->DATEDEPART = $resident->DATEARCHIVE; // Date d'archive = date de départ effective
+               $resident->NOMRESIDENT = $resident->NOMRESIDENTARCHIVE;
+               $resident->PRENOMRESIDENT = $resident->PRENOMRESIDENTARCHIVE;
+               $resident->IDRESIDENT = 'archive_' . $resident->IDRESIDENTARCHIVE; // ID unique pour éviter les conflits
+               $resident->isArchived = true; // Marqueur pour identifier les résidents archivés
+               return $resident;
+           });
        
-       return view('planning-resident', compact('chambres', 'residents', 'departs', 'arrivées', 'startOfMonth', 'endOfMonth', 'month', 'year'));
+       // Récupérer les résidents archivés qui sont partis (archivés) ce mois-ci
+       $departsArchivés = ResidentArchive::with('chambre')
+           ->whereDate('DATEARCHIVE', '>=', $startOfMonth)
+           ->whereDate('DATEARCHIVE', '<=', $endOfMonth)
+           ->get()
+           ->map(function($resident) {
+               // Adapter les noms de colonnes pour la compatibilité avec la vue
+               $resident->DATEINSCRIPTION = $resident->DATEINSCRIPTIONARCHIVE;
+               $resident->DATEDEPART = $resident->DATEARCHIVE; // Date d'archive = date de départ effective
+               $resident->NOMRESIDENT = $resident->NOMRESIDENTARCHIVE;
+               $resident->PRENOMRESIDENT = $resident->PRENOMRESIDENTARCHIVE;
+               $resident->IDRESIDENT = 'archive_' . $resident->IDRESIDENTARCHIVE; // ID unique pour éviter les conflits
+               $resident->isArchived = true; // Marqueur pour identifier les résidents archivés
+               return $resident;
+           });
+       
+       // Combiner tous les résidents (actuels et archivés)
+       $tousLesDeparts = $departs->merge($departsArchivés);
+       $toutesLesArrivées = $arrivées->merge($arrivéesArchivées);
+       $residents = $tousLesDeparts->merge($toutesLesArrivées)->unique('IDRESIDENT');
+       
+       return view('planning-resident', compact('chambres', 'residents', 'departs', 'arrivées', 'tousLesDeparts', 'toutesLesArrivées', 'departsArchivés', 'arrivéesArchivées', 'startOfMonth', 'endOfMonth', 'month', 'year'));
    }
 
    public function exportExcel(Request $request)

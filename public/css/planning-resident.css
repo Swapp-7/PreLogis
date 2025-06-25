@@ -193,6 +193,13 @@ body {
     color: var(--accent);
 }
 
+.card-sublabel {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 3px;
+    font-style: italic;
+}
+
 /* Onglets */
 .tabs-container {
     background-color: rgba(255, 255, 255, 0.08);
@@ -317,6 +324,46 @@ body {
 
 .resident-row.imminent {
     background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Styles pour les résidents archivés */
+.resident-row.archived {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+    opacity: 0.8;
+}
+
+.archived-badge {
+    display: inline-block;
+    background-color: #6c757d;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.archived-badge i {
+    margin-right: 3px;
+    font-size: 0.7rem;
+}
+
+.resident-row.archived td {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.resident-row.archived .chambre-badge {
+    background-color: rgba(108, 117, 125, 0.8);
+    color: white;
+}
+
+.resident-row.archived .tel-link {
+    color: rgba(253, 193, 31, 0.7);
+}
+
+.resident-row.archived .tel-link:hover {
+    color: rgba(253, 193, 31, 0.9);
 }
 
 .date-cell {
