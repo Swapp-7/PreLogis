@@ -679,22 +679,31 @@ class ResidentController extends Controller
     {
         $request->validate([
             'idResident' => 'required|exists:RESIDENT,IDRESIDENT',
-            'DATEDEPART' => 'required|date|after:today',
+            'DATEDEPART' => 'nullable|date|after:today',
         ]);
 
         $resident = Resident::findOrFail($request->idResident);
-        $resident->DATEDEPART = $request->DATEDEPART;
+        
+        // Si la date de départ est vide ou null, on met null en base
+        if (empty($request->DATEDEPART)) {
+            $resident->DATEDEPART = null;
+            $message = 'La planification de départ a été annulée.';
+        } else {
+            $resident->DATEDEPART = $request->DATEDEPART;
+            $message = 'Le départ du résident a été planifié pour le ' . \Carbon\Carbon::parse($request->DATEDEPART)->translatedFormat('d F Y');
+        }
+        
         $resident->save();
 
         // Mise à jour de la redirection pour utiliser getResident si disponible
         if ($resident->chambre) {
             return redirect()
                 ->route('resident', ['IdBatiment' => $resident->chambre->IDBATIMENT, 'NumChambre' => $resident->chambre->NUMEROCHAMBRE])
-                ->with('success', 'Le départ du résident a été planifié pour le ' . \Carbon\Carbon::parse($request->DATEDEPART)->translatedFormat('d F Y'));
+                ->with('success', $message);
         } else {
             return redirect()
                 ->route('getResident', ['IdResident' => $resident->IDRESIDENT])
-                ->with('success', 'Le départ du résident a été planifié pour le ' . \Carbon\Carbon::parse($request->DATEDEPART)->translatedFormat('d F Y'));
+                ->with('success', $message);
         }
     }
     public function updateFutureResidentDates(Request $request)

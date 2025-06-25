@@ -30,8 +30,8 @@
                     <input type="date" id="dateDepart" name="DATEDEPART" class="form-control" 
                            min="{{ $dateMin }}" 
                            @if($dateMax) max="{{ $dateMax }}" @endif
-                           value="{{ $resident->DATEDEPART ?? '' }}" required>
-                    <small class="form-text">À cette date, le résident sera automatiquement archivé et la chambre sera libérée.</small>
+                           value="{{ $resident->DATEDEPART ?? '' }}" >
+                    <small class="form-text">À cette date, le résident sera automatiquement archivé et la chambre sera libérée. Laissez vide pour annuler la planification.</small>
                     @if($resident->DATEINSCRIPTION)
                         <small class="form-text form-text-info">
                             <i class="fas fa-info-circle"></i> La date de départ doit être après la date d'arrivée ({{ \Carbon\Carbon::parse($resident->DATEINSCRIPTION)->translatedFormat('d F Y') }})
@@ -44,6 +44,9 @@
                 
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeDepartModal()">Annuler</button>
+                    @if($resident->DATEDEPART)
+                        <button type="button" class="btn-warning" onclick="annulerPlanification()">Annuler planification</button>
+                    @endif
                     <button type="submit" class="btn-primary">Confirmer</button>
                 </div>
                 @else
@@ -154,7 +157,7 @@
     margin-top: 25px;
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary, .btn-secondary, .btn-warning {
     padding: 10px 15px;
     border: none;
     border-radius: 5px;
@@ -179,6 +182,18 @@
 
 .btn-secondary:hover {
     background-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-warning {
+    background-color: #dc3545;
+    color: var(--white, #FFFFFF);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.btn-warning:hover {
+    background-color: #c82333;
 }
 </style>
 
@@ -224,4 +239,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Fonction pour annuler la planification
+function annulerPlanification() {
+    if (confirm('Êtes-vous sûr de vouloir annuler la planification de départ ? La date de départ sera supprimée.')) {
+        // Vider le champ date et soumettre le formulaire
+        document.getElementById('dateDepart').value = '';
+        document.getElementById('departForm').submit();
+    }
+}
 </script>
