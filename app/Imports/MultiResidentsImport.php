@@ -85,11 +85,16 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             }
 
             // Vérifier les champs obligatoires
-            $requiredFields = ['nom', 'prenom', 'email', 'telephone', 'date_naissance', 'batiment', 'numero_chambre'];
+            $requiredFields = ['nom', 'prenom', 'email', 'telephone', 'date_naissance', 'batiment', 'numero_chambre', 'date_entree'];
             foreach ($requiredFields as $field) {
                 if (empty($row[$field])) {
                     throw new \Exception("Champ obligatoire manquant: $field");
                 }
+            }
+
+            // Validation spécifique de la date d'entrée
+            if (empty($row['date_entree'])) {
+                throw new \Exception("La date d'entrée est obligatoire pour pouvoir assigner le résident à une chambre");
             }
 
             // Vérifier que le bâtiment existe
@@ -108,9 +113,13 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             }
 
             // Créer ou récupérer l'adresse
-            $adresse = $this->createOrUpdateAdresse($row);            // Vérifier d'abord la disponibilité de la chambre AVANT de créer le résident
-            $dateInscription = $this->parseDate($row['date_entree'] ?? '');
-            $dateEntree = $dateInscription ? \Carbon\Carbon::parse($dateInscription->format('Y-m-d')) : null;
+            $adresse = $this->createOrUpdateAdresse($row);
+            
+            // Parser la date d'entrée avec gestion d'erreur détaillée
+            $dateEntree = $this->parseDate($row['date_entree'] ?? '');
+            if (!$dateEntree) {
+                throw new \Exception("Date d'entrée invalide ou manquante: '" . ($row['date_entree'] ?? 'vide') . "' (format attendu: DD/MM/YYYY). La date d'entrée est obligatoire pour assigner le résident à une chambre.");
+            }
             $aujourdhui = now()->startOfDay();
 
             // Si la date d'entrée est dans le passé ou aujourd'hui, vérifier que la chambre est libre
@@ -127,41 +136,59 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             $resident->PRENOMRESIDENT = $row['prenom'] ?? '';
             $resident->MAILRESIDENT = $row['email'] ?? '';
             $resident->TELRESIDENT = $row['telephone'] ?? '';
+            
+            // Parser la date de naissance avec gestion d'erreur
             $dateNaissance = $this->parseDate($row['date_naissance'] ?? '');
+            if (!$dateNaissance && !empty($row['date_naissance'])) {
+                throw new \Exception("Impossible de parser la date de naissance: '" . $row['date_naissance'] . "' (format attendu: DD/MM/YYYY)");
+            }
             $resident->DATENAISSANCE = $dateNaissance ? $dateNaissance->format('Y-m-d') : null;
+            
             $resident->NATIONALITE = $row['nationalite'] ?? '';
             $resident->ETABLISSEMENT = $row['etablissement'] ?? '';
             $resident->ANNEEETUDE = $row['annee_etude'] ?? '';
-            $resident->DATEINSCRIPTION = $dateEntree ? $dateEntree->format('Y-m-d') : null;
+            
+            // Utiliser la date d'entrée déjà parsée (maintenant toujours définie)
+            $resident->DATEINSCRIPTION = $dateEntree->format('Y-m-d');
+            
+            // Parser la date de départ avec gestion d'erreur
             $dateDepart = $this->parseDate($row['date_depart'] ?? '');
+            if (!$dateDepart && !empty($row['date_depart'])) {
+                throw new \Exception("Impossible de parser la date de départ: '" . $row['date_depart'] . "' (format attendu: DD/MM/YYYY)");
+            }
             $resident->DATEDEPART = $dateDepart ? $dateDepart->format('Y-m-d') : null;
-            $resident->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
+            
             $resident->IDADRESSE = $adresse->IDADRESSE;
             $resident->TYPE = Resident::TYPE_INDIVIDUAL;
-            $resident->PHOTO = null; 
-            
-            $resident->save();
+            $resident->PHOTO = null;
 
-            // Logique d'assignation de chambre
-            if ($dateEntree && $dateEntree->lte($aujourdhui)) {
-                // Date d'entrée dans le passé ou aujourd'hui -> occupant actuel
+            // Déterminer si le résident doit être assigné immédiatement (occupant actuel) ou plus tard (futur résident)
+            $assignerImmediatement = $dateEntree->lte($aujourdhui);
+
+            // Assignation de chambre selon la date d'entrée
+            if ($assignerImmediatement) {
+                // Date d'entrée dans le passé/aujourd'hui -> occupant actuel
+                $resident->CHAMBREASSIGNE = null; // Pas de chambre assignée car sera occupant actuel
+                $resident->save();
+                
+                // Assigner le résident comme occupant actuel de la chambre
                 $chambre->IDRESIDENT = $resident->IDRESIDENT;
                 $chambre->save();
-                // Réinitialiser CHAMBREASSIGNE car il est maintenant occupant actuel
-                $resident->CHAMBREASSIGNE = null;
-                $resident->save();
             } else {
-                // Date d'entrée dans le futur -> futur résident (CHAMBREASSIGNE déjà défini)
+                // Date d'entrée dans le futur -> futur résident
+                $resident->CHAMBREASSIGNE = $chambre->IDCHAMBRE;
+                $resident->save();
             }
 
             // Créer les parents
             $this->createParents($resident, $row);
 
             $this->successCount++;
+            $statusMessage = $assignerImmediatement ? "assigné comme occupant actuel" : "pré-assigné pour une entrée future";
             $this->importResults[] = [
                 'status' => 'success',
                 'row' => $rowNumber,
-                'message' => "Résident {$resident->NOMRESIDENT} {$resident->PRENOMRESIDENT} importé avec succès dans la chambre {$row['numero_chambre']} du bâtiment {$row['batiment']}"
+                'message' => "Résident {$resident->NOMRESIDENT} {$resident->PRENOMRESIDENT} importé avec succès dans la chambre {$row['numero_chambre']} du bâtiment {$row['batiment']} ($statusMessage)"
             ];
 
         } catch (\Exception $e) {
@@ -225,24 +252,80 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             return null;
         }
 
+        // Nettoyer la chaîne de date
+        $dateString = trim($dateString);
+        
+        // Debug temporaire
+        \Log::info("Tentative de parsing de date: '$dateString' (type: " . gettype($dateString) . ")");
+        
         try {
-            // Essayer différents formats de date
-            $formats = ['Y-m-d', 'd/m/Y', 'm/d/Y', 'Y-m-d H:i:s'];
+            // Vérifier si c'est un nombre (format sérialisé Excel)
+            if (is_numeric($dateString)) {
+                $numericValue = floatval($dateString);
+                \Log::info("Date numérique détectée: $numericValue");
+                
+                // Si c'est un grand nombre, c'est probablement un timestamp Unix
+                if ($numericValue > 1000000000) {
+                    $result = Carbon::createFromTimestamp($numericValue);
+                    \Log::info("Timestamp Unix converti: " . $result->format('Y-m-d'));
+                    return $result;
+                }
+                
+                // Si c'est un nombre entre 1 et 100000, c'est probablement un numéro de série Excel
+                // Excel compte les jours depuis le 1er janvier 1900
+                if ($numericValue > 1 && $numericValue < 100000) {
+                    // Date de référence Excel: 1er janvier 1900 (mais Excel a une erreur avec 1900 qui n'est pas bissextile)
+                    $excelBaseDate = Carbon::createFromDate(1899, 12, 30); // 30 décembre 1899 comme base réelle
+                    $result = $excelBaseDate->addDays($numericValue);
+                    \Log::info("Date Excel convertie: " . $result->format('Y-m-d'));
+                    return $result;
+                }
+            }
+            
+            // Essayer différents formats de date (ordre d'importance)
+            $formats = [
+                'd/m/Y',        // Format français: 31/05/2006
+                'd-m-Y',        // Format français avec tirets: 31-05-2006
+                'Y-m-d',        // Format ISO: 2006-05-31
+                'm/d/Y',        // Format américain: 05/31/2006
+                'd/m/y',        // Format français avec année courte: 31/05/06
+                'Y-m-d H:i:s',  // Format avec heure
+                'd/m/Y H:i:s',  // Format français avec heure
+                'd.m.Y',        // Format avec points: 31.05.2006
+                'd.m.y',        // Format avec points et année courte: 31.05.06
+                'j/n/Y',        // Format sans zéros: 31/5/2006
+                'j-n-Y',        // Format sans zéros avec tirets: 31-5-2006
+            ];
             
             foreach ($formats as $format) {
                 $date = \DateTime::createFromFormat($format, $dateString);
                 if ($date !== false) {
-                    // Retourner un objet Carbon au lieu d'une chaîne
-                    return Carbon::createFromFormat($format, $dateString);
+                    // Vérifier que la date est raisonnable (pas d'erreur de parsing)
+                    $errors = \DateTime::getLastErrors();
+                    if ($errors['error_count'] == 0 && $errors['warning_count'] == 0) {
+                        $result = Carbon::instance($date);
+                        \Log::info("Date parsée avec format '$format': " . $result->format('Y-m-d'));
+                        return $result;
+                    }
                 }
             }
             
-            // Si aucun format ne fonctionne, essayer Carbon
+            // Si aucun format exact ne fonctionne, essayer Carbon::parse en dernier recours
             $carbonDate = Carbon::parse($dateString);
-            return $carbonDate;
+            
+            // Vérifier que la date est raisonnable (entre 1900 et 2100)
+            if ($carbonDate->year >= 1900 && $carbonDate->year <= 2100) {
+                \Log::info("Date parsée avec Carbon::parse: " . $carbonDate->format('Y-m-d'));
+                return $carbonDate;
+            }
+            
+            \Log::warning("Date hors limite raisonnable: " . $carbonDate->format('Y-m-d'));
+            return null;
             
         } catch (\Exception $e) {
-            throw new \Exception("Format de date invalide: $dateString");
+            // Retourner null au lieu de lever une exception pour éviter de casser l'import
+            \Log::warning("Impossible de parser la date: '$dateString' - " . $e->getMessage());
+            return null;
         }
     }
 
@@ -269,6 +352,7 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             'email' => 'required|email|max:255',
             'telephone' => 'required|string|max:20',
             'date_naissance' => 'required',
+            'date_entree' => 'required',
             'batiment' => 'required',
             'numero_chambre' => 'required',
         ];
@@ -283,6 +367,7 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
             'email.email' => 'L\'email doit être valide',
             'telephone.required' => 'Le téléphone est obligatoire',
             'date_naissance.required' => 'La date de naissance est obligatoire',
+            'date_entree.required' => 'La date d\'entrée est obligatoire',
             'batiment.required' => 'Le bâtiment est obligatoire',
             'numero_chambre.required' => 'Le numéro de chambre est obligatoire',
         ];
@@ -320,20 +405,24 @@ class MultiResidentsImport implements ToCollection, WithHeadingRow, SkipsOnError
         
         // Validation de la date de naissance
         if (!empty($row['date_naissance'])) {
-            $date = $this->parseDate($row['date_naissance']);
-            if (!$date) {
+            try {
+                $date = $this->parseDate($row['date_naissance']);
+                if (!$date) {
+                    $errors[] = "Date de naissance invalide (format attendu: DD/MM/YYYY ou YYYY-MM-DD)";
+                } else {
+                    // Vérifier que la date est réaliste (entre 1900 et aujourd'hui)
+                    $year = $date->year;
+                    if ($year < 1900 || $year > now()->year) {
+                        $errors[] = "Date de naissance non réaliste (année entre 1900 et " . now()->year . ")";
+                    }
+                    
+                    // Vérifier que la personne n'est pas née dans le futur
+                    if ($date->isFuture()) {
+                        $errors[] = "Date de naissance ne peut pas être dans le futur";
+                    }
+                }
+            } catch (\Exception $e) {
                 $errors[] = "Date de naissance invalide (format attendu: DD/MM/YYYY ou YYYY-MM-DD)";
-            } else {
-                // Vérifier que la date est réaliste (entre 1900 et aujourd'hui)
-                $year = $date->year;
-                if ($year < 1900 || $year > now()->year) {
-                    $errors[] = "Date de naissance non réaliste (année entre 1900 et " . now()->year . ")";
-                }
-                
-                // Vérifier que la personne n'est pas née dans le futur
-                if ($date->isFuture()) {
-                    $errors[] = "Date de naissance ne peut pas être dans le futur";
-                }
             }
         }
         

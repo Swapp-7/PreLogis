@@ -521,7 +521,7 @@ class ResidentController extends Controller
             $aujourdhui = now()->startOfDay();
             
             // Si la date d'entrée est aujourd'hui ou dans le passé, assigner directement le groupe à la chambre
-            if ($dateEntree->lte($aujourdhui)) {
+            if ($dateEntree->lte($aujourdhui) && $chambre->IDRESIDENT == null) {
                 $chambre->IDRESIDENT = $group->IDRESIDENT;
                 $chambre->save();
             } else {
@@ -602,12 +602,12 @@ class ResidentController extends Controller
         $dateEntree = \Carbon\Carbon::parse($resident->DATEINSCRIPTION);
         $aujourdhui = now()->startOfDay();
 
-        if ($dateEntree->lte($aujourdhui)) {
-            if ($chambre) {
+        
+            if ($chambre && $chambre->IDRESIDENT == null) {
                 $chambre->IDRESIDENT = $resident->IDRESIDENT;
                 $chambre->save();
             }
-        }
+        
 
         $successMessage = $type === 'individual' ? 'Résident ajouté avec succès' : 'Groupe créé avec succès';
         return redirect()->route('resident', ['IdBatiment' => $IdBatiment, 'NumChambre' => $NumChambre])
@@ -949,13 +949,7 @@ class ResidentController extends Controller
             $parentNumber = $index + 1;
             
             // Si un nom est renseigné, vérifier que les autres champs importants le sont aussi
-            if (!empty($parentData['nom'])) {
-                if (empty($parentData['tel'])) {
-                    $errors["parents.{$index}.tel"] = "Le téléphone est obligatoire si le nom du parent {$parentNumber} est renseigné.";
-                } elseif (!$this->isValidInternationalPhone($parentData['tel'])) {
-                    $errors["parents.{$index}.tel"] = "Le format du téléphone du parent {$parentNumber} n'est pas valide.";
-                }
-            }
+            
             
             // Si un téléphone est renseigné, vérifier que le nom l'est aussi
             if (!empty($parentData['tel'])) {

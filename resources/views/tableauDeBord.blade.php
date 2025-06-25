@@ -5,7 +5,7 @@
 <div class="dashboard-container">
     <h1 class="dashboard-title">Tableau de Bord</h1>
     
-    
+    <!--
     <div class="dashboard-stats">
         
         <div class="stat-card">
@@ -37,6 +37,8 @@
             </div>
         </div>
     </div>
+-->
+
     
     <div class="planning-preview">
         <div class="planning-header">

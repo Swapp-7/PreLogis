@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 @section('title', 'Archive')
 @section('content')
@@ -72,6 +71,14 @@
                 @endif
                 <p class="resident-mail"><i class="fas fa-envelope"></i> {{ $resident->MAILRESIDENTARCHIVE }}</p>
                 <p class="resident-phone"><i class="fas fa-phone"></i> {{ $resident->TELRESIDENTARCHIVE }}</p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ route('supprimerResidentArchive', ['idResidentArchive' => $resident->IDRESIDENTARCHIVE]) }}" 
+                   class="btn-action btn-delete" 
+                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce résident archivé ? Cette action supprimera également tous ses documents, sa photo de profil, son adresse et les informations de ses parents. Cette action est irréversible.')">
+                   <i class="fas fa-trash"></i> Supprimer Définitivement
+                </a>
             </div>
         </div>
         
@@ -362,6 +369,61 @@
     .chambre-item {
         padding: 6px 10px;
         font-size: 0.9rem;
+    }
+}
+
+/* Styles pour les boutons d'action */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    align-items: center;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border: 2px solid;
+    min-width: 200px;
+    text-align: center;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    text-decoration: none;
+}
+
+.btn-action i {
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        gap: 8px;
+    }
+    
+    .btn-action {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        min-width: 180px;
     }
 }
 

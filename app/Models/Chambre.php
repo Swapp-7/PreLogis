@@ -25,8 +25,9 @@ class Chambre extends Model
     public function futureResidents()
     {
         return $this->hasMany(Resident::class, 'CHAMBREASSIGNE', 'IDCHAMBRE')
-                    ->where('DATEINSCRIPTION', '>', now())
-                    ->orderBy('DATEINSCRIPTION', 'asc');
+                ->where('DATEINSCRIPTION', '>', now())
+                ->where('IDRESIDENT', '!=', $this->IDRESIDENT)
+                ->orderBy('DATEINSCRIPTION', 'asc');
     }
     
 }

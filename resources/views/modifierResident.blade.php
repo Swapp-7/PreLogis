@@ -193,15 +193,15 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Nom :</label>
-                            <input type="text" class="form-control" name="parents[{{ $loop->index }}][nom]" value="{{ $parent->NOMPARENT }}" required>
+                            <input type="text" class="form-control" name="parents[{{ $loop->index }}][nom]" value="{{ $parent->NOMPARENT }}" >
                         </div>
                         <div class="form-group">
                             <label>Téléphone :</label>
-                            <input type="text" class="form-control" name="parents[{{ $loop->index }}][tel]" value="{{ $parent->TELPARENT }}" required>
+                            <input type="text" class="form-control" name="parents[{{ $loop->index }}][tel]" value="{{ $parent->TELPARENT }}" >
                         </div>
                         <div class="form-group">
                             <label>Profession :</label>
-                            <input type="text" class="form-control" name="parents[{{ $loop->index }}][profession]" value="{{ $parent->PROFESSION }}" required>
+                            <input type="text" class="form-control" name="parents[{{ $loop->index }}][profession]" value="{{ $parent->PROFESSION }}" >
                         </div>
                     </div>
                 </div>
