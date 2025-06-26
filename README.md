@@ -1,38 +1,38 @@
 # PreLogis - Système de Gestion de Logements Étudiants
 
-## 📋 Description
+##  Description
 
 PreLogis est une application web développée avec **Laravel 10** destinée à la gestion complète des logements étudiants. L'application permet de gérer les bâtiments, chambres, résidents (individuels et groupes), plannings, occupations de salles et l'archivage des données.
 
-## ✨ Fonctionnalités Principales
+##  Fonctionnalités Principales
 
-### 🏢 Gestion des Infrastructures
+###  Gestion des Infrastructures
 - **Bâtiments** : Création et gestion des bâtiments avec capacité
 - **Chambres** : Attribution automatique des chambres lors de la création des bâtiments
 - **Salles** : Gestion des espaces communs et planning d'occupation
 
-### 👥 Gestion des Résidents
+###  Gestion des Résidents
 - **Résidents Individuels** : Gestion complète des étudiants
 - **Groupes** : Gestion des groupes de résidents
 - **Futurs Résidents** : Pré-assignation des chambres
 - **Archivage Automatique** : Sauvegarde des données des anciens résidents
 - **Gestion des Fichiers** : Upload et gestion des documents
 
-### 📅 Planning et Occupation
+###  Planning et Occupation
 - **Planning Résidents** : Vue d'ensemble des arrivées et départs
 - **Planning Annuel** : Export Excel avec visualisation par couleur
 - **Planification des Départs** : Gestion des dates de départ
 
-### 📊 Import/Export
+###  Import/Export
 - **Import Excel** : Import en masse des résidents via fichiers Excel
 - **Export Excel** : Export des données résidents et planning
 - **Export PDF** : Génération de documents (solde de tout compte)
 
-### 🗃️ Archivage et Recherche
+###  Archivage et Recherche
 - **Système d'Archives** : Conservation des données historiques
 
 
-## 🛠️ Technologies Utilisées
+##  Technologies Utilisées
 
 ### Backend
 - **Laravel 10** - Framework PHP
@@ -53,7 +53,7 @@ PreLogis est une application web développée avec **Laravel 10** destinée à l
 - **html2canvas** - Export PNG
 - **jspdf** - Génération PDF côté client
 
-## 🚀 Installation
+##  Installation
 
 ### Prérequis
 - PHP 8.1 ou supérieur
@@ -126,7 +126,7 @@ php artisan serve
 
 L'application sera accessible sur `http://localhost:8000`
 
-## 📁 Structure du Projet
+## Structure du Projet
 
 ```
 PreLogis/
@@ -150,7 +150,7 @@ PreLogis/
 └── storage/                     # Stockage des fichiers
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Base de données
 Les modèles principaux incluent :
@@ -168,7 +168,7 @@ Les modèles principaux incluent :
 - `config/dompdf.php` - Configuration PDF
 - `config/filesystems.php` - Stockage des fichiers
 
-## 📖 Utilisation
+##  Utilisation
 
 ### Connexion Administrateur
 Accédez à `/admin/login` pour vous connecter à l'interface d'administration.
@@ -190,7 +190,7 @@ Accédez à `/admin/login` pour vous connecter à l'interface d'administration.
 - **Archives** : Consultation des anciens résidents
 - **Solde de tout compte** : Génération PDF
 
-## 🔍 Fonctionnalités Avancées
+##  Fonctionnalités Avancées
 
 ### Système d'Archivage
 - Archivage automatique lors de la suppression
@@ -215,14 +215,14 @@ Accédez à `/admin/login` pour vous connecter à l'interface d'administration.
 - Gestion collective des informations
 - Archivage spécialisé
 
-## 🛡️ Sécurité
+##  Sécurité
 
 - Authentification administrateur
 - Validation des données d'entrée
 - Protection CSRF
 - Gestion des permissions
 
-## 🐛 Dépannage
+##  Dépannage
 
 ### Erreurs courantes
 
@@ -242,12 +242,12 @@ php artisan key:generate
 php artisan migrate:refresh
 ```
 
-## 📝 Commandes Artisan Personnalisées
+##  Commandes Artisan Personnalisées
 
 - `php artisan residents:assign-chambers` - Assigner les chambres aux futurs résidents
 - Autres commandes spécifiques disponibles dans `app/Console/Commands/`
 
-## 🤝 Contribution
+##  Contribution
 
 1. Fork le projet
 2. Créer une branche pour votre fonctionnalité
@@ -255,11 +255,11 @@ php artisan migrate:refresh
 4. Pusher vers la branche
 5. Créer une Pull Request
 
-## 📄 Licence
+##  Licence
 
 Ce projet est sous licence Propriétaire .
 
-## 📞 Support
+##  Support
 
 Pour toute question ou problème, contactez l'équipe de développement.
 
@@ -270,38 +270,3 @@ mano.berthet@gmail.com
 **Framework :** Laravel 10.x  
 **PHP :** 8.1+
 
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
