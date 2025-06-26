@@ -455,7 +455,7 @@
                     <div class="nav-section">
                         <div class="nav-section-title">
                             <i class="fas fa-calendar-alt"></i>
-                            <span class="section-text">Événements</span>
+                            <span class="section-text">Les salles</span>
                         </div>
                         <ul>
                             

@@ -106,6 +106,9 @@
                             <option value="3e" {{ old('annee_etude') == '3e' ? 'selected' : '' }}>3e</option>
                             <option value="4e" {{ old('annee_etude') == '4e' ? 'selected' : '' }}>4e</option>
                             <option value="5e" {{ old('annee_etude') == '5e' ? 'selected' : '' }}>5e</option>
+                            <option value="6e" {{ old('annee_etude') == '6e' ? 'selected' : '' }}>6e</option>
+                            <option value="7e" {{ old('annee_etude') == '7e' ? 'selected' : '' }}>7e</option>
+                            <option value="jeune travailleur" {{ old('annee_etude') == 'jeune travailleur' ? 'selected' : '' }}>jeune travailleur</option>
                         </select>
                     </div>
                 </div>

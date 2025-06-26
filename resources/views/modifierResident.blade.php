@@ -115,11 +115,16 @@
                     <div class="form-group">
                         <label for="annee_etude">Année d'étude :</label>
                         <select class="form-control" id="annee_etude" name="annee_etude" >
-                            <option value="1re" {{ $resident->ANNEEETUDE == '1re' || $resident->ANNEEETUDE == '1ère' ? 'selected' : '' }}>1re</option>
-                            <option value="2e"  {{ $resident->ANNEEETUDE == '2e' || $resident->ANNEEETUDE == '2ème' ? 'selected' : '' }}>2e</option>
-                            <option value="3e"  {{ $resident->ANNEEETUDE == '3e' || $resident->ANNEEETUDE == '3ème' ? 'selected' : '' }}>3e</option>
-                            <option value="4e"  {{ $resident->ANNEEETUDE == '4e' || $resident->ANNEEETUDE == '4ème' ? 'selected' : '' }}>4e</option>
-                            <option value="5e"  {{ $resident->ANNEEETUDE == '5e' || $resident->ANNEEETUDE == '5ème' ? 'selected' : '' }}>5e</option>
+                            <option value="" {{ old('annee_etude', $resident->ANNEEETUDE) == '' ? 'selected' : '' }}>Non renseigné</option>
+
+                            <option value="1re" {{ old('annee_etude', $resident->ANNEEETUDE) == '1re' ? 'selected' : '' }}>1re</option>
+                            <option value="2e" {{ old('annee_etude', $resident->ANNEEETUDE) == '2e' ? 'selected' : '' }}>2e</option>
+                            <option value="3e" {{ old('annee_etude', $resident->ANNEEETUDE) == '3e' ? 'selected' : '' }}>3e</option>
+                            <option value="4e" {{ old('annee_etude', $resident->ANNEEETUDE) == '4e' ? 'selected' : '' }}>4e</option>
+                            <option value="5e" {{ old('annee_etude', $resident->ANNEEETUDE) == '5e' ? 'selected' : '' }}>5e</option>
+                            <option value="6e" {{ old('annee_etude', $resident->ANNEEETUDE) == '6e' ? 'selected' : '' }}>6e</option>
+                            <option value="7e" {{ old('annee_etude', $resident->ANNEEETUDE) == '7e' ? 'selected' : '' }}>7e</option>
+                            <option value="jeune travailleur" {{ old('annee_etude', $resident->ANNEEETUDE) == 'jeune travailleur' ? 'selected' : '' }}>jeune travailleur</option>
                         </select>
                     </div>
                 </div>
